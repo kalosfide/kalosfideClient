@@ -1,0 +1,8 @@
+<h4>{{ titre }}</h4>
+<ng-container *ngIf="complet | async; then formulaire_; else attente_"></ng-container>
+
+<ng-template #formulaire_>
+<app-kf-composant [composant]="formulaire" (output)="traite($event)"></app-kf-composant>
+</ng-template>
+
+<ng-template #attente_>Chargement en cours</ng-template>

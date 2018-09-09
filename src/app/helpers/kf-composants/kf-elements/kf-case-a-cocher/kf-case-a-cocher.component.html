@@ -1,0 +1,12 @@
+<div class="form-check">
+    <label *ngIf="composant.texteImageAvant" #labelElement [attr.for]="composant.nom" class="form-check-label">
+        <app-kf-texte-image [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </label>
+    <input type='checkbox' #inputElement [name]="composant.nom" [formControl]="composant.formControl" [class]="classe" />
+    <label *ngIf="composant.texteImageApres" #labelElement [attr.for]="composant.nom" class="form-check-label">
+        <app-kf-texte-image [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </label>
+    <div class="invalid-feedback">
+        <p *ngFor="let erreur of composant.erreurs">{{erreur}}</p>
+    </div>
+</div>

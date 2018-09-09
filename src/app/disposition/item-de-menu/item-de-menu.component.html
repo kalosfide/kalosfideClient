@@ -1,0 +1,22 @@
+<ng-container *ngIf="item.route; then lien_; else sousMenu_"></ng-container>
+
+<ng-template #lien_>
+    <a class="nav-link" [routerLink]="item.route">{{ item.texte }}</a>
+</ng-template>
+
+<ng-template #sousMenu_>
+
+    <div class="dropdown">
+        <button [attr.id]="'button-' + item.nom" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+            aria-expanded="false">
+            {{ item.texte }}
+            <span class="caret"></span>
+        </button>
+        <div [attr.id]="'dropdown-' + item.nom" class="dropdown-menu" role="menu" [attr.aria-labelledby]="'button-' + item.nom">
+            <li *ngFor="let itm of item.sousMenu" role="menuitem">
+                <a class="dropdown-item" [routerLink]="itm.route">{{ itm.texte }}</a>
+            </li>
+        </div>
+    </div>
+
+</ng-template>

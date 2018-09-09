@@ -1,0 +1,17 @@
+<div class="form-group">
+    <select
+        #selectElement
+        [name]="composant.nom"
+        [formControl]="composant.formControl"
+        [class]="composant.classe"
+    >
+        <ng-container *ngFor="let option of composant.options">
+            <option #optionElement *ngIf="!option.estObject && !option.valeur">{{ option.texte }}</option>
+            <option #optionElement *ngIf="!option.estObject && option.valeur" [value]="option.valeur">{{ option.texte }}</option>
+            <option #optionElement *ngIf="option.estObject" [ngValue]="option.valeur">{{ option.texte }}</option>
+        </ng-container>
+    </select>
+    <div class="invalid-feedback">
+        <p *ngFor="let erreur of composant.erreurs">{{erreur}}</p>
+    </div>
+</div>

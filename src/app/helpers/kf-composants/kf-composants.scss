@@ -1,0 +1,53 @@
+.ng-valid[required], .ng-valid.required  {
+    border-left: 5px solid #42A948; /* green */
+}
+
+.ng-invalid:not(form)  {
+    border-left: 5px solid #a94442; /* red */
+}
+
+.kf-invisible {
+    display: none;
+}
+
+.kf-enligne {
+    display: inline;
+}
+
+.kf-bouton {
+    cursor: pointer;
+    cursor: hand;
+}
+.kf-bouton:disabled {
+    cursor: pointer;
+}
+
+.kf-bouton.kf-choisi  {
+    color: blue;
+}
+div.kf-choisi {
+    border: 1px solid blue;
+}
+
+.kf-menu-vertical .kf-ferme .kf-sous-menu {
+    display: none;
+}
+
+div.kf-sous-menu.kf-menu-horizontal {
+    display: inline;
+}
+.kf-table {
+	display: table;
+	padding: 6px;
+}
+.kf-table .kf-thead {
+	display: table-header-group;
+	padding: 6px;
+}
+.kf-table .kf-row {
+	display: table-row;
+}
+.kf-table .kf-cell {
+	margin: 6px;
+	display: table-cell;
+}

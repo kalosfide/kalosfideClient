@@ -1,0 +1,10 @@
+<div class="form-group">
+    <label #labelElement [attr.for]="composant.nom">
+        <app-kf-texte-image *ngIf="composant.texteImage" [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </label>
+    <input #inputElement [name]="composant.nom" [class]="classe" [type]="composant.typeDInput" [formControl]="composant.formControl"
+    />
+    <div class="invalid-feedback">
+        <p *ngFor="let erreur of composant.erreurs">{{erreur}}</p>
+    </div>
+</div>

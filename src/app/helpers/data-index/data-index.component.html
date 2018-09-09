@@ -1,0 +1,30 @@
+<h5>{{ titre }}</h5>
+<hr>
+<ng-container *ngIf="avantTable">
+    <app-kf-composant [composant]="avantTable"></app-kf-composant>
+    <hr>
+</ng-container>
+<table class="table">
+    <thead>
+        <tr>
+            <ng-container *ngFor="let colonne of colonnes">
+                <th>{{ colonne }}</th>
+            </ng-container>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <ng-container *ngFor="let item of items$ | async">
+            <tr>
+                <ng-container *ngFor="let colonne of colonnes">
+                    <td>{{ valeur(item, colonne) }}</td>
+                </ng-container>
+                <td>
+                    <ng-container *ngFor="let commande of commandes(item)">
+                        <app-kf-composant [composant]="commande"></app-kf-composant>
+                    </ng-container>
+                </td>
+            </tr>
+        </ng-container>
+    </tbody>
+</table>

@@ -1,0 +1,39 @@
+<h5>{{ titre }}</h5>
+<hr>
+<a routerLink="./ajouter">Ajouter un site</a>
+<hr>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Nom
+            </th>
+            <th>
+                Titre
+            </th>
+            <th>
+                Date
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <ng-container *ngFor="let item of siteInfos$ | async">
+            <tr>
+                <td>
+                    {{ item.nom }}
+                </td>
+                <td>
+                    {{ item.titre }}
+                </td>
+                <td>
+                    {{ item.date }}
+                </td>
+                <td>
+                    <a [routerLink]="'./editer/' + item.id">Editer</a> / 
+                    <a [routerLink]="'./supprimer/' + item.id">Supprimer</a>
+                </td>
+            </tr>
+        </ng-container>
+    </tbody>
+</table>
