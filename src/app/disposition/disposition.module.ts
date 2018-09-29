@@ -2,20 +2,22 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
-import { HelpersModule } from '../helpers/helpers.module';
+import { CommunModule } from '../commun/commun.module';
 
 import { MenuComponent } from './menu/menu.component';
 import { ItemDeMenuComponent } from './item-de-menu/item-de-menu.component';
 import { SousMenuComponent } from './sous-menu/sous-menu.component';
 import { PiedComponent } from './pied/pied.component';
 import { MenuConnectionComponent } from './menu-connection/menu-connection.component';
-import { PageComponent } from './page/page.component';
+import { DispositionComponent } from './disposition/disposition.component';
+import { PageInterditeComponent } from './page-message/page-interdite.component';
+import { PageIntrouvableComponent } from './page-message/page-introuvable.component';
 
 @NgModule({
     imports: [
         CommonModule,
         RouterModule,
-        HelpersModule
+        CommunModule
     ],
     declarations: [
         MenuComponent,
@@ -23,15 +25,12 @@ import { PageComponent } from './page/page.component';
         ItemDeMenuComponent,
         MenuConnectionComponent,
         PiedComponent,
-        PageComponent,
-        ItemDeMenuComponent,
+        DispositionComponent,
+        PageInterditeComponent,
+        PageIntrouvableComponent,
     ],
     exports: [
-        MenuComponent,
-        MenuConnectionComponent,
-        SousMenuComponent,
-        PiedComponent,
-        PageComponent,
+        DispositionComponent,
     ],
 })
 export class DispositionModule { }

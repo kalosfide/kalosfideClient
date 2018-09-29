@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { HelpersModule } from '../helpers/helpers.module';
+import { CommunModule } from '../commun/commun.module';
 import { DispositionModule } from '../disposition/disposition.module';
 
 import { FournisseurRoutingModule } from './fournisseur-routing.module';
@@ -10,7 +10,7 @@ import { FournisseurIndexComponent } from './fournisseur-index/fournisseur-index
 @NgModule({
     imports: [
         CommonModule,
-        HelpersModule,
+        CommunModule,
         DispositionModule,
         FournisseurRoutingModule
     ],

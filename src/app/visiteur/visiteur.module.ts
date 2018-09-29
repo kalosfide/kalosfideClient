@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { HelpersModule } from '../helpers/helpers.module';
+import { CommunModule } from '../commun/commun.module';
 import { DispositionModule } from '../disposition/disposition.module';
 
 import { VisiteurRoutingModule } from './visiteur-routing.module';
@@ -12,7 +12,7 @@ import { AProposComponent } from './a-propos/a-propos.component';
 @NgModule({
     imports: [
         CommonModule,
-        HelpersModule,
+        CommunModule,
         DispositionModule,
         VisiteurRoutingModule
     ],

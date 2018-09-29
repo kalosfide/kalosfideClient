@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { IdentificationService } from '../sécurité/identification.service';
+import { IdentificationService } from '../securite/identification.service';
 import { IMenu } from './imenu';
 import { VisiteurMenu, SansRoleMenu } from './menu';
 

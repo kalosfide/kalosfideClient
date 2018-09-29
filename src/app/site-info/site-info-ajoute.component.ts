@@ -1,54 +1,50 @@
 import { Component } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
+
+import { KfTexte } from '../commun/kf-composants/kf-elements/kf-texte/kf-texte';
+import { KfValidateurs } from '../commun/kf-composants/kf-partages/kf-validateur';
+import { KfBouton } from '../commun/kf-composants/kf-elements/kf-bouton/kf-bouton';
+import { KfTypeDeBouton } from '../commun/kf-composants/kf-composants-types';
+import { KfLien } from '../commun/kf-composants/kf-elements/kf-lien/kf-lien';
+
+import { ApiResult } from '../commun/api-results/api-result';
+
 import { SiteInfoService } from './site-info.service';
-import { KfTexte } from '../helpers/kf-composants/kf-elements/kf-texte/kf-texte';
-import { KfValidateurs } from '../helpers/kf-composants/kf-partages/kf-validateur';
-import { ApiResult } from '../helpers/api-results/api-result';
-import { SiteInfoActionComponent } from './site-info-action.component';
-import { KfBouton } from '../helpers/kf-composants/kf-elements/kf-bouton/kf-bouton';
-import { KfTypeDeBouton } from '../helpers/kf-composants/kf-composants-types';
-import { KfLien } from '../helpers/kf-composants/kf-elements/kf-lien/kf-lien';
+import { Title } from '@angular/platform-browser';
+import { AttenteAsyncService } from '../services/attenteAsync.service';
+import { TitreHtmlService } from '../services/titreHtml.service';
+
+import { SiteInfoALESComponent } from './site-info-ales.component';
+import { DataApiRoutes } from '../commun/data-par-key/data-api-routes';
 
 @Component({
-    selector: 'app-site-info-index',
-    templateUrl: '../helpers/formulaire/formulaire.component.html',
+    templateUrl: '../disposition/page-base/page-base.component.html',
     styles: []
 })
-export class SiteInfoAjouteComponent extends SiteInfoActionComponent {
+export class SiteInfoAjouteComponent extends SiteInfoALESComponent {
+
+    action = DataApiRoutes.Api.ajoute;
+
+    nom = 'siteinfo_ajout';
+    titreHtml = 'Siteinfo - ajout';
+    titre = 'Ajouter un nouveau site';
 
     constructor(
         protected router: Router,
         protected route: ActivatedRoute,
-        protected service: SiteInfoService
+        protected service: SiteInfoService,
+        protected titleService: Title,
+        protected titreHtmlService: TitreHtmlService,
+        protected attenteAsyncService: AttenteAsyncService,
     ) {
-        super(router, route, service);
-        this.nom = 'siteinfo';
-        this.titre = 'Ajouter un nouveau site';
+        super(router, route, service, titleService, titreHtmlService, attenteAsyncService);
 
         this.boutonsDeFormulaire = [this.créeBoutonSoumettreAsync('Ajouter')];
 
         this.lienRetour = new KfLien('lienRetour', '..', 'Retour à la liste');
 
-        this.soumission = (): Observable<ApiResult> => {
-            return this.siteInfoService.ajoute(this.formulaire.formGroup.value);
-        };
-
         this.titreRésultatErreur = 'Ajout impossible';
-    }
-
-    _créeContenus() {
-        const nom = new KfTexte('nom', 'Nom');
-        nom.AjouteValidateur(KfValidateurs.required);
-        nom.AjouteValidateur(KfValidateurs.longueurMax(200));
-        this.contenus.push(nom);
-        const titre = new KfTexte('titre', 'Titre');
-        titre.AjouteValidateur(KfValidateurs.longueurMax(200));
-        this.contenus.push(titre);
-        const date = new KfTexte('date', 'Date');
-        date.AjouteValidateur(KfValidateurs.longueurMin(4));
-        date.AjouteValidateur(KfValidateurs.longueurMax(4));
-        this.contenus.push(date);
     }
 
     get siteInfoService(): SiteInfoService {

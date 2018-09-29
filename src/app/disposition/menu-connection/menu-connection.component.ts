@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { IdentificationService } from '../../sécurité/identification.service';
+import { IdentificationService } from '../../securite/identification.service';
 import { IItemDeMenu } from '../../menus/imenu';
 
 @Component({

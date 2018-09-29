@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { IdentificationService } from '../../sécurité/identification.service';
-import { Identifiant } from '../../sécurité/identifiant';
+import { IdentificationService } from '../../securite/identification.service';
+import { Identifiant } from '../../securite/identifiant';
 
 @Component({
   selector: 'app-utilisateur-index',

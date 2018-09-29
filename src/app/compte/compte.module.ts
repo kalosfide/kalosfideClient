@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { HelpersModule } from '../helpers/helpers.module';
+import { CommunModule } from '../commun/commun.module';
 import { CompteRoutingModule } from './compte-routing.module';
 
 import { EnregistrementComponent } from './enregistrement/enregistrement.component';
@@ -12,7 +12,7 @@ import { UtilisateurService } from './services/utilisateur.service';
 @NgModule({
     imports: [
         CommonModule,
-        HelpersModule,
+        CommunModule,
         CompteRoutingModule,
     ],
     declarations: [

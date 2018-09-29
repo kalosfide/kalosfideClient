@@ -1,46 +1,53 @@
 import { Component } from '@angular/core';
 
-import { KfComposant } from '../../helpers/kf-composants/kf-composant/kf-composant';
-import { KfLien } from '../../helpers/kf-composants/kf-elements/kf-lien/kf-lien';
-
-import { DataIndexComponent } from '../../helpers/data-index/data-index.component';
+import { KfComposant } from '../../commun/kf-composants/kf-composant/kf-composant';
+import { KfLien } from '../../commun/kf-composants/kf-elements/kf-lien/kf-lien';
 
 import { Role } from './role';
 import { RoleService } from './role.service';
 import { RoleApiRoutes } from './role-api-routes';
+import { IdentificationService } from '../../securite/identification.service';
+import { Title } from '@angular/platform-browser';
+import { AttenteAsyncService } from '../../services/attenteAsync.service';
+import { TitreHtmlService } from '../../services/titreHtml.service';
+
+import { KeyUidNoIndexComponent } from '../../commun/data-par-key/key-uid-no/key-uid-no-index.component';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
-    templateUrl: '../../helpers/data-index/data-index.component.html',
+    templateUrl: '../../disposition/page-base/page-base.component.html',
     styles: []
 })
-export class RoleIndexComponent extends DataIndexComponent<Role> {
+export class RoleIndexComponent extends KeyUidNoIndexComponent<Role> {
+
+    nom = 'liste_roles';
+    titreHtml = 'Role - Liste';
+    titre = 'Liste des roles';
+
+    colonnes = ['Nom', 'Adresse', 'Droit', ''];
+    cellules = (role: Role): (string | KfComposant[])[] => [
+        role.nom,
+        role.adresse,
+        role.type,
+        [
+            this.créeLienEdite(role),
+        ]
+    ]
+    choisie = (role: Role) => this.identification.roleNo() === role.no;
 
     constructor(
-        private service: RoleService
+        private identification: IdentificationService,
+        protected router: Router,
+        protected route: ActivatedRoute,
+        protected service: RoleService,
+        protected titleService: Title,
+        protected titreHtmlService: TitreHtmlService,
+        protected attenteAsyncService: AttenteAsyncService,
     ) {
-        super();
-        this.titre = 'Liste des roles';
-        this.avantTable = new KfLien('ajouter', RoleApiRoutes.Route(RoleApiRoutes.App.ajoute), 'Ajouter un role');
-        this.colonnes = ['Nom', 'Adresse', 'Droit'];
-        this.liste = () => this.service.liste();
-        this.valeur = (role: Role, colonne: string): string => {
-            switch (colonne) {
-                case 'Nom':
-                    return role.nom;
-                case 'Adresse':
-                    return role.adresse;
-                case 'Droit':
-                    return role.type;
-                default:
-                    break;
-            }
-        };
-        this.commandes = (role: Role): KfComposant[] => {
-            const commandes = [
-                new KfLien('editer', RoleApiRoutes.Route(RoleApiRoutes.App.edite))
-            ];
-            return commandes;
-        };
+        super(router, route, service, titleService, titreHtmlService, attenteAsyncService);
+        this.filtrePropriétaire = true;
+        this.apresTable = [new KfLien('ajouter', RoleApiRoutes.Route(RoleApiRoutes.App.ajoute), 'Ajouter un role')];
     }
 
+    fixeAvantTable() { }
 }

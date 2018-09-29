@@ -6,16 +6,17 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app.routing.module';
 
-import { HelpersModule } from './helpers/helpers.module';
-import { AppConfigService } from './services/app-config.service';
-import { IdentificationService } from './sécurité/identification.service';
-import { SiteInfoService } from './site-info/site-info.service';
+import { CommunModule } from './commun/commun.module';
+import { ApiConfigService } from './services/api-config.service';
+import { IdentificationService } from './securite/identification.service';
 import { DispositionModule } from './disposition/disposition.module';
-import { MotDePasseService } from './helpers/mot-de-passe/mot-de-passe.service';
-import { VisiteurExcluGuard } from './sécurité/visiteur-exclu.guard';
-import { AutreService } from './services/autre.service';
+import { MotDePasseService } from './commun/mot-de-passe/mot-de-passe.service';
+import { VisiteurExcluGuard } from './securite/visiteur-exclu.guard';
 import { MenuService } from './menus/menu.service';
-import { QueClientGuard } from './sécurité/que-client.guard';
+import { QueClientGuard } from './securite/que-client.guard';
+import { TitreHtmlService } from './services/titreHtml.service';
+import { AttenteAsyncService } from './services/attenteAsync.service';
+import { SiteInfoStaticService } from './site-info/site-info-static.service';
 
 @NgModule({
     imports: [
@@ -24,7 +25,7 @@ import { QueClientGuard } from './sécurité/que-client.guard';
         ReactiveFormsModule,
         HttpClientModule,
 
-        HelpersModule,
+        CommunModule,
         DispositionModule,
         AppRoutingModule,
     ],
@@ -33,15 +34,16 @@ import { QueClientGuard } from './sécurité/que-client.guard';
     ],
     providers: [
         Title,
-        AppConfigService,
-        MotDePasseService,
+        ApiConfigService,
+        TitreHtmlService,
+        AttenteAsyncService,
         IdentificationService,
+        MenuService, // utilise IdentificationService
+        MotDePasseService,
         VisiteurExcluGuard,
         QueClientGuard,
-        MenuService,
 
-        AutreService,
-        SiteInfoService,
+        SiteInfoStaticService,
     ],
     bootstrap: [AppComponent]
 })

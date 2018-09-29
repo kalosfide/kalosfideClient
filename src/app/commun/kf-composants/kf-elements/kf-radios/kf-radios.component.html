@@ -1,0 +1,8 @@
+<div #divElement [class]="composant.classe">
+    <ng-container *ngFor="let radio of composant.contenus">
+        <app-kf-composant [composant]="radio" (output)="transmet($event)"></app-kf-composant>
+    </ng-container>
+    <div class="invalid-feedback">
+        <p *ngFor="let erreur of composant.erreurs">{{erreur}}</p>
+    </div>
+</div>

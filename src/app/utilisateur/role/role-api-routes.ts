@@ -6,9 +6,14 @@ export const RoleApiRoutes = {
         edite: 'edite',
     },
     Api: {
-        lit: 'lit'
+        lit: 'lit',
+        fournisseurs: 'fournisseurs',
     },
-    Route(segment: string): string {
-        return UtilisateurApiRoutes.Route(UtilisateurApiRoutes.App.role) + '/' + segment;
+    Route(segment: string, no?: number): string {
+        let route = UtilisateurApiRoutes.Route(UtilisateurApiRoutes.App.role) + '/' + segment;
+        if (no) {
+            route = route + '/' + no;
+        }
+        return route;
     }
 };

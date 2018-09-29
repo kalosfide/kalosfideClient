@@ -1,6 +1,6 @@
-import { IIdNo } from '../../services/i-id-no';
+import { IKeyUidNo } from '../../commun/data-par-key/key-uid-no/i-key-uid-no';
 
-export class Role implements IIdNo {
+export class Role implements IKeyUidNo {
     utilisateurId: string;
     no: number;
     type: string;

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { SiteInfoService } from '../../site-info/site-info.service';
 import { SiteInfo } from '../../site-info/site-info';
+import { SiteInfoStaticService } from '../../site-info/site-info-static.service';
 
 @Component({
   selector: 'app-pied',
@@ -11,7 +11,7 @@ export class PiedComponent implements OnInit {
     siteInfo: SiteInfo;
 
     constructor(
-        private service: SiteInfoService
+        private service: SiteInfoStaticService
     ) {
     }
 

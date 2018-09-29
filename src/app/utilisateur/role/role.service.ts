@@ -1,33 +1,33 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable } from 'rxjs';
-
-import { BaseService } from '../../services/base.service';
-import { AppConfigService } from '../../services/app-config.service';
-import { IdentificationService } from '../../sécurité/identification.service';
-import { ApiResult } from '../../helpers/api-results/api-result';
 import { Role } from './role';
-import { IdNoService } from '../../services/id-no.service';
+import { KeyUidNoService } from '../../commun/data-par-key/key-uid-no/key-uid-no.service';
+import { ApiConfigService } from '../../services/api-config.service';
+import { IdentificationService } from '../../securite/identification.service';
+import { Observable } from 'rxjs';
+import { ApiResult } from '../../commun/api-results/api-result';
+import { RoleApiRoutes } from './role-api-routes';
 
 @Injectable()
-export class RoleService extends IdNoService<Role> {
+export class RoleService extends KeyUidNoService<Role> {
 
     public dataUrl = 'role';
 
     constructor(
-        http: HttpClient,
-        config: AppConfigService,
-        identification: IdentificationService
+        private _http: HttpClient,
+        private _apiConfig: ApiConfigService,
+        private _identification: IdentificationService,
     ) {
-        super(http, config, identification);
+        super();
     }
 
-    _créeEntité(utilisateurId: string, no: number): Role {
-        const role = new Role();
-        role.utilisateurId = utilisateurId;
-        role.no = no;
-        return role;
+    get http(): HttpClient { return this._http; }
+    get config(): ApiConfigService { return this._apiConfig; }
+    get identification(): IdentificationService { return this._identification; }
+
+    fournisseurs(): Observable<ApiResult> {
+        return this.readAll<Role>(RoleApiRoutes.Api.fournisseurs);
     }
 
 }

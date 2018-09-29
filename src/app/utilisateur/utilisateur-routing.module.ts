@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { UtilisateurIndexComponent } from './index/utilisateur-index.component';
 import { UtilisateurApiRoutes } from './utilisateur-api-routes';
-import { VisiteurExcluGuard } from '../s\u00E9curit\u00E9/visiteur-exclu.guard';
+import { VisiteurExcluGuard } from '../securite/visiteur-exclu.guard';
 
 const routes: Routes = [
     {

@@ -1,62 +1,53 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ValidationErrors } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
+
+import { KfLien } from '../commun/kf-composants/kf-elements/kf-lien/kf-lien';
+
+import { ApiResult } from '../commun/api-results/api-result';
+
 import { SiteInfoService } from './site-info.service';
-import { ApiResult } from '../helpers/api-results/api-result';
-import { ValidationErrors } from '@angular/forms';
-import { SiteInfoActionComponent } from './site-info-action.component';
-import { KfBouton } from '../helpers/kf-composants/kf-elements/kf-bouton/kf-bouton';
-import { KfTypeDeBouton } from '../helpers/kf-composants/kf-composants-types';
-import { KfLien } from '../helpers/kf-composants/kf-elements/kf-lien/kf-lien';
+import { Title } from '@angular/platform-browser';
+import { AttenteAsyncService } from '../services/attenteAsync.service';
+import { TitreHtmlService } from '../services/titreHtml.service';
+
+import { SiteInfoALESComponent } from './site-info-ales.component';
+import { DataApiRoutes } from '../commun/data-par-key/data-api-routes';
 
 @Component({
-    templateUrl: '../helpers/formulaire/formulaire.component.html',
+    templateUrl: '../disposition/page-base/page-base.component.html',
     styles: []
 })
-export class SiteInfoSupprimeComponent extends SiteInfoActionComponent implements OnInit, OnDestroy {
+export class SiteInfoSupprimeComponent extends SiteInfoALESComponent implements OnInit, OnDestroy {
+
+    action = DataApiRoutes.Api.supprime;
+
+    nom = 'siteinfo_supprime';
+    titreHtml = 'Siteinfo - Supprime';
+    titre = 'Supprimer le site';
 
     subscription: Subscription;
 
     constructor(
         protected router: Router,
         protected route: ActivatedRoute,
-        protected service: SiteInfoService
+        protected service: SiteInfoService,
+        protected titleService: Title,
+        protected titreHtmlService: TitreHtmlService,
+        protected attenteAsyncService: AttenteAsyncService,
     ) {
-        super(router, route, service);
-        this.nom = 'siteinfo';
-        this.titre = 'Supprimer le site';
+        super(router, route, service, titleService, titreHtmlService, attenteAsyncService);
 
-        this.boutonsDeFormulaire = [this.créeBoutonSoumettreAsync('Supprimer')];
-
-        this.initialiseFormulaire = () => {
-            this.contenus.forEach(c => {
-                const f = c.formulaireParent;
-                console.log({ nom: c.nom, inactif: c.inactif });
-                console.log({ nom: f.nom, inactif: f.inactif });
-                if (c !== this.formulaire.groupeBoutonsDeFormulaire) {
-                    c.désactive();
-                }
-                console.log({ nom: c.nom, inactif: c.inactif });
-                console.log({ nom: f.nom, inactif: f.inactif });
-            });
-            this.formulaire.active();
-            console.log(this.formulaire.contenus.map(c => ({ nom: c.nom, inactif: c.inactif })));
-            const error: ValidationErrors = {};
-            error['ASupprimer'] = true;
-            this.formulaire.formGroup.setErrors(error);
-            this.formulaire.formGroup.markAsDirty();
-            console.log(this.formulaire.contenus.map(c => ({ nom: c.nom, inactif: c.inactif })));
-            const result = this._initialiseFormulaire();
-            return result;
-        };
-
-        this.lienRetour = new KfLien('lienRetour', '../..', 'Retour à la liste');
-
-        this.soumission = (): Observable<ApiResult> => {
-            return this.siteInfoService.supprime(this.formulaire.formGroup.value);
-        };
 
         this.titreRésultatErreur = 'Suppression impossible';
+    }
+
+    ngOnInit() {
+        this.ngOnInit_TitreHtml();
+        this.ngOnInit_CréeFormulaire();
+        this.ngOnInit_Charge();
+        this.edition.désactive();
     }
 
     get siteInfoService(): SiteInfoService {

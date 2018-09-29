@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { VisiteurExcluGuard } from './sécurité/visiteur-exclu.guard';
-import { PageIntrouvableComponent } from './helpers/page-message/page-introuvable.component';
-import { PageInterditeComponent } from './helpers/page-message/page-interdite.component';
+import { VisiteurExcluGuard } from './securite/visiteur-exclu.guard';
 import { AppApiRoutes } from './app-api-routes';
-import { PageComponent } from './disposition/page/page.component';
+import { DispositionComponent } from './disposition/disposition/disposition.component';
+import { PageInterditeComponent } from './disposition/page-message/page-interdite.component';
+import { PageIntrouvableComponent } from './disposition/page-message/page-introuvable.component';
 
 const routes: Routes = [
     {
@@ -13,7 +13,7 @@ const routes: Routes = [
         children: [
             {
                 path: '',
-                component: PageComponent,
+                component: DispositionComponent,
                 children: [
                     {
                         path: AppApiRoutes.App.interdit,

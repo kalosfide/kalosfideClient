@@ -1,42 +1,47 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
-import { Observable } from 'rxjs';
-import { take, map } from 'rxjs/operators';
 
-import { ApiResult200Ok } from '../helpers/api-results/api-result-200-ok';
 
 import { SiteInfoService } from './site-info.service';
 import { SiteInfo } from './site-info';
+import { Title } from '@angular/platform-browser';
+import { TitreHtmlService } from '../services/titreHtml.service';
+import { AttenteAsyncService } from '../services/attenteAsync.service';
+import { KeyNumberIndexComponent } from '../commun/data-par-key/key-number/key-number-index.component';
+import { KfComposant } from '../commun/kf-composants/kf-composant/kf-composant';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'app-site-info-index',
-    templateUrl: './site-info-index.component.html',
+    templateUrl: '../disposition/page-base/page-base.component.html',
     styles: []
 })
-export class SiteInfoIndexComponent implements OnInit {
+export class SiteInfoIndexComponent extends KeyNumberIndexComponent<SiteInfo> {
 
-    siteInfos$: Observable<SiteInfo[]>;
+    nom = 'siteinfo_liste';
+    titreHtml = 'Siteinfo - liste';
     titre = 'Liste des sites';
 
+    colonnes = ['Nom', 'Titre', 'Date'];
+    cellules = (ligne: SiteInfo): (string | KfComposant[])[] => {
+        return [ligne.nom, ligne.titre, ligne.date, [
+            this.créeLienEdite(ligne),
+            this.créeLienSupprime(ligne),
+        ]];
+    }
+    choisie = (): boolean => false;
+
     constructor(
-        protected service: SiteInfoService
+        protected router: Router,
+        protected route: ActivatedRoute,
+        protected service: SiteInfoService,
+        protected titleService: Title,
+        protected titreHtmlService: TitreHtmlService,
+        protected attenteAsyncService: AttenteAsyncService,
     ) {
+        super(router, route, service, titleService, titreHtmlService, attenteAsyncService);
     }
 
-    ngOnInit() {
-        this.siteInfos$ = this.service.liste()
-            .pipe(take(1))
-            .pipe(map(
-                apiResult => {
-                    if (apiResult.statusCode === 200) {
-                        const lecture = (apiResult as ApiResult200Ok<SiteInfo[]>).lecture;
-                        if (lecture) {
-                            return lecture;
-                        }
-                    }
-                    return [];
-                }
-            ));
-    }
+    get siteInfos(): SiteInfo[] { return this.liste as SiteInfo[]; }
 
 }

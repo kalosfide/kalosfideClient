@@ -1,0 +1,25 @@
+<table class="table" #tableElement>
+    <thead>
+        <tr>
+            <ng-container *ngFor="let colonne of colonnes">
+                <th>{{ colonne }}</th>
+            </ng-container>
+        </tr>
+    </thead>
+    <tbody>
+        <ng-container *ngFor="let ligne of lignes">
+            <tr [class]="">
+                <ng-container *ngFor="let cellule of ligne">
+                    <td>
+                        <ng-container *ngIf="cellule.texte"> {{ cellule.texte }}</ng-container>
+                        <ng-container *ngIf="cellule.composants">
+                            <ng-container *ngFor="let composant of cellule.composants">
+                                <app-kf-composant [composant]="composant" (output)="traite($event)"></app-kf-composant>
+                            </ng-container>
+                        </ng-container>
+                    </td>
+                </ng-container>
+            </tr>
+        </ng-container>
+    </tbody>
+</table>

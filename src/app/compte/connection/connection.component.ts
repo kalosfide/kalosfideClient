@@ -2,22 +2,26 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 
-import { ApiResult } from '../../helpers/api-results/api-result';
-import { FormulaireComponent } from '../../helpers/formulaire/formulaire.component';
+import { KfTexte } from '../../commun/kf-composants/kf-elements/kf-texte/kf-texte';
+import { KfCaseACocher } from '../../commun/kf-composants/kf-elements/kf-case-a-cocher/kf-case-a-cocher';
+import { KfLien } from '../../commun/kf-composants/kf-elements/kf-lien/kf-lien';
+import { KfAfficheResultat } from '../../commun/kf-composants/kf-elements/kf-affiche-resultat/kf-affiche-resultat';
+import { KfResultatAffichable } from '../../commun/kf-composants/kf-elements/kf-affiche-resultat/kf-resultat-affichable';
+import { KfTypeResultatAffichable } from '../../commun/kf-composants/kf-elements/kf-affiche-resultat/kf-type-resultat-affichable';
 
-import { KfTexte } from '../../helpers/kf-composants/kf-elements/kf-texte/kf-texte';
-import { KfCaseACocher } from '../../helpers/kf-composants/kf-elements/kf-case-a-cocher/kf-case-a-cocher';
 import { UtilisateurService } from '../services/utilisateur.service';
-import { AppApiRoutes } from '../../app-api-routes';
-import { IdentificationService } from '../../s\u00E9curit\u00E9/identification.service';
-import { KfLien } from '../../helpers/kf-composants/kf-elements/kf-lien/kf-lien';
+import { IdentificationService } from '../../securite/identification.service';
+import { Title } from '@angular/platform-browser';
+import { AttenteAsyncService } from '../../services/attenteAsync.service';
+import { TitreHtmlService } from '../../services/titreHtml.service';
+
+import { ApiResult } from '../../commun/api-results/api-result';
 import { CompteApiRoutes } from '../compte-api-routes';
+
 import { ConnectionModel } from './connection.model';
-import { KfAfficheResultat } from '../../helpers/kf-composants/kf-elements/kf-affiche-resultat/kf-affiche-resultat';
-import {
-    KfResultatAffichable,
-    KfTypeResultatAffichable
-} from '../../helpers/kf-composants/kf-elements/kf-affiche-resultat/kf-resultat-affichable';
+
+import { FormulaireComponent } from '../../disposition/formulaire/formulaire.component';
+import { KfGroupe } from '../../commun/kf-composants/kf-groupe/kf-groupe';
 
 const titreVientDEnregistrer = 'Félicitations. Vous avez maintenent votre compte.';
 const détailsVientDEnregistrer: string[] = [
@@ -26,22 +30,41 @@ const détailsVientDEnregistrer: string[] = [
 ];
 
 @Component({
-    selector: 'app-connection',
-    templateUrl: '../../helpers/formulaire/formulaire.component.html',
+    templateUrl: '../../disposition/page-base/page-base.component.html',
     styles: []
 })
 export class ConnectionComponent extends FormulaireComponent {
 
+    nom = 'connection';
+    titreHtml = 'Connection';
+    titre = 'Connection';
+
+    créeBoutonsDeFormulaire = () => [this.créeBoutonSoumettreAsync('Se connecter')];
+    soumission = (): Observable<ApiResult> => {
+        return this.service.connecte(this.valeur);
+    }
+
+    actionSiOk = (): void => {
+        console.log(this.identification.retourUrl);
+        this.router.navigate([this.identification.retourUrl]);
+    }
+
     constructor(
         private router: Router,
         private identification: IdentificationService,
-        protected service: UtilisateurService
+        protected service: UtilisateurService,
+        protected titleService: Title,
+        protected titreHtmlService: TitreHtmlService,
+        protected attenteAsyncService: AttenteAsyncService,
     ) {
-        super(service);
-        this.nom = 'connection';
-        this.titre = 'Connection';
+        super(service, titleService, titreHtmlService, attenteAsyncService);
 
-        this.boutonsDeFormulaire = [this.créeBoutonSoumettreAsync('Se connecter')];
+        this.chargeAsync = null;
+        this.titreRésultatErreur = 'Connection impossible';
+    }
+
+    créeEdition = (): KfGroupe => {
+        const groupe = new KfGroupe('donnees');
 
         if (this.identification.vientDEnregistrer) {
             const afficheResultatEnregistre = new KfAfficheResultat('resultatEnregistre');
@@ -50,50 +73,31 @@ export class ConnectionComponent extends FormulaireComponent {
                 titreVientDEnregistrer,
                 détailsVientDEnregistrer
             ));
-            this.contenus.push(afficheResultatEnregistre);
+            groupe.ajoute(afficheResultatEnregistre);
         }
 
         const nom = new KfTexte('userName', 'Nom');
         nom.requis = true;
-        this.contenus.push(nom);
+        groupe.ajoute(nom);
         const password = new KfTexte('password', 'Mot de passe');
         password.typeDInput = 'password';
         password.requis = true;
-        this.contenus.push(password);
+        groupe.ajoute(password);
         const persistant = new KfCaseACocher('persistant', 'Rester connecté');
         persistant.caseAprés = true;
         persistant.valeur = false;
-        this.contenus.push(persistant);
+        groupe.ajoute(persistant);
 
-        this.initialiseFormulaire = (): Observable<boolean> => {
-            const unp = this.identification.vientDEnregistrer;
-            if (unp) {
-                const connectionModel = new ConnectionModel();
-                connectionModel.userName = unp.un;
-                connectionModel.password = unp.p;
-                connectionModel.persistant = false;
-                this.identification.fixeVientDEnregistrer();
-                this.formulaire.gereValeur.rétablit(connectionModel);
-                this.formulaire.formGroup.setValue(connectionModel);
-                this.formulaire.formGroup.markAsDirty();
-            }
-            return of(true);
-        };
-
-        this.soumission = (): Observable<ApiResult> => {
-            return this.service.connecte(this.formulaire.formGroup.value);
-        };
-
-        if (!this.identification.vientDEnregistrer) {
+        const unp = this.identification.vientDEnregistrer;
+        if (unp) {
+            nom.valeur = unp.un;
+            password.valeur = unp.p;
+        } else {
             this.lienRetour = new KfLien('lienRetour', CompteApiRoutes.Route(CompteApiRoutes.App.enregistrement),
                 'Pas de compte ? Enregistrez-vous.');
         }
 
-        this.actionSiOk = (): void => {
-            console.log(this.identification.retourUrl);
-            this.router.navigate([this.identification.retourUrl]);
-        };
-        this.titreRésultatErreur = 'Connection impossible';
+        return groupe;
     }
 
 }

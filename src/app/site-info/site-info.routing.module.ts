@@ -18,20 +18,20 @@ const routes: Routes = [
             },
             {
                 path: 'ajouter',
-                component: SiteInfoAjouteComponent
+                component: SiteInfoAjouteComponent,
             },
             {
                 path: 'editer/:id',
                 component: SiteInfoEditeComponent,
                 resolve: {
-                    siteInfo: SiteInfoResolverService
+                    key: SiteInfoResolverService
                 }
             },
             {
                 path: 'supprimer/:id',
                 component: SiteInfoSupprimeComponent,
                 resolve: {
-                    id: SiteInfoResolverService
+                    key: SiteInfoResolverService
                 }
             }
         ]

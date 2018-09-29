@@ -1,42 +1,42 @@
 import { Component } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
+
+import { KfLien } from '../commun/kf-composants/kf-elements/kf-lien/kf-lien';
+
+import { ApiResult } from '../commun/api-results/api-result';
+
 import { SiteInfoService } from './site-info.service';
-import { ApiResult } from '../helpers/api-results/api-result';
-import { SiteInfoActionComponent } from './site-info-action.component';
-import { KfBouton } from '../helpers/kf-composants/kf-elements/kf-bouton/kf-bouton';
-import { KfTypeDeBouton } from '../helpers/kf-composants/kf-composants-types';
-import { KfLien } from '../helpers/kf-composants/kf-elements/kf-lien/kf-lien';
+import { Title } from '@angular/platform-browser';
+import { AttenteAsyncService } from '../services/attenteAsync.service';
+import { TitreHtmlService } from '../services/titreHtml.service';
+
+import { SiteInfoALESComponent } from './site-info-ales.component';
+import { DataApiRoutes } from '../commun/data-par-key/data-api-routes';
 
 @Component({
-    templateUrl: '../helpers/formulaire/formulaire.component.html',
+    templateUrl: '../disposition/page-base/page-base.component.html',
     styles: []
 })
-export class SiteInfoEditeComponent extends SiteInfoActionComponent {
+export class SiteInfoEditeComponent extends SiteInfoALESComponent {
+
+    action = DataApiRoutes.Api.edite;
+
+    nom = 'siteinfo_';
+    titreHtml = 'Siteinfo - ';
+    titre = 'Editer le site';
 
     constructor(
         protected router: Router,
         protected route: ActivatedRoute,
-        protected service: SiteInfoService
+        protected service: SiteInfoService,
+        protected titleService: Title,
+        protected titreHtmlService: TitreHtmlService,
+        protected attenteAsyncService: AttenteAsyncService,
     ) {
-        super(router, route, service);
-        this.titre = 'Editer le site';
-
-        this.boutonsDeFormulaire = [this.créeBoutonSoumettreAsync('Mettre à jour')];
-
-        this.lienRetour = new KfLien('lienRetour', '../..', 'Retour à la liste');
-
-        this.initialiseFormulaire = () => this._initialiseFormulaire();
-
-        this.soumission = (): Observable<ApiResult> => {
-                return this.service.edite(this.formulaire.formGroup.value);
-        };
+        super(router, route, service, titleService, titreHtmlService, attenteAsyncService);
 
         this.titreRésultatErreur = 'Mise à jour impossible';
-    }
-
-    get siteInfoService(): SiteInfoService {
-        return this.service as SiteInfoService;
     }
 
 }
