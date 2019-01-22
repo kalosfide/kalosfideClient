@@ -1,0 +1,12 @@
+<ng-container *ngIf="texteImage.imageAvant">
+    <app-kf-image-def [imageDef]="texteImage.imageAvant"></app-kf-image-def>
+</ng-container>
+<ng-container *ngIf="texteImage.texte">
+    <span #spanTexte> {{ texteImage.texte }} </span>
+</ng-container>
+<ng-container *ngIf="texteImage.date">
+    <span #spanTexte> {{ texteImage.date | date }} </span>
+</ng-container>
+<ng-container *ngIf="texteImage.imageApres">
+    <app-kf-image-def [imageDef]="texteImage.imageApres"></app-kf-image-def>
+</ng-container>

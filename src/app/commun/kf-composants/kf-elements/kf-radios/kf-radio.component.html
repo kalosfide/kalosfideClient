@@ -1,0 +1,7 @@
+<div class="form-group form-check">
+    <input #inputElement type='radio' [name]="composant.radios.nom" [formControl]="composant.radios.formControl"
+        [value]="composant.valeur" [class]="composant.classe"  /><!--[appInactif]="composant.inactif" -->
+    <label *ngIf="composant.texteImage" #labelElement [attr.for]="composant.nom" class="form-check-label">
+        <app-kf-texte-image [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </label>
+</div>

@@ -5,17 +5,23 @@ import { CommunModule } from '../commun/commun.module';
 import { DispositionModule } from '../disposition/disposition.module';
 
 import { ClientRoutingModule } from './client-routing.module';
-import { ClientIndexComponent } from './client-index/client-index.component';
+import { CAccueilComponent } from './c-accueil.component';
+import { MessagesModule } from '../messages/messages.module';
+import { ModelesModule } from '../modeles/modeles.module';
+import { CProduitsComponent } from './c-produits.component';
 
 @NgModule({
     imports: [
         CommonModule,
         CommunModule,
+        ModelesModule,
         DispositionModule,
+        MessagesModule,
         ClientRoutingModule
     ],
     declarations: [
-        ClientIndexComponent,
+        CAccueilComponent,
+        CProduitsComponent,
     ]
 })
 export class ClientModule { }

@@ -1,15 +1,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { KfTexteImageComponent } from './kf-partages/kf-texte-image';
+import { DateValueAccessorModule } from 'angular-date-value-accessor';
+
 import { KfComposantComponent } from './kf-composant/kf-composant.component';
 import { KfBoutonComponent } from './kf-elements/kf-bouton/kf-bouton.component';
 import { KfEtiquetteComponent } from './kf-elements/kf-etiquette/kf-etiquette.component';
 import { KfCaseACocherComponent } from './kf-elements/kf-case-a-cocher/kf-case-a-cocher.component';
 import { KfRadiosComponent } from './kf-elements/kf-radios/kf-radios.component';
 import { KfListeDeroulanteComponent } from './kf-elements/kf-liste-deroulante/kf-liste-deroulante.component';
-import { KfNombreComponent } from './kf-elements/kf-nombre/kf-nombre.component';
-import { KfTexteComponent } from './kf-elements/kf-texte/kf-texte.component';
 import { KfVueJsonComponent } from './kf-elements/kf-vue-json/kf-vue-json.component';
 import { KfGroupeComponent } from './kf-groupe/kf-groupe.component';
 import { KfListeComponent } from './kf-liste/kf-liste.component';
@@ -26,19 +25,25 @@ import { OutilsModule } from '../outils/outils.module';
 import { KfDialogueComponent } from './kf-dialogue/kf-dialogue.component';
 import { KfDialogueService } from './kf-dialogue/kf-dialogue.service';
 import { KfAfficheResultatComponent } from './kf-elements/kf-affiche-resultat/kf-affiche-resultat.component';
-import { DialogueModule } from '../dialogue/dialogue.module';
-import { KfVueTableComponent } from './kf-elements/kf-vue-table/kf-vue-table.component';
+import { KfVueTableComponent } from './kf-vue-table/kf-vue-table.component';
+import { KfImageDefComponent } from './kf-partages/kf-image-def/kf-image-def.component';
+import { KfTexteImageComponent } from './kf-partages/kf-texte-image/kf-texte-image.component';
+import { KfUlComponent } from './kf-ul-li/kf-ul.component';
+import { KfLiComponent } from './kf-ul-li/kf-li.component';
+import { KfInputComponent } from './kf-elements/kf-input/kf-input.component';
+import { KfInactifDirective } from './kf-partages/kf-inactif.directive';
 
 @NgModule({
   imports: [
     CommonModule,
+    DateValueAccessorModule,
     FormsModule,
     ReactiveFormsModule,
     OutilsModule,
-    DialogueModule,
     KfComposantsRoutingModule,
   ],
   declarations: [
+      KfImageDefComponent,
       KfTexteImageComponent,
       KfComposantComponent,
       KfGroupeComponent,
@@ -54,21 +59,25 @@ import { KfVueTableComponent } from './kf-elements/kf-vue-table/kf-vue-table.com
       KfListeDeroulanteComponent,
       KfMenuComponent,
       KfSousMenuComponent,
-      KfNombreComponent,
+      KfInputComponent,
       KfRadioComponent,
       KfRadiosComponent,
-      KfTexteComponent,
       KfVueJsonComponent,
       KfDialogueComponent,
       KfAfficheResultatComponent,
       KfVueTableComponent,
+      KfUlComponent,
+      KfLiComponent,
+      KfInactifDirective,
   ],
   providers: [
       KfDialogueService,
   ],
   exports: [
+      KfImageDefComponent,
       KfTexteImageComponent,
-      KfComposantComponent
+      KfComposantComponent,
+      KfInactifDirective,
   ]
 })
 export class KfComposantsModule { }

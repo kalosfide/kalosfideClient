@@ -4,24 +4,24 @@ import { CommonModule } from '@angular/common';
 import { CommunModule } from '../commun/commun.module';
 import { CompteRoutingModule } from './compte-routing.module';
 
-import { EnregistrementComponent } from './enregistrement/enregistrement.component';
 import { ConnectionComponent } from './connection/connection.component';
 import { DeconnectionComponent } from './deconnection/deconnection.component';
-import { UtilisateurService } from './services/utilisateur.service';
+import { CompteService } from './compte.service';
+import { DispositionModule } from '../disposition/disposition.module';
 
 @NgModule({
     imports: [
         CommonModule,
         CommunModule,
+        DispositionModule,
         CompteRoutingModule,
     ],
     declarations: [
-        EnregistrementComponent,
         ConnectionComponent,
         DeconnectionComponent,
     ],
     providers: [
-        UtilisateurService,
+        CompteService,
     ],
 })
 export class CompteModule { }

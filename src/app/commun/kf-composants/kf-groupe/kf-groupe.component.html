@@ -1,6 +1,6 @@
 <ng-template #contenus>
     <ng-container *ngFor="let contenu of composant.contenus; index as i">
-        <app-kf-composant [attr.nom]="contenu.nom" [ngClass]="{'kf-invisible': !contenu.visible}" [composant]="contenu" (output)="transmet($event)">
+        <app-kf-composant [attr.nom]="contenu.nom" [class.kf-invisible]="!contenu.visible" [composant]="contenu" (output)="transmet($event)">
         </app-kf-composant>
     </ng-container>
 </ng-template>
@@ -12,7 +12,7 @@
 
 <ng-template #formulaire>
     <!--" --> 
-    <form #htmlElement [formGroup]="composant.formGroup" novalidate [class]="'was-validated' + composant.classe">
+    <form #htmlElement [formGroup]="formGroup" novalidate [class]="'form-group was-validated ' + composant.classe" [class.kf-invisible]="!composant.visible">
         <div class="invalid-feedback">
             <p *ngFor="let erreur of composant.erreurs">{{erreur}}</p>
         </div>
@@ -21,12 +21,12 @@
 </ng-template>
 
 <ng-template #avecFormGroup>
-    <div #htmlElement [formGroup]="composant.formGroup" [class]="composant.classe">
+    <div #htmlElement [formGroup]="formGroup" [class]="'form-group ' + composant.classe"  [class.kf-invisible]="!composant.visible">
         <ng-container *ngTemplateOutlet="contenus"></ng-container>
     </div>
 </ng-template>
 <ng-template #sansFormGroup>
-    <div #htmlElement [class]="composant.classe">
+    <div #htmlElement [class.kf-invisible]="!composant.visible" [class.form-group]="composant.estDansFormulaire" [ngClass]="composant.classe">
         <ng-container *ngTemplateOutlet="contenus"></ng-container>
     </div>
 </ng-template>

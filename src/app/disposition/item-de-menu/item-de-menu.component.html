@@ -1,22 +1,35 @@
-<ng-container *ngIf="item.route; then lien_; else sousMenu_"></ng-container>
-
-<ng-template #lien_>
-    <a class="nav-link" [routerLink]="item.route">{{ item.texte }}</a>
-</ng-template>
-
-<ng-template #sousMenu_>
-
-    <div class="dropdown">
-        <button [attr.id]="'button-' + item.nom" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-            aria-expanded="false">
-            {{ item.texte }}
-            <span class="caret"></span>
-        </button>
-        <div [attr.id]="'dropdown-' + item.nom" class="dropdown-menu" role="menu" [attr.aria-labelledby]="'button-' + item.nom">
-            <li *ngFor="let itm of item.sousMenu" role="menuitem">
-                <a class="dropdown-item" [routerLink]="itm.route">{{ itm.texte }}</a>
-            </li>
+<ng-container [ngSwitch]="item.type">
+    <ng-container *ngSwitchCase="'item'">
+        <a [ngClass]="{'nav-link': true, 'disabled': item.inactif, 'navbar-brand': item.navBarBrand }" [routerLink]="route" routerLinkActive="active">
+            <app-kf-texte-image [texteImage]="texteImage"></app-kf-texte-image>
+        </a>
+    </ng-container>
+    <ng-container *ngSwitchCase="'dropDown'">
+        <div class="dropdown">
+            <button [attr.id]="'button-' + item.nom" type="button" class="btn dropdown-toggle" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false" [disabled]="item.inactif">
+                <app-kf-texte-image [texteImage]="texteImage"></app-kf-texte-image>
+                <span class="caret"></span>
+            </button>
+            <div [attr.id]="'dropdown-' + item.nom" [ngClass]="{'dropdown-menu': true, 'dropdown-menu-right': item.sousMenuADroite }"
+                role="menu" [attr.aria-labelledby]="'button-' + item.nom">
+                <ng-container *ngFor="let itm of item.sousMenu">
+                    <app-item-de-menu [item]="itm"></app-item-de-menu>
+                </ng-container>
+            </div>
         </div>
-    </div>
-
-</ng-template>
+    </ng-container>
+    <ng-container *ngSwitchCase="'dropDownItem'">
+        <li role="menuitem">
+            <a [ngClass]="{'dropdown-item': true, 'disabled': item.inactif}" [routerLink]="route">{{ item.texte }}</a>
+        </li>
+    </ng-container>
+    <ng-container *ngSwitchCase="'dropDownGroup'">
+        <ng-container *ngIf="item.sousMenu.length > 0">
+            <div class="dropdown-divider"></div>
+            <li *ngFor="let itm of item.sousMenu" role="menuitem">
+                <a [ngClass]="{'dropdown-item': true, 'disabled': itm.inactif}" [routerLink]="itm.route">{{ itm.texte }}</a>
+            </li>
+        </ng-container>
+    </ng-container>
+</ng-container>

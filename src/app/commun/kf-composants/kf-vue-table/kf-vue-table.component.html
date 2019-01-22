@@ -1,0 +1,61 @@
+<ng-template #enTetesTemplate>
+    <ng-container *ngFor="let enTete of vueTable.enTetes">
+        <th>
+            {{ enTete.texte }}
+            <span *ngIf="enTete.tri" [class]="'fas fa-' + icone(enTete)" (click)="trie(enTete)"></span>
+        </th>
+    </ng-container>
+    <th *ngIf="vueTable.avecCommandes"></th>
+</ng-template>
+
+<ng-template #ligneTemplate let-ligne="ligne1">
+    <ng-container *ngFor="let cellule of ligne.cellules">
+        <td>
+            <ng-container *ngIf="cellule.texte">{{ cellule.texte }}</ng-container>
+            <ng-container *ngIf="cellule.composant">
+                <app-kf-composant [composant]="cellule.composant" (output)="transmet($event)"></app-kf-composant>
+            </ng-container>
+        </td>
+    </ng-container>
+    <td *ngIf="ligne.commandes">
+        <ng-container *ngFor="let commande of ligne.commandes">
+            <app-kf-composant [composant]="commande" (output)="transmet($event)"></app-kf-composant>
+        </ng-container>
+    </td>
+</ng-template>
+
+<ng-container *ngIf="vueTable.avecValeur; then thenTemplate; else elseTemplate"></ng-container>
+
+<ng-template #thenTemplate>
+    <table class="table" #tableElement>
+        <thead *ngIf="vueTable.enTetes">
+            <tr>
+                <ng-container *ngTemplateOutlet="enTetesTemplate"></ng-container>
+            </tr>
+        </thead>
+        <tbody>
+            <ng-container *ngFor="let ligne of vueTable.lignes">
+                <tr [class]="" [formGroup]="ligne.formGroup">
+                    <ng-container *ngTemplateOutlet="ligneTemplate; context: { ligne1: ligne }"></ng-container>
+                </tr>
+            </ng-container>
+        </tbody>
+    </table>
+</ng-template>
+
+<ng-template #elseTemplate>
+    <table class="table" #tableElement>
+        <thead *ngIf="vueTable.enTetes">
+            <tr>
+                <ng-container *ngTemplateOutlet="enTetesTemplate"></ng-container>
+            </tr>
+        </thead>
+        <tbody>
+            <ng-container *ngFor="let ligne of vueTable.lignes">
+                <tr *ngIf="ligne.visible" [class]="">
+                    <ng-container *ngTemplateOutlet="ligneTemplate; context: { ligne1: ligne }"></ng-container>
+                </tr>
+            </ng-container>
+        </tbody>
+    </table>
+</ng-template>

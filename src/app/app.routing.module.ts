@@ -1,57 +1,27 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes, PreloadAllModules } from '@angular/router';
 
-import { VisiteurExcluGuard } from './securite/visiteur-exclu.guard';
-import { AppApiRoutes } from './app-api-routes';
-import { DispositionComponent } from './disposition/disposition/disposition.component';
-import { PageInterditeComponent } from './disposition/page-message/page-interdite.component';
-import { PageIntrouvableComponent } from './disposition/page-message/page-introuvable.component';
+import { AppPages, AppRoutes } from './app-pages';
+import { AppSiteRoutes } from './app-site/app-site-pages';
 
 const routes: Routes = [
     {
         path: '',
-        children: [
-            {
-                path: '',
-                component: DispositionComponent,
-                children: [
-                    {
-                        path: AppApiRoutes.App.interdit,
-                        component: PageInterditeComponent
-                    },
-                    {
-                        path: AppApiRoutes.App.utilisateur,
-                        loadChildren: './utilisateur/utilisateur.module#UtilisateurModule',
-                    },
-                    {
-                        path: AppApiRoutes.App.compte,
-                        loadChildren: './compte/compte.module#CompteModule'
-                    },
-                    {
-                        path: AppApiRoutes.App.fournisseur,
-                        loadChildren: './fournisseur/fournisseur.module#FournisseurModule'
-                    },
-                    {
-                        path: AppApiRoutes.App.client,
-                        loadChildren: './client/client.module#ClientModule'
-                    },
-
-                    {
-                        path: 'siteinfo',
-                        loadChildren: './site-info/site-info.module#SiteInfoModule'
-                    },
-
-                    {
-                        path: '',
-                        loadChildren: './visiteur/visiteur.module#VisiteurModule'
-                    },
-
-                    { path: '**', component: PageIntrouvableComponent },
-
-                ]
-            }
-        ]
-    }
+        redirectTo: AppPages.appSite.urlSegment,
+        pathMatch: 'full',
+    },
+    {
+        path: AppPages.appSite.urlSegment,
+        loadChildren: './app-site/app-site.module#AppSiteModule'
+    },
+    {
+        path: AppPages.site.urlSegment,
+        loadChildren: './site/site.module#SiteModule'
+    },
+    {
+        path: '**',
+        redirectTo: AppRoutes.url([AppPages.appSite.urlSegment, AppPages.introuvable.urlSegment]),
+    },
 ];
 
 @NgModule({
@@ -59,7 +29,10 @@ const routes: Routes = [
     imports: [
         RouterModule.forRoot(
             routes,
-            { enableTracing: true } // <-- debugging purposes only
+            {
+                preloadingStrategy: PreloadAllModules,
+//                enableTracing: true // <-- debugging purposes only
+            }
         )
     ],
 

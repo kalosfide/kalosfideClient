@@ -1,0 +1,22 @@
+
+<div class="form-group">
+    <label *ngIf="composant.texteImage" #labelElement [attr.for]="composant.nom">
+        <app-kf-texte-image [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </label>
+    <ng-container *ngIf="nombre; then nombre_; else autre_"></ng-container>
+    <app-kf-etiquette *ngIf="composant.texteAide" [composant]="composant.texteAide"></app-kf-etiquette>
+    <div class="invalid-feedback">
+        <p *ngFor="let erreur of composant.erreurs">{{erreur}}</p>
+    </div>
+</div>
+
+<ng-template #nombre_>
+    <input #inputElement [name]="composant.nom" [type]="composant.typeDInput" [formControl]="composant.formControl"
+        [class]="classe" [readonly]="composant.lectureSeule" [attr.disabled]="composant.inactif" [placeholder]="composant.texteRemplissage"
+        [min]="nombre.min" [max]="nombre.max" [step]="nombre.pas" />
+</ng-template>
+
+<ng-template #autre_>
+    <input #inputElement [name]="composant.nom" [type]="composant.typeDInput" [formControl]="composant.formControl"
+        [class]="classe" [readonly]="composant.lectureSeule" [attr.disabled]="composant.inactif" [placeholder]="composant.texteRemplissage" />
+</ng-template>

@@ -1,0 +1,17 @@
+<app-titre-page [titre]="titre"></app-titre-page>
+<div>
+    <P>
+        A partir de cette page, le fournisseur du site peut {{ actionFournisseur }}.
+    </P>
+    <button class="btn btn-info btn-block" (click)="devenirFournisseur">
+        Devenez fournisseur et créez votre site sur {{ racineTitre }}
+    </button>
+</div>
+<div>
+    <P>
+        A partir de cette page, un client du site peut {{ actionClient }}.
+    </P>
+    <button class="btn btn-info btn-block" (click)="devenirClient">
+        {{ siteTitre }} : Devenez client
+    </button>
+</div>

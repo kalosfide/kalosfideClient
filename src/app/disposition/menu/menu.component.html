@@ -1,25 +1,25 @@
 <nav class="navbar navbar-expand-md navbar-light bg-light">
-    <button class="navbar-toggler" type="button" data-toggle="collapse" [attr.data-target]="'#' + menu.nom" [attr.aria-controls]="menu.nom"
-        aria-expanded="false" aria-label="Toggle navigation">
+
+    <app-item-de-menu [item]="menu.marqueImage"></app-item-de-menu>
+    <app-item-de-menu [item]="menu.marqueTexte"></app-item-de-menu>
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" [attr.data-target]="'#' + menu.nom"
+        [attr.aria-controls]="menu.nom" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-
-    <div class="navbar-brand">
-        <app-item-de-menu [item]="menu.site"></app-item-de-menu>
-    </div>
 
     <div class="collapse navbar-collapse" [id]="menu.nom">
 
         <ul class="navbar-nav mr-auto">
-            <li *ngFor="let item of menu.items" class="nav-item">
+            <li *ngFor="let item of items" [ngClass]="{'nav-item': true, 'dropdown': item.sousMenu}">
                 <app-item-de-menu [item]="item"></app-item-de-menu>
             </li>
         </ul>
 
+    </div>
+
         <div class="navbar-right">
             <app-item-de-menu [item]="menu.compte"></app-item-de-menu>
         </div>
-
-    </div>
 
 </nav>

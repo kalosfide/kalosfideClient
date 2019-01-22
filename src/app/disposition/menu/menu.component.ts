@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { IMenu } from '../../menus/imenu';
+import { ItemDeMenu } from 'src/app/menus/item-de-menu';
+import { Menu } from 'src/app/menus/menu';
 
 @Component({
     selector: 'app-menu',
@@ -7,11 +8,15 @@ import { IMenu } from '../../menus/imenu';
     styles: []
 })
 export class MenuComponent implements OnInit {
-    @Input() menu: IMenu;
+    @Input() menu: Menu;
 
     constructor() { }
 
     ngOnInit() {
+    }
+
+    get items(): ItemDeMenu[] {
+        return this.menu.itemsAction.filter(i => i.visible);
     }
 
 }

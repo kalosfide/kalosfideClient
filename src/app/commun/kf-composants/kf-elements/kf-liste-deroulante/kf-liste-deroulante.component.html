@@ -1,9 +1,13 @@
 <div class="form-group">
+    <label *ngIf="composant.texteImage" #labelElement [attr.for]="composant.nom">
+        <app-kf-texte-image [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </label>
     <select
         #selectElement
         [name]="composant.nom"
+        [compareWith]="compareOptions"
         [formControl]="composant.formControl"
-        [class]="composant.classe"
+        [ngClass]="composant.classe">
     >
         <ng-container *ngFor="let option of composant.options">
             <option #optionElement *ngIf="!option.estObject && !option.valeur">{{ option.texte }}</option>

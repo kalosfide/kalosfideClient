@@ -3,10 +3,11 @@ import 'rxjs/add/observable/of';
 import { KfComposant } from '../../kf-composant/kf-composant';
 import { KfTypeDeComposant } from '../../kf-composants-types';
 import { KfElement } from '../../kf-composant/kf-element';
-import { KfTexteImage } from '../../kf-partages/kf-texte-image';
+import { KfTexteImage } from '../../kf-partages/kf-texte-image/kf-texte-image';
 import { KfEntrée } from '../../kf-composant/kf-entree';
 import { FormControl } from '@angular/forms';
 import { KfParametres } from '../../kf-composants-parametres';
+import { KfTexteDef } from '../../kf-partages/kf-texte-def';
 
 
 export function KfNomFichier(nom: string): string {
@@ -33,21 +34,21 @@ export class KfFichier extends KfElement {
     inputVisible: boolean;
 
     constructor(nom: string,
-        texte?: string | (() => string),
-        imageAvant?: string | (() => string),
-        imageApres?: string | (() => string)
+        texte?: KfTexteDef,
+        imageAvant?: KfTexteDef,
+        imageApres?: KfTexteDef
     ) {
         super(KfNomFichier(nom), KfTypeDeComposant.fichier, texte, imageAvant, imageApres);
         if (texte || imageAvant || imageApres) {
             this.fixeTexte(texte);
-            this.fixeImageAvant(imageAvant);
-            this.fixeImageApres(imageApres);
+            this.fixeUrlImageAvant(imageAvant);
+            this.fixeUrlImageApres(imageApres);
         } else {
             this.fixeTexte(KfParametres.fichierParDefaut.texteCharge);
         }
         this.typesMime = [];
         this.typesExtension = [];
-        this.ajouteClasse('kf-fichier', 'kf-bouton');
+        this.ajouteClasseDef('kf-fichier', 'kf-bouton');
     }
 
     get idBouton(): string {

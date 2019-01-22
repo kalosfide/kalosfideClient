@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ViewChildren, QueryList, AfterViewInit, ElementRef } from '@angular/core';
-import { KfListeDeroulante } from './kf-liste-deroulante';
+import { KfListeDeroulante, OptionDeListe } from './kf-liste-deroulante';
 import { KfComposantComponent } from '../../kf-composant/kf-composant.component';
 
 @Component({
@@ -29,6 +29,10 @@ export class KfListeDeroulanteComponent extends KfComposantComponent implements 
         return this.selectElementRef.nativeElement as HTMLSelectElement;
     }
 
+    compareOptions(o1: OptionDeListe, o2: OptionDeListe): boolean {
+        return o1 && o2 ? o1.valeur === o2.valeur : o1 === o2;
+    }
+
     ngAfterViewInit() {
         this.composant.gereHtml.htmlElement = this.selectElement;
         this.composant.gereHtml.enfantsDeVue = {
@@ -36,10 +40,6 @@ export class KfListeDeroulanteComponent extends KfComposantComponent implements 
         };
         this.selectElement.multiple = this.listeDeroulante.multiple;
         this.initialiseHtml();
-/*
-        this.optionElements.forEach(
-            ref => console.log(ref));
-*/
     }
 
 }

@@ -1,20 +1,15 @@
-<h5>{{ titre }}</h5>
-<hr>
-<ng-container *ngIf="chargementFini; then chargementFini_; else attente_"></ng-container>
-
-<ng-template #attente_>
-    <P *ngIf="messageChargement">{{messageChargement}}</P>
-</ng-template>
-
-<ng-template #chargementFini_>
-    <ng-container *ngIf="erreurChargement; then chargementErreur_; else chargementOk_"></ng-container>
-</ng-template>
-
-<ng-template #chargementOk_>
-    <app-kf-composant [composant]="superGroupe" (output)="traite($event)"></app-kf-composant>
-    <router-outlet></router-outlet>
-</ng-template>
-
-<ng-template #chargementErreur_>
-    <app-kf-composant [composant]="erreurChargement" (output)="traite($event)"></app-kf-composant>
-</ng-template>
+<app-titre-page [titre]="titre"></app-titre-page>
+<div class="row">
+    <div class="col-3">
+        <div class="nav flex-column nav-pills" id="etapes-tab" role="tablist" aria-orientation="vertical">
+            <ng-container *ngFor="let etape of etapes; index as i">
+                <a [ngClass]="{'nav-link': true, 'active': choisie(etape), 'disabled': inactive(etape)}" [id]="nomNav(etape)"
+                    data-toggle="pill" [routerLink]="url(etape)">{{ etape.texteLien }}</a>
+            </ng-container>
+        </div>
+        {{ formulaire.valeur | json }}
+    </div>
+    <div class="col-9">
+        <router-outlet></router-outlet>
+    </div>
+</div>

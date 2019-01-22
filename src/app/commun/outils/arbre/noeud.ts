@@ -76,6 +76,17 @@ export class Noeud {
         return n;
     }
 
+    Clone(): Noeud {
+        const noeud = new Noeud();
+        noeud.objet = this.objet;
+        let enfant: Noeud;
+        while (enfant) {
+            noeud.Ajoute(enfant.Clone());
+            enfant = enfant.suivant;
+        }
+        return noeud;
+    }
+
     /**
      * Appliquer une méthode à un noeud c'est l'exécuter pour ce noeud puis l'appliquer à ses enfants
      * @param methode lorsque methode est appliquée à un noeud, ce noeud exécute methode puis applique methode à ses enfants
@@ -168,6 +179,22 @@ export class Noeud {
             dernier._suivant = noeud;
         }
         noeud.fixeParent(this);
+    }
+    AdopteEnfants(noeud: Noeud) {
+        const dernier = this.DernierEnfant;
+        let enfant = noeud._enfant;
+        if (!enfant) {
+            return;
+        }
+        if (dernier === undefined) {
+            this._enfant = noeud;
+        } else {
+            dernier._suivant = noeud;
+        }
+        while (enfant) {
+            enfant._parent = this;
+            enfant = enfant._suivant;
+        }
     }
     Insére(noeud: Noeud, après?: boolean) {
         if (this._parent === undefined) { return; }

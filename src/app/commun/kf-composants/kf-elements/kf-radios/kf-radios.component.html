@@ -1,5 +1,5 @@
-<div #divElement [class]="composant.classe">
-    <ng-container *ngFor="let radio of composant.contenus">
+<div #divElement [ngClass]="composant.classe">
+    <ng-container *ngFor="let radio of radioBoutons">
         <app-kf-composant [composant]="radio" (output)="transmet($event)"></app-kf-composant>
     </ng-container>
     <div class="invalid-feedback">

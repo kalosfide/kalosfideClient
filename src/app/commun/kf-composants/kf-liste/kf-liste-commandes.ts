@@ -98,7 +98,7 @@ export class KfListeCommandes {
                 }
                 c.declencheur.inactivitéFnc = this.inactivitéFnc(c.type);
                 c.declencheur.listeParent = this.liste;
-                c.declencheur.ajouteClasse('kf-liste-' + 'kf-' + KfParametres.listeParDefaut.nomBouton(c.type));
+                c.declencheur.ajouteClasseDef('kf-liste-' + 'kf-' + KfParametres.listeParDefaut.nomBouton(c.type));
             }
         );
         this.position = commandesInterface.position ? commandesInterface.position : 1;

@@ -1,36 +1,25 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { EnregistrementComponent } from './enregistrement/enregistrement.component';
 import { ConnectionComponent } from './connection/connection.component';
 import { DeconnectionComponent } from './deconnection/deconnection.component';
-import { CompteApiRoutes } from './compte-api-routes';
+import { ComptePages } from './compte-pages';
 
 const routes: Routes = [
     {
         path: '',
         children: [
             {
-                path: '',
-                redirectTo: CompteApiRoutes.App.gestion,
-                pathMatch: 'full',
-
-            },
-            {
-                path: CompteApiRoutes.App.gestion,
-                loadChildren: './gestion/gestion.module#GestionModule'
-            },
-            {
-                path: CompteApiRoutes.App.enregistrement,
-                component: EnregistrementComponent
-            },
-            {
-                path: CompteApiRoutes.App.connection,
+                path: ComptePages.connection.urlSegment,
                 component: ConnectionComponent
             },
             {
-                path: CompteApiRoutes.App.deconnection,
+                path: ComptePages.deconnection.urlSegment,
                 component: DeconnectionComponent
+            },
+            {
+                path: ComptePages.gestion.urlSegment,
+                loadChildren: './gestion/gestion.module#GestionModule'
             },
         ]
     },

@@ -8,7 +8,7 @@ import { KfEvenement, KfTypeDEvenement, KfStatutDEvenement } from '../../kf-part
 @Component({
     selector: 'app-kf-fichier-sauve',
     template: `
-        <a #baliseElement [download]="composant.nomFichier" [href]="dataUrl" [class]="composant.classe" (click)="quandClic()">
+        <a #baliseElement [download]="composant.nomFichier" [href]="dataUrl" [ngClass]="composant.classe"> (click)="quandClic()">
             <app-kf-texte-image  [texteImage]="composant.texteImage"></app-kf-texte-image>
         </a>
 `,

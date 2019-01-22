@@ -6,7 +6,7 @@ import { KfTypeDEvenement, KfStatutDEvenement, KfEvenement } from '../../kf-part
 @Component({
     selector: 'app-kf-fichier',
     template: `
-    <label #labelElement [attr.for]="composant.nom" [class]="composant.classe">
+    <label #labelElement [attr.for]="composant.nom" [ngClass]="composant.classe">
         <app-kf-texte-image *ngIf="composant.texteImage"  [texteImage]="composant.texteImage"></app-kf-texte-image>
         <input
             #inputElement

@@ -1,9 +1,6 @@
 import { KfTypeDeComposant } from '../../kf-composants-types';
 import { KfRadios } from './kf-radios';
-import { KfComposant } from '../../kf-composant/kf-composant';
-import { KfTexteImage } from '../../kf-partages/kf-texte-image';
 import { KfElement } from '../../kf-composant/kf-element';
-import { KfEntrée } from '../../kf-composant/kf-entree';
 
 export class KfRadio extends KfElement {
 

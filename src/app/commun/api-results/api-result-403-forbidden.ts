@@ -1,9 +1,10 @@
-import { ApiResultRedirige } from './api-result-redirige';
+import { AppRoutes, AppPages } from 'src/app/app-pages';
+import { ApiResult } from './api-result';
 
-export class ApiResult403Forbidden extends ApiResultRedirige {
+export class ApiResult403Forbidden extends ApiResult {
     static code = 403;
 
-    constructor(redirigeVers: string) {
-        super(403, 'L\'accès à ces ressources est réservé.', redirigeVers);
+    constructor() {
+        super(403, [AppRoutes.url([AppPages.interdit.urlSegment])]);
     }
 }

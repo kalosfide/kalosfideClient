@@ -1,0 +1,21 @@
+import { Component, OnInit } from '@angular/core';
+import { NavigationService } from '../services/navigation.service';
+import { PageDef } from '../commun/page-def';
+import { VisiteurPages } from './visiteur-pages';
+import { SiteContactComponent } from '../site/site-contact.component';
+
+@Component({
+    templateUrl: '../disposition/page-base/page-base.html',
+})
+export class VContactComponent extends SiteContactComponent implements OnInit {
+
+    static _pageDef: PageDef = VisiteurPages.contact;
+    pageDef: PageDef = VisiteurPages.contact;
+
+    constructor(
+        protected service: NavigationService,
+    ) {
+        super(service);
+    }
+
+}

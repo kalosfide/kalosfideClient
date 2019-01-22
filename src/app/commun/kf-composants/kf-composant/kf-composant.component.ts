@@ -144,4 +144,12 @@ export class KfComposantComponent implements OnInit {
         );
     }
 
+    /**
+     * debug
+     */
+    get debugComposant(): string {
+        console.log('debugComposant', this.composant);
+        return 'debugComposant';
+    }
+
 }

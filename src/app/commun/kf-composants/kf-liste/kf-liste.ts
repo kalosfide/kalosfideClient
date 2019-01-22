@@ -61,8 +61,6 @@ export class KfListe extends KfComposant {
         this.liste = new Liste;
 
         this.creeItems = new KfListeCreeItems(this, creeItemsInterface);
-        this.gereValeur = new KfComposantGereValeur(this, KfTypeDeValeur.avecListe);
-
         this.editions = new KfListeEditions(this, editionsInterface);
         this.commandes = new KfListeCommandes(this, commandesInterface);
         if (selecteursInterface) {
@@ -76,7 +74,11 @@ export class KfListe extends KfComposant {
                 () => this.liste.index === -1
             );
         }
-        this.ajouteClasse('kf-liste');
+        this.ajouteClasseDef('kf-liste');
+    }
+
+    créeGereValeur() {
+        this.gereValeur = new KfComposantGereValeur(this, KfTypeDeValeur.avecListe);
     }
 
     // INITIALISATION
@@ -172,7 +174,7 @@ export class KfListe extends KfComposant {
     /**
      * retourne le contenu associé à un item s'il existe
      */
-    contenu(item: object): KfComposant {
+    contenuDeItem(item: object): KfComposant {
         return this.creeItems.composant(item);
     }
 
@@ -187,7 +189,7 @@ export class KfListe extends KfComposant {
      * array des contenus des items
      */
     get contenus(): KfComposant[] {
-        return this.items.map((item: object) => this.contenu(item));
+        return this.items.map((item: object) => this.contenuDeItem(item));
     }
 
     /**
@@ -202,7 +204,7 @@ export class KfListe extends KfComposant {
      */
     get contenuChoisi(): KfComposant {
         if (this.liste.index !== -1) {
-            return this.contenu(this.liste.ObjetEnCours);
+            return this.contenuDeItem(this.liste.ObjetEnCours);
         }
     }
 
@@ -222,7 +224,7 @@ export class KfListe extends KfComposant {
      */
     préparePourAjout(item: object) {
         this.editions.préparePourAjout(item);
-        const contenu = this.contenu(item);
+        const contenu = this.contenuDeItem(item);
         contenu.visibiliteFnc = () => contenu === this.contenuChoisi;
         contenu.listeParent = this;
     }

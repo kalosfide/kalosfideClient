@@ -1,10 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { UtilisateurService } from '../services/utilisateur.service';
+import { CompteService } from '../compte.service';
 import { AttenteAsyncService } from '../../services/attenteAsync.service';
 import { Subscription } from 'rxjs';
-import { ApiResult } from '../../commun/api-results/api-result';
-import { ApiResult204NoContent } from '../../commun/api-results/api-result-204-no-content';
+import { AppRoutes } from 'src/app/app-pages';
+import { NavigationService } from 'src/app/services/navigation.service';
+import { SiteRoutes } from 'src/app/site/site-pages';
+import { RouteurService } from 'src/app/services/routeur.service';
 
 @Component({
     selector: 'app-deconnection',
@@ -16,19 +18,20 @@ export class DeconnectionComponent implements OnInit, OnDestroy {
     subscription: Subscription;
 
     constructor(
-        private router: Router,
-        private service: UtilisateurService,
+        private routeur: RouteurService,
+        private service: CompteService,
         private attenteAsync: AttenteAsyncService,
     ) { }
 
     ngOnInit() {
         this.attenteAsync.commence();
         this.subscription = this.service.déconnecte().subscribe(
-            (apiResult: ApiResult) => {
-                if (apiResult.statusCode === ApiResult204NoContent.code) {
-                    this.attenteAsync.finit();
-                }
-                this.router.navigate(['/']);
+            () => {
+                this.attenteAsync.finit();
+                this.routeur.navigue();
+            },
+            () => {
+                this.attenteAsync.finit();
             }
         );
     }

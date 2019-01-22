@@ -43,30 +43,15 @@ export class KfSousMenu extends KfElement {
         if (def.inactivitéFnc) {
             selecteur.inactivitéFnc = def.inactivitéFnc;
         }
-        this.ajouteClasse('kf-sous-menu');
-        this.ajouteClasse((composant: KfComposant) => {
-            const sousmenu = composant as KfSousMenu;
-            return sousmenu.niveau === 1 ? sousmenu.menu.classe : KfMenuDirection.vertical;
+        this.ajouteClasseDef('kf-sous-menu');
+        this.ajouteClasseDef(() => {
+            return this.niveau === 1 ? this.menu.classe : KfMenuDirection.vertical;
         });
-        this.ajouteClasse((composant: KfComposant) => {
-            const sousmenu = composant as KfSousMenu;
-            return 'kf-niveau-' + sousmenu.niveau;
+        this.ajouteClasseDef(() => {
+            return 'kf-niveau-' + this.niveau;
         });
-        this.ajouteClasse((composant: KfComposant) => {
-            const sousmenu = composant as KfSousMenu;
-            return sousmenu.sansSousMenus ? null : sousmenu.ouvert ? 'kf-ouvert' : 'kf-ferme';
-        });
-        selecteur.ajouteClasse((composant: KfComposant) => {
-            const sousmenu = composant.parent as KfSousMenu;
-            return sousmenu.niveau === 1 ? sousmenu.menu.classe : KfMenuDirection.vertical;
-        });
-        selecteur.ajouteClasse((composant: KfComposant) => {
-            const sousmenu = composant.parent as KfSousMenu;
-            return 'kf-niveau-' + sousmenu.niveau;
-        });
-        selecteur.ajouteClasse((composant: KfComposant) => {
-            const sousmenu = composant.parent as KfSousMenu;
-            return sousmenu.sansSousMenus ? null : sousmenu.ouvert ? 'kf-ouvert' : 'kf-ferme';
+        this.ajouteClasseDef(() => {
+            return this.sansSousMenus ? '' : this.ouvert ? 'kf-ouvert' : 'kf-ferme';
         });
         this.noeud.Ajoute(selecteur.noeud);
         this._ouvert = true;

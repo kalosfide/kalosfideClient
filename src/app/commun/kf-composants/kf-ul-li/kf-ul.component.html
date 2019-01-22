@@ -1,0 +1,6 @@
+<ul #htmlElement [ngClass]="composant.classe">
+    <ng-container *ngFor="let contenu of composant.contenus; index as i">
+        <app-kf-li [composant]="contenu" (output)="transmet($event)">
+        </app-kf-li>
+    </ng-container>
+</ul>

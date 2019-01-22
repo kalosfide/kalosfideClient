@@ -1,26 +1,19 @@
 
+import { ClientRoutes, ClientPages } from '../client/client-pages';
+import { Site } from '../modeles/site';
+import { Identifiant } from '../securite/identifiant';
+import { SiteMenu } from '../site/site-menu';
 
-import { IItemDeMenu } from '../menus/imenu';
+export class ClientMenu extends SiteMenu {
+    routes = ClientRoutes;
 
-export const ClientItems: IItemDeMenu[] = [
-    {
-        route: '/',
-        texte: 'Kalosfide',
-    },
-    {
-        route: '/client',
-        texte: 'Client',
-    },
-    {
-        route: '/siteinfo',
-        texte: 'SiteInfos',
-    },
-    {
-        route: '/apropos',
-        texte: 'A propos',
-    },
-    {
-        route: '/contact',
-        texte: 'Contact',
+    protected créeItemsAction() {
+        return [
+            this.créeItemDeSite(ClientPages.produits, ClientRoutes),
+            this.créeItemDeSite(ClientPages.commandes, ClientRoutes),
+            this.créeItemDeSite(ClientPages.documents, ClientRoutes),
+            this.créeItemDeSite(ClientPages.contact, ClientRoutes),
+        ];
     }
-];
+
+}

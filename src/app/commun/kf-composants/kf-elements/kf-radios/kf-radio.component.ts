@@ -5,18 +5,7 @@ import { KfRadio } from './kf-radio';
 
 @Component({
     selector: 'app-kf-radio',
-    template: `
-        <label #labelElement class="center-block">
-            <input
-                #inputElement
-                type='radio'
-                [name]="composant.radios.nom"
-                [formControl]="composant.radios.formControl"
-                [value]="composant.valeur"
-            />
-            <app-kf-texte-image *ngIf="composant.texteImage"  [texteImage]="composant.texteImage"></app-kf-texte-image>
-        </label>
-  `,
+    templateUrl: './kf-radio.component.html',
 })
 export class KfRadioComponent extends KfComposantComponent implements OnInit, AfterViewInit {
     @ViewChild('inputElement') inputElement: ElementRef;
@@ -33,6 +22,13 @@ export class KfRadioComponent extends KfComposantComponent implements OnInit, Af
     get radios(): KfRadios {
         return this.radio.radios;
     }
+
+    get classe(): string {
+        return 'form-check-input'
+            + (!this.composant.texteImage ? 'position-static' : '')
+            + this.composant.classe;
+    }
+
     ngOnInit() {
     }
 

@@ -22,11 +22,18 @@ import { KfBaliseConteneur } from '../kf-partages/kf-balises-html';
 import { KfComposantGereHtml } from './kf-composant-gere-html';
 import { KfComposantGereVisible } from './kf-composant-gere-visible';
 import { KfGereTabIndex } from './kf-composant-gere-tabindex';
-import { KfTexteImage } from '../kf-partages/kf-texte-image';
+import { KfTexteImage } from '../kf-partages/kf-texte-image/kf-texte-image';
 import { KfComposantGereValeur } from './kf-composant-gere-valeur';
 import { KfValidateur } from '../kf-partages/kf-validateur';
+import { KfTexteDef, ValeurTexteDef } from '../kf-partages/kf-texte-def';
+import { KfClasseDefs } from '../kf-partages/kf-classe-def';
+import { KfImageDef } from '../kf-partages/kf-image-def/kf-image-def';
+import { ValeurNombreDef, KfNombreDef } from '../kf-partages/kf-nombre-def';
 
-export abstract class KfComposant {
+export interface IKfComposant {
+    composant: KfComposant;
+}
+export abstract class KfComposant implements IKfComposant {
     // GENERAL
     /**
      * nom: string
@@ -49,6 +56,7 @@ export abstract class KfComposant {
      *  les KfComposants sont les noeuds d'un arbre.
      */
     noeud: Noeud;
+    enligne: boolean;
     /**
      * listeParent: Liste
      *  lorsqu'un composant est destiné à une liste, il faut renseigner ce champ
@@ -68,6 +76,17 @@ export abstract class KfComposant {
     *
     */
     gereValeur: KfComposantGereValeur;
+    /**
+     * estRacineV: si vrai, à fixer avant quandTousAjoutés
+     */
+    get estRacineV(): boolean {
+        return this.gereValeur && this.gereValeur.estRacineV;
+    }
+    set estRacineV(valeur: boolean) {
+        if (this.gereValeur) {
+            this.gereValeur.estRacineV = valeur;
+        }
+    }
 
     // HTML
 
@@ -89,10 +108,10 @@ export abstract class KfComposant {
     balisesAAjouter: KfBaliseConteneur[];
 
     /**
-     * _classes: string[]
+     * _classeDefs: KfClasseDef[]
      *  classes css à appliquer
      */
-    private _classes: (string | ((composant: KfComposant) => string))[] = [];
+    private _classeDefs: KfClasseDefs;
 
     /**
      * KfTexteImage de l'element ou de son label (facultatif)
@@ -117,9 +136,9 @@ export abstract class KfComposant {
 
     constructor(nom: string,
         typeDeComposant: KfTypeDeComposant,
-        texte?: string | (() => string),
-        imageAvant?: string | (() => string),
-        imageApres?: string | (() => string)
+        texte?: KfTexteDef,
+        imageAvant?: KfTexteDef,
+        imageApres?: KfTexteDef
     ) {
         this.nom = nom;
         this.typeDeComposant = typeDeComposant;
@@ -131,6 +150,11 @@ export abstract class KfComposant {
         this.gereVisible = new KfComposantGereVisible(this);
         this.gereHtml = new KfComposantGereHtml(this);
     }
+
+    get composant(): KfComposant {
+        return this;
+    }
+
     /**
      * typeDeValeur: TypeDeValeur
      *  détermine si le KfComposant doit avoir un AbstractControl et de quel type
@@ -181,7 +205,17 @@ export abstract class KfComposant {
         }
     }
 
-    abstract ajoute(composant: KfComposant);
+    ajoute(composant: KfComposant) {
+        this.noeud.Ajoute(composant.noeud);
+    }
+
+    get contenus(): KfComposant[] {
+        return this.enfants;
+    }
+
+    contenu(nom: string): KfComposant {
+        return this.contenus.find(c => c.nom === nom);
+    }
 
     get enfants(): KfComposant[] {
         return this.noeud.ObjetsEnfants().map<KfComposant>(objet => <KfComposant>objet);
@@ -213,7 +247,7 @@ export abstract class KfComposant {
         return !(this.noeud.parent);
     }
     get estFormulaire(): boolean {
-        return this.estRacine && this.typeDeComposant === KfTypeDeComposant.groupe && this.typeDeValeur === KfTypeDeValeur.avecGroupe;
+        return this.estRacineV && this.typeDeComposant === KfTypeDeComposant.groupe;
     }
     get estGroupe(): boolean {
         return this.typeDeComposant === KfTypeDeComposant.groupe;
@@ -226,10 +260,6 @@ export abstract class KfComposant {
     }
     get estEntree(): boolean {
         return this.estElement && this.typeDeValeur !== KfTypeDeValeur.aucun;
-    }
-
-    get estDansFormulaire(): boolean {
-        return this.estFormulaire || (this.noeud.parent && this.parent.estDansFormulaire);
     }
 
     // VALEUR
@@ -254,15 +284,6 @@ export abstract class KfComposant {
     }
 
     /* VALIDATION */
-
-    get requis(): boolean {
-        if (this.gereValeur) {
-            return this.gereValeur.requis;
-        }
-    }
-    set requis(requis: boolean) {
-        this.gereValeur.requis = requis;
-    }
 
     AjouteValidateur(validateur: KfValidateur) {
         if (this.gereValeur) {
@@ -345,7 +366,6 @@ export abstract class KfComposant {
         return inactif;
     }
 
-
     // HTML
 
     get tabIndex(): number {
@@ -385,40 +405,26 @@ export abstract class KfComposant {
     }
 
     // CSS
-    ajouteClasse(...classes: (string | ((composant: KfComposant) => string))[]) {
-        classes.forEach(
-            classe => {
-                if (!this._classes.find(c => classe === c)) {
-                    this._classes.push(classe);
-                }
-            }
-        );
+    trouveClasse(classe: string): KfTexteDef {
+        return this._classeDefs.trouveClasse(classe);
     }
-    supprimeClasse(...classes: (string | ((composant: KfComposant) => string))[]) {
-        const _classes = this._classes;
-        this._classes = [];
-        _classes.forEach(
-            classe => {
-                if (!classes.find(c => classe === c)) {
-                    this._classes.push(classe);
-                }
-            }
-        );
+    ajouteClasseDef(...classeDefs: KfTexteDef[]) {
+        if (!this._classeDefs) {
+            this._classeDefs = new KfClasseDefs();
+        }
+        this._classeDefs.ajouteClasseDef(classeDefs);
+    }
+    supprimeClasseDef(...classeDefs: KfTexteDef[]) {
+        this._classeDefs.supprimeClasseDef(classeDefs);
+    }
+
+    get classes(): string[] {
+        const classes = this._classeDefs ? this._classeDefs.classes : [];
+        return classes;
     }
 
     get classe(): string {
-        const classes: string[] = [];
-        this._classes.forEach(
-            c => {
-                const classe = typeof (c) === 'string' ? c : c(this);
-                if (classe) {
-                    classes.push(classe);
-                }
-            });
-        if (!this.visible) {
-            classes.push('invisible');
-        }
-        return ' ' + classes.join(' ');
+        return ' ' + this.classes.join(' ');
     }
 
     /**
@@ -430,9 +436,19 @@ export abstract class KfComposant {
         }
     }
     /**
+     * l'un au moins est attendu
+     */
+    fixeTexteUrlImage(texte?: KfTexteDef, imageAvant?: KfTexteDef, imageApres?: KfTexteDef) {
+        if (!this.texteImage) {
+            this.texteImage = new KfTexteImage(texte, imageAvant, imageApres);
+        } else {
+            this.texteImage.fixeTexte(texte);
+        }
+    }
+    /**
      * fixe le texte de l'element ou de son label (facultatif)
      */
-    fixeTexte(texte: string | (() => string)) {
+    fixeTexte(texte: KfTexteDef) {
         if (!this.texteImage) {
             this.texteImage = new KfTexteImage(texte);
         } else {
@@ -442,7 +458,7 @@ export abstract class KfComposant {
     /**
      * retourne l'image avant le texte de l'element ou de son label (facultatif)
      */
-    get imageAvant(): string {
+    get imageAvant(): KfImageDef {
         if (this.texteImage) {
             return this.texteImage.imageAvant;
         }
@@ -450,17 +466,22 @@ export abstract class KfComposant {
     /**
      * fixe l'image avant le texte de l'element ou de son label (facultatif)
      */
-    fixeImageAvant(imageAvant: string | (() => string)) {
+    fixeUrlImageAvant(url: KfTexteDef) {
         if (!this.texteImage) {
-            this.texteImage = new KfTexteImage(null, imageAvant);
+            this.texteImage = new KfTexteImage(null, url);
         } else {
-            this.texteImage.fixeImageAvant(imageAvant);
+            this.texteImage.fixeUrlImageAvant(url);
+        }
+    }
+    fixeDimensionsImageAvant(largeur?: KfNombreDef, hauteur?: KfNombreDef) {
+        if (this.texteImage) {
+            this.texteImage.fixeDimensionsImageAvant(largeur, hauteur);
         }
     }
     /**
      * retourne l'image après le texte de l'element ou de son label (facultatif)
      */
-    get imageApres(): string {
+    get imageApres(): KfImageDef {
         if (this.texteImage) {
             return this.texteImage.imageApres;
         }
@@ -468,11 +489,16 @@ export abstract class KfComposant {
     /**
      * fixe l'image après le texte de l'element ou de son label (facultatif)
      */
-    fixeImageApres(imageApres: string | (() => string)) {
+    fixeUrlImageApres(url: KfTexteDef) {
         if (!this.texteImage) {
-            this.texteImage = new KfTexteImage(null, null, imageApres);
+            this.texteImage = new KfTexteImage(null, null, url);
         } else {
-            this.texteImage.fixeImageApres(imageApres);
+            this.texteImage.fixeUrlImageApres(url);
+        }
+    }
+    fixeDimensionsImageApres(largeur?: KfNombreDef, hauteur?: KfNombreDef) {
+        if (this.texteImage) {
+            this.texteImage.fixeDimensionsImageApres(largeur, hauteur);
         }
     }
 
@@ -487,6 +513,11 @@ export abstract class KfComposant {
         if (this.gereHtml.htmlElement) {
             this.gereHtml.htmlElement.title = titleHtml;
         }
+    }
+
+    // avec disposition
+    ajouteAValeur(parentV: KfComposant) {
+        parentV.gereValeur.ajoute(this.gereValeur);
     }
 
 }

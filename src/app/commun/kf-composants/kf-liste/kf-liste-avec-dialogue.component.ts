@@ -5,7 +5,7 @@ import { KfTypeDeComposant, KfTypeDeValeur } from '../kf-composants-types';
 import { KfComposantComponent } from '../kf-composant/kf-composant.component';
 import { KfListe } from './kf-liste';
 import { KfComposant } from '../kf-composant/kf-composant';
-import { KfTexteImage } from '../kf-partages/kf-texte-image';
+import { KfTexteImage } from '../kf-partages/kf-texte-image/kf-texte-image';
 import { KfEvenement, KfTypeDEvenement } from '../kf-partages/kf-evenements';
 import { KfListeEditions } from './kf-liste-editions';
 import { KfListeSelecteurs } from './kf-liste-selecteurs';

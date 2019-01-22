@@ -1,135 +1,101 @@
 import { Injectable } from '@angular/core';
 
 import { Subject, Observable } from 'rxjs';
-import { Identifiant, RevendicationsUtilisateur } from './identifiant';
-import { AppApiRoutes } from '../app-api-routes';
-import { TypeRole } from './type-role';
-import { UtilisateurApiRoutes } from '../utilisateur/utilisateur-api-routes';
+import { JwtIdentifiant, Identifiant } from './identifiant';
+import { Stockage } from '../services/stockage';
+import { SiteService } from '../modeles/site.service';
 
-const NomStockage = 'Identifiant';
+class IdentifiantStocké {
+    jwt: JwtIdentifiant;
+    utilisateur: Identifiant;
+}
 
-@Injectable()
+@Injectable({
+    providedIn: 'root',
+})
 export class IdentificationService {
 
-    private _retourUrl: string;
+    private _stockage: Stockage<IdentifiantStocké>;
 
     private identificationAChangé = new Subject<boolean>();
 
-    private unp: { un: string; p: string; };
+    private _vientDenregistrer: boolean;
 
-    constructor() {
-        this.initialise();
+    constructor(
+    ) {
+        this._stockage = new Stockage('Identifiant',
+            {
+                distincts: (stock1: IdentifiantStocké, stock2: IdentifiantStocké): boolean => {
+                    return !stock1.utilisateur.estIdentique(stock2.utilisateur);
+                },
+                action: () => {
+                    this.identificationAChangé.next(true);
+                }
+            });
     }
 
-    public estAnonyme(): boolean {
-        return window.localStorage[NomStockage] === undefined ||
-            window.localStorage[NomStockage] === null ||
-            window.localStorage[NomStockage] === 'null' ||
-            window.localStorage[NomStockage] === 'undefined' ||
-            window.localStorage[NomStockage] === '';
+    public get estAnonyme(): boolean {
+        return this._stockage.estNull;
     }
 
-    public estIdentifié(): boolean {
-        return !this.estAnonyme();
+    public get estIdentifié(): boolean {
+        return !this.estAnonyme;
+    }
+
+    public get stockageIdentifiant(): IdentifiantStocké {
+        if (this.estAnonyme) {
+            return null;
+        }
+        return this._stockage.litStock();
     }
 
     public changementDIdentifiant(): Observable<boolean> {
         return this.identificationAChangé.asObservable();
     }
 
-    public utilisateurId(): string {
-        const identifiant = this.litIdentifiant();
-        return identifiant ? identifiant.revendications.utid : undefined;
+    public get jeton(): string {
+        const identifiant = this.litJwtIdentifiant();
+        return identifiant ? identifiant.Jeton : null;
     }
 
-    public etatUtilisateur(): string {
-        const identifiant = this.litIdentifiant();
-        return identifiant ? identifiant.revendications.etut : undefined;
-    }
-
-    public roleNo(): number {
-        const identifiant = this.litIdentifiant();
-        return identifiant ? identifiant.revendications.rono : undefined;
-    }
-
-    public etatRole(): string {
-        const identifiant = this.litIdentifiant();
-        return identifiant ? identifiant.revendications.etro : undefined;
-    }
-
-    public typeRole(): string {
-        const identifiant = this.litIdentifiant();
-        return identifiant ? identifiant.revendications.tyro : undefined;
-    }
-
-    public jeton(): string {
-        const identifiant = this.litIdentifiant();
-        return identifiant ? identifiant.jeton : undefined;
+    private litJwtIdentifiant(): JwtIdentifiant {
+        if (this.estAnonyme) {
+            return null;
+        }
+        return this._stockage.litStock().jwt;
     }
 
     public litIdentifiant(): Identifiant {
-        if (this.estAnonyme()) {
+        if (this.estAnonyme) {
             return null;
         }
-        return JSON.parse(window.localStorage[NomStockage]) as Identifiant;
+        const utilisateur = this._stockage.litStock().utilisateur;
+        const identifiant = new Identifiant();
+        identifiant.copie(utilisateur);
+        return identifiant;
     }
 
-    public fixeIdentifiant(identifiant: Identifiant): void {
-        this.setStorageToken(identifiant);
+    public fixeIdentifiant(jwtIdentifiantSérialisé: string, utilisateur: Identifiant): void {
+        const stock: IdentifiantStocké = {
+            jwt: JSON.parse(jwtIdentifiantSérialisé) as JwtIdentifiant,
+            utilisateur: utilisateur
+        };
+        this._stockage.fixeStock(stock);
     }
 
-    // navigation après connection
-    public get retourUrl(): string {
-        if (this._retourUrl) {
-            return this._retourUrl;
-        }
-        const revendications: RevendicationsUtilisateur = this.litIdentifiant().revendications;
-        if (revendications.rono === 0) {
-            return UtilisateurApiRoutes.Route(UtilisateurApiRoutes.App.role);
-        } else {
-            switch (revendications.tyro) {
-                case TypeRole.administrateur.code:
-                    return AppApiRoutes.Route(AppApiRoutes.App.administrateur);
-                case TypeRole.fournisseur.code:
-                    return AppApiRoutes.Route(AppApiRoutes.App.fournisseur);
-                case TypeRole.client.code:
-                    return AppApiRoutes.Route(AppApiRoutes.App.client);
-                default:
-                    break;
-            }
-        }
-    }
-    public set retourUrl(value: string) {
-        this._retourUrl = value;
+    public désérialiseIdentifiant(identifiantSérialisé: string): JwtIdentifiant {
+        return JSON.parse(identifiantSérialisé) as JwtIdentifiant;
     }
 
-    // Passage de enregistrement à connection
-    public get vientDEnregistrer(): { un: string; p: string; } {
-        return this.unp;
+    // fixé à vrai dans actionSiOk des Enregistrement...Component
+    public get vientDEnregistrer(): boolean {
+        return this._vientDenregistrer;
     }
-    public fixeVientDEnregistrer(un?: string, p?: string) {
-        if (un) {
-            this.unp = {
-                un: un,
-                p: p
-            };
-        } else {
-            this.unp = undefined;
-        }
-    }
-
-    // Utilitaires
-    public initialise(): void {
-        this.setStorageToken(undefined);
+    public set vientDEnregistrer(value: boolean) {
+        this._vientDenregistrer = value;
     }
 
     public déconnecte(): void {
-        this.setStorageToken(undefined);
+        this._stockage.fixeStock(undefined);
     }
-
-    private setStorageToken(identifiant: Identifiant): void {
-        window.localStorage[NomStockage] = JSON.stringify(identifiant);
-        this.identificationAChangé.next(this.estIdentifié());
-    }
-
 }

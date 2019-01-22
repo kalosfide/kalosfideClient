@@ -1,28 +1,38 @@
 import { KfComposant } from '../kf-composant/kf-composant';
-import { KfTypeDeComposant } from '../kf-composants-types';
-import { FormGroup, ValidationErrors } from '@angular/forms';
+import { KfTypeDeComposant, KfTypeDeValeur } from '../kf-composants-types';
+import { FormGroup } from '@angular/forms';
 import { KfComposantGereValeur } from '../kf-composant/kf-composant-gere-valeur';
+import { KfBouton } from '../kf-elements/kf-bouton/kf-bouton';
 
 export class KfGroupe extends KfComposant {
-
-    estConteneurSansValeur: boolean;
+    nbValeurs: number;
+    nbEntrées: number;
 
     constructor(nom: string) {
         super(nom, KfTypeDeComposant.groupe);
-        this.gereValeur = new KfComposantGereValeur(this);
-        this.ajouteClasse('kf-groupe');
+        this.ajouteClasseDef(('kf-groupe'));
     }
 
-    ajoute(composant: KfComposant) {
-        this.noeud.Ajoute(composant.noeud);
+    créeGereValeur() {
+        this.gereValeur = new KfComposantGereValeur(this, KfTypeDeValeur.avecGroupe);
     }
 
-    get contenus(): KfComposant[] {
-        return this.enfants;
+    private get nomGroupeBoutonsDeFormulaire(): string {
+        return this.nom + 'boutons';
     }
 
-    contenu(nom: string): KfComposant {
-        return this.contenus.find(c => c.nom === nom);
+    public get groupeBoutonsDeFormulaire(): KfGroupe {
+        return this.contenus.find(c => c.nom === this.nomGroupeBoutonsDeFormulaire) as KfGroupe;
+    }
+
+    ajouteBoutonsDeFormulaire(boutonsDeFormulaire: KfBouton[]) {
+        let groupe = this.groupeBoutonsDeFormulaire;
+        if (!groupe) {
+            groupe = new KfGroupe(this.nomGroupeBoutonsDeFormulaire);
+            groupe.ajouteClasseDef('form-group btn-group');
+        }
+        boutonsDeFormulaire.forEach(b => groupe.ajoute(b));
+        this.ajoute(groupe);
     }
 
 

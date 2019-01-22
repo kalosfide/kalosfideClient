@@ -1,51 +1,64 @@
 import { KfGroupe } from '../kf-composants/kf-groupe/kf-groupe';
-import { DataApiRoutes } from './data-api-routes';
-import { DataChamp } from './data-champ';
 import { DataKey } from './data-key';
 import { KfTraitementDEvenement, KfTypeDEvenement } from '../kf-composants/kf-partages/kf-evenements';
+import { ApiAction } from '../api-route';
+import { KfComposant } from '../kf-composants/kf-composant/kf-composant';
 
-export abstract class DataKeyEditeur {
-    champsKeys: DataChamp[];
+export abstract class DataKeyEditeur<T extends DataKey> {
+    champsKeys: KfComposant[];
     keyAuto: boolean; /* vrai si la clé est générée par la base de données */
 
-    autresChamps: DataChamp[];
+    private autresChamps: KfComposant[];
 
     edition: KfGroupe;
 
-    traiteursDEvenement: { type: KfTypeDEvenement, traitement: KfTraitementDEvenement}[];
+    traiteursDEvenement: { type: KfTypeDEvenement, traitement: KfTraitementDEvenement }[];
 
     protected abstract créeChampsKeys();
     abstract fixeChampsKeys(key: DataKey);
-    protected abstract créeAutresChamps();
+    protected abstract créeAutresChamps(action: string);
+
+    protected ajoute(...composants: KfComposant[]) {
+        composants.forEach(composant => {
+            this.autresChamps.push(composant);
+            });
+    }
 
     créeEdition(action: string) {
         this.edition = new KfGroupe(action);
-        const sansKey = action === DataApiRoutes.Api.ajoute && this.keyAuto;
+        this.edition.créeGereValeur();
+        const sansKey = action === ApiAction.data.ajoute && this.keyAuto;
         if (!sansKey) {
             this.créeChampsKeys();
-            this.champsKeys.forEach(champ => {
-                champ.composant.visibilite = false;
-                this.edition.ajoute(champ.composant);
+            this.champsKeys.forEach(composant => {
+                composant.visibilite = false;
+                this.edition.ajoute(composant);
             });
         }
-        this.créeAutresChamps();
-        this.autresChamps.forEach(champ => {
-            const désactivé = action === DataApiRoutes.Api.edite && !champ.editable;
-            if (désactivé) {
-                champ.composant.désactive();
-            }
-            this.edition.ajoute(champ.composant);
+        this.autresChamps = [];
+        this.créeAutresChamps(action);
+        this.autresChamps.forEach(composant => {
+            this.edition.ajoute(composant);
         });
         // évènements
-        this.traiteursDEvenement.forEach(
-            traiteur => this.edition.gereHtml.ajouteTraiteur(traiteur.type, traiteur.traitement));
+        if (this.traiteursDEvenement) {
+            this.traiteursDEvenement.forEach(
+                traiteur => this.edition.gereHtml.ajouteTraiteur(traiteur.type, traiteur.traitement));
+        }
     }
 
     get valeur(): any {
-        return this.edition.valeur;
+        return this.edition.formGroup.value;
     }
-
     set valeur(valeur: any) {
-        this.edition.valeur = valeur;
+        console.log(valeur, this.edition.valeur, this.edition.formGroup);
+        this.edition.contenus.forEach(c => {
+            if (c.abstractControl) {
+                c.abstractControl.setValue(valeur[c.nom]);
+            }
+        });
+        console.log(valeur, this.edition.valeur, this.edition.formGroup);
+        /*
+        */
     }
 }

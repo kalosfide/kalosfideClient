@@ -11,6 +11,6 @@ export class ApiResult400BadRequest extends ApiResult {
         this.validationErrors = validationErrors;
     }
     get listeErreurs(): string[] {
-        return Object.keys(this.validationErrors).map(key => key + ': ' + this.validationErrors[key]);
+        return Object.keys(this.validationErrors).map(key => `${key}: ${this.validationErrors[key]}`);
     }
 }

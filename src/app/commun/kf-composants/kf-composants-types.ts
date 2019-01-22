@@ -13,7 +13,6 @@ export enum KfTypeDeComposant {
     aucun = 'aucun',
     bouton = 'bouton',
     etiquette = 'etiquette',
-    image = 'image',
     vuejson = 'vue-json',
     lien = 'lien',
     fichierSauve = 'fichier-sauve',
@@ -27,10 +26,9 @@ export enum KfTypeDeComposant {
      */
     caseacocher = 'caseacocher',
     listederoulante = 'listederoulante',
-    nombre = 'nombre',
+    input = 'input',
     radio = 'radio',
     radios = 'radios',
-    texte = 'texte',
     /**
      * conteneurs
      */
@@ -40,6 +38,8 @@ export enum KfTypeDeComposant {
     menu = 'menu',
     sousmenu = 'sousmenu',
     dialogue = 'dialogue',
+    ul = 'ul',
+    li = 'li',
 }
 
 /**
@@ -111,4 +111,5 @@ export enum KfTypeDeBaliseDEtiquette {
     h4 = 'h4',
     h5 = 'h5',
     h6 = 'h6',
+    label = 'label',
 }

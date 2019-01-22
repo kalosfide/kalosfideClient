@@ -1,4 +1,4 @@
-<div #divElement [class]="composant.classe">
+<div #divElement [ngClass]="composant.classe">
     <app-kf-composant [composant]="sousMenu.selecteur" (output)="traiteOuTransmet($event)"></app-kf-composant>
     <app-kf-sous-menu *ngFor="let sousMenu of composant.sousMenus" [composant]="sousMenu" (output)="traiteOuTransmet($event)">
     </app-kf-sous-menu>

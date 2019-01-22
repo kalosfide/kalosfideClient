@@ -11,6 +11,7 @@ import { KfGroupe } from '../kf-groupe/kf-groupe';
 import { KfComposantGereValeur } from '../kf-composant/kf-composant-gere-valeur';
 import { KfDialogueDef } from '../kf-dialogue/kf-dialogue-def';
 import { KfListeMiseAJour } from './kf-liste-mise-a-jour';
+import { KfTexteDef, ValeurTexteDef } from '../kf-partages/kf-texte-def';
 
 export interface KfListeEditionsInterface {
     /**
@@ -47,7 +48,7 @@ export interface KfListeEditionsInterface {
      * si défini, une KfEtiquette sera ajoutée à l'édition de l'item
      */
     titreItem?: {
-        texte?: string | (() => string);
+        texte?: KfTexteDef;
         balise?: KfTypeDeBaliseDEtiquette;
         /** si true, le titre précédera l'en-tête */
         avantEnTete?: boolean;
@@ -168,7 +169,7 @@ export class KfListeEditions {
             this._titreAvantEnTete = inter.titreItem.avantEnTete;
             this.titre = (item: object) => {
                 if (inter.titreItem.texte) {
-                    return typeof (inter.titreItem.texte) === 'string' ? inter.titreItem.texte : inter.titreItem.texte();
+                    return ValeurTexteDef(inter.titreItem.texte);
                 } else {
                     if (this.liste.selecteurs) {
                         if (item === this.itemNouveau) {
@@ -199,12 +200,12 @@ export class KfListeEditions {
             };
             if (inter.dansTable.titresDesColonnes) {
                 const enTetesDesColonnes = new KfGroupe('');
-                enTetesDesColonnes.ajouteClasse('kf-row');
+                enTetesDesColonnes.ajouteClasseDef('kf-row');
                 let nbColonnes = 0;
                 const etiquettesDesColonnes = inter.dansTable.titresDesColonnes.map(
                     (t: string) => {
                         const e = new KfEtiquette('c' + ++nbColonnes, t);
-                        e.ajouteClasse('kf-cell');
+                        e.ajouteClasseDef('kf-cell');
                         enTetesDesColonnes.ajoute(e);
                     }
                 );
@@ -335,8 +336,8 @@ export class KfListeEditions {
         const composant = this.liste.creeItems.composant(item);
         if (this.dansTable && composant.typeDeComposant === KfTypeDeComposant.groupe) {
             const g = composant as KfGroupe;
-            g.ajouteClasse('kf-row');
-            g.contenus.forEach(c => c.ajouteClasse('kf-cell'));
+            g.ajouteClasseDef('kf-row');
+            g.contenus.forEach(c => c.ajouteClasseDef('kf-cell'));
         }
     }
 

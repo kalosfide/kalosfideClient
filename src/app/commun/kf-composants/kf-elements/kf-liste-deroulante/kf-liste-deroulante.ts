@@ -1,9 +1,10 @@
 import { KfTypeDeComposant, KfTypeDeValeur } from '../../kf-composants-types';
-import { KfTexteImage } from '../../kf-partages/kf-texte-image';
+import { KfTexteImage } from '../../kf-partages/kf-texte-image/kf-texte-image';
 import { Liste, TypeDEvenementDeListe, EvenementDeListe, DétailAjoute, DétailSupprime, DétailDéplace } from '../../../outils/liste';
 import { KfEntrée } from '../../kf-composant/kf-entree';
+import { KfTexteDef } from '../../kf-partages/kf-texte-def';
 
-interface OptionDeListe { texte: string; valeur: string | number; estObject: boolean; }
+export interface OptionDeListe { texte: string; valeur: string | number; estObject: boolean; }
 
 export class KfListeDeroulante extends KfEntrée {
     // données
@@ -17,19 +18,18 @@ export class KfListeDeroulante extends KfEntrée {
     multiple: boolean;
 
     estLiée: boolean;
-    nullPossible: boolean;
+    nullImpossible: boolean;
 
     constructor(nom: string,
-        texte?: string | (() => string),
-        imageAvant?: string | (() => string),
-        imageApres?: string | (() => string)
+        texte?: KfTexteDef,
+        imageAvant?: KfTexteDef,
+        imageApres?: KfTexteDef
     ) {
         super(nom, KfTypeDeComposant.listederoulante, texte, imageAvant, imageApres);
         this.liste = new Liste();
         this._valeur = null;
         this._options = [];
         this.estLiée = false;
-        this.nullPossible = true;
     }
 
     lieAListe(liste: Liste, creeTexte?: (item: any) => string, creeValeur?: (item: any) => string | number) {
@@ -123,7 +123,7 @@ export class KfListeDeroulante extends KfEntrée {
         } else {
             this._options = this.liste.Objets.map(o => o as OptionDeListe);
         }
-        if (this.nullPossible) {
+        if (!this.nullImpossible) {
             this._options.unshift(this.optionNulle());
         }
         return this._options;
@@ -136,7 +136,6 @@ export class KfListeDeroulante extends KfEntrée {
     get contenus(): any[] {
         return this.liste ? this.liste.Objets : this._options;
     }
-
     // DONNEES
 
     _ajouteAValeurParent(valeurParent: any) {
@@ -155,7 +154,7 @@ export class KfListeDeroulante extends KfEntrée {
     }
 
     depuisForm() {
-        this.valeur = this.formControl.value;
+        this._valeur = this.formControl.value;
     }
     versForm() {
         this.formControl.setValue(this.valeur);

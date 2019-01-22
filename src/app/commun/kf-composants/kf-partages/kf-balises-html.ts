@@ -1,4 +1,5 @@
 export enum KfTypeBaliseConteneur {
+    small = 'small',
     span = 'span',
     div = 'div',
     P = 'P',

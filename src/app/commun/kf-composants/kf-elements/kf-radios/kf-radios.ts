@@ -1,6 +1,6 @@
 import { KfTypeDeComposant, KfTypeDeValeur } from '../../kf-composants-types';
 import { KfComposant } from '../../kf-composant/kf-composant';
-import { KfTexteImage } from '../../kf-partages/kf-texte-image';
+import { KfTexteImage } from '../../kf-partages/kf-texte-image/kf-texte-image';
 import { KfRadio } from './kf-radio';
 import { KfEntrée } from '../../kf-composant/kf-entree';
 import { KfGereTabIndex } from '../../kf-composant/kf-composant-gere-tabindex';
@@ -10,7 +10,7 @@ export class KfRadios extends KfEntrée {
     constructor(nom: string) {
         super(nom, KfTypeDeComposant.radios);
         this._valeur = null;
-        this.ajouteClasse('form-group', 'radio');
+        this.ajouteClasseDef('form-group', 'radio');
     }
 
     navigueAuClavier() {

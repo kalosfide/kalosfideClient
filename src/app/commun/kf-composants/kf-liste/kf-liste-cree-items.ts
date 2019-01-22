@@ -1,11 +1,4 @@
 import { KfComposant } from '../kf-composant/kf-composant';
-import { KfTypeDeComposant, KfTypeDeValeur } from '../kf-composants-types';
-import { KfGroupe } from '../kf-groupe/kf-groupe';
-import { AbstractControl, FormArray } from '@angular/forms';
-import { Liste } from '../../outils/liste';
-import { KfTexteImage } from '../kf-partages/kf-texte-image';
-import { KfBouton } from '../kf-elements/kf-bouton/kf-bouton';
-import { KfNombre } from '../kf-elements/kf-nombre/kf-nombre';
 import { KfListe } from './kf-liste';
 import { KfParametres } from '../kf-composants-parametres';
 import { KfComposantGereValeur } from '../kf-composant/kf-composant-gere-valeur';

@@ -4,7 +4,7 @@ import {
 import { KfBouton } from './kf-bouton';
 import { KfComposantComponent } from '../../kf-composant/kf-composant.component';
 import { FormGroup } from '@angular/forms';
-import { KfTexteImage } from '../../kf-partages/kf-texte-image';
+import { KfTexteImage } from '../../kf-partages/kf-texte-image/kf-texte-image';
 import { KfTypeDeBouton } from '../../kf-composants-types';
 
 @Component({
@@ -23,6 +23,7 @@ export class KfBoutonComponent extends KfComposantComponent implements OnInit, A
     ngAfterViewInit() {
         this.composant.gereHtml.htmlElement = this.htmlElementRef.nativeElement;
         this.initialiseHtml();
+        console.log(this.composant.nom, 'ngAfterViewInit');
     }
 
     get button(): HTMLButtonElement {

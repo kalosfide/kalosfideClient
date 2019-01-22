@@ -1,0 +1,19 @@
+<ng-template #avecConfirme>
+    <a #baliseElement (click)="confirme()" [ngClass]="classe">
+        <app-kf-texte-image  [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </a>
+</ng-template>
+<ng-template #sansConfirme>
+    <a #baliseElement [routerLink]="composant.route" [queryParams]="composant.queryParams" routerLinkActive="active" [ngClass]="classe">
+        <app-kf-texte-image  [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </a>
+</ng-template>
+<ng-template #actif>
+    <ng-container *ngIf="composant.avecConfirme; then avecConfirme; else sansConfirme"></ng-container>
+</ng-template>
+<ng-template #inactif>
+    <a #baliseElement [ngClass]="classe">
+        <app-kf-texte-image  [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </a>
+</ng-template>
+<ng-container *ngIf="composant.inactif; then inactif; else actif"></ng-container>

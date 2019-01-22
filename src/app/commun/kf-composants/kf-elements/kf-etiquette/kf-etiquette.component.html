@@ -1,0 +1,51 @@
+<ng-container [ngSwitch]="composant.baliseHTML">
+
+    <ng-container *ngSwitchCase="typeDeBalise.aucun">
+        <app-kf-texte-image  [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </ng-container>
+
+    <div *ngSwitchCase="typeDeBalise.div" #baliseElement [ngClass]="composant.classe">
+        <app-kf-texte-image  [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </div>
+
+    <small *ngSwitchCase="typeDeBalise.small" #baliseElement [ngClass]="composant.classe">
+        <app-kf-texte-image  [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </small>
+
+    <span *ngSwitchCase="typeDeBalise.span" #baliseElement [ngClass]="composant.classe">
+        <app-kf-texte-image  [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </span>
+
+    <P *ngSwitchCase="typeDeBalise.P" #baliseElement [ngClass]="composant.classe">
+        <app-kf-texte-image  [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </P>
+
+    <h1 *ngSwitchCase="typeDeBalise.h1" #baliseElement [ngClass]="composant.classe">
+        <app-kf-texte-image  [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </h1>
+
+    <h2 *ngSwitchCase="typeDeBalise.h2" #baliseElement [ngClass]="composant.classe">
+        <app-kf-texte-image  [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </h2>
+
+    <h3 *ngSwitchCase="typeDeBalise.h3" #baliseElement [ngClass]="composant.classe">
+        <app-kf-texte-image  [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </h3>
+
+    <h4 *ngSwitchCase="typeDeBalise.h4" #baliseElement [ngClass]="composant.classe">
+        <app-kf-texte-image  [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </h4>
+
+    <h5 *ngSwitchCase="typeDeBalise.h5" #baliseElement [ngClass]="composant.classe">
+        <app-kf-texte-image  [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </h5>
+
+    <h6 *ngSwitchCase="typeDeBalise.h6" #baliseElement [ngClass]="composant.classe">
+        <app-kf-texte-image  [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </h6>
+
+    <label *ngSwitchCase="typeDeBalise.label" #baliseElement [ngClass]="composant.classe">
+        <app-kf-texte-image  [texteImage]="composant.texteImage"></app-kf-texte-image>
+    </label>
+
+</ng-container>

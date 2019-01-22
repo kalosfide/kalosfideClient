@@ -42,7 +42,7 @@ export class KfMenu extends KfElement {
         // traitement des clics
         this.gereHtml.ajouteTraiteur(KfTypeDEvenement.menuChange, this.traiteMenuChange);
         // classe css
-        this.ajouteClasse(direction ? direction : KfMenuDirection.vertical);
+        this.ajouteClasseDef(direction ? direction : KfMenuDirection.vertical);
     }
 
     // OUVRIR FERMER

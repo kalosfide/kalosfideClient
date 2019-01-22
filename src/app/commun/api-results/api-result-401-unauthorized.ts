@@ -1,9 +1,11 @@
-import { ApiResultRedirige } from './api-result-redirige';
+import { ComptePages } from 'src/app/compte/compte-pages';
+import { ApiResult } from './api-result';
+import { AppPages } from 'src/app/app-pages';
 
-export class ApiResult401Unauthorized extends ApiResultRedirige {
+export class ApiResult401Unauthorized extends ApiResult {
     static code = 401;
 
-    constructor(redirigeVers: string) {
-        super(401, 'Vous n\'êtes pas connecté.', redirigeVers);
+    constructor() {
+        super(401, [AppPages.compte.urlSegment, ComptePages.connection.urlSegment]);
     }
 }

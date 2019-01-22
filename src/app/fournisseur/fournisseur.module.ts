@@ -5,17 +5,31 @@ import { CommunModule } from '../commun/commun.module';
 import { DispositionModule } from '../disposition/disposition.module';
 
 import { FournisseurRoutingModule } from './fournisseur-routing.module';
-import { FournisseurIndexComponent } from './fournisseur-index/fournisseur-index.component';
+import { FournisseurService } from './fournisseur.service';
+import { FAccueilComponent } from './f-accueil.component';
+import { MessagesModule } from '../messages/messages.module';
+import { ModelesModule } from '../modeles/modeles.module';
+import { FCommandeComponent } from './f-commandes/f-commande.component';
+import { FSiteOuvertureComponent } from './f-sites/f-site-ouverture.component';
+import { FCommandeResolverService } from './f-commandes/f-commande-resolver.service';
 
 @NgModule({
     imports: [
         CommonModule,
         CommunModule,
+        ModelesModule,
         DispositionModule,
+        MessagesModule,
         FournisseurRoutingModule
     ],
     declarations: [
-        FournisseurIndexComponent
-    ]
+        FAccueilComponent,
+        FCommandeComponent,
+        FSiteOuvertureComponent,
+    ],
+    providers: [
+        FournisseurService,
+        FCommandeResolverService,
+    ],
 })
 export class FournisseurModule { }

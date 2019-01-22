@@ -1,9 +1,11 @@
 import { KfTypeDeComposant, KfTypeDeValeur } from '../kf-composants-types';
 import { KfComposant } from './kf-composant';
-import { AbstractControl, FormControl } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { KfComposantGereValeur } from './kf-composant-gere-valeur';
+import { KfTexteDef, ValeurTexteDef } from '../kf-partages/kf-texte-def';
+import { KfEtiquette } from '../kf-elements/kf-etiquette/kf-etiquette';
 
-export type KfValeurEntrée = boolean | string | number | null;
+export type KfValeurEntrée = boolean | string | number | Date | null;
 
 /**
  * KfEntrée
@@ -12,23 +14,18 @@ export type KfValeurEntrée = boolean | string | number | null;
 export abstract class KfEntrée extends KfComposant {
 
     _valeur: KfValeurEntrée;
+    private _lectureSeule: boolean;
+    private _lectureSeuleFnc: () => boolean;
+    private _texteRemplissageDef: KfTexteDef;
+    private _etiquetteAide: KfEtiquette;
 
     constructor(nom: string, typeDeComposant: KfTypeDeComposant,
-        texte?: string | (() => string),
-        imageAvant?: string | (() => string),
-        imageApres?: string | (() => string)
+        texte?: KfTexteDef,
+        imageAvant?: KfTexteDef,
+        imageApres?: KfTexteDef
     ) {
         super(nom, typeDeComposant, texte, imageAvant, imageApres);
         this.gereValeur = new KfComposantGereValeur(this, KfTypeDeValeur.avecEntree);
-    }
-
-    ajoute(composant: KfComposant) {
-        throw Error('On ne peut pas ajouter de sous-composants à un compoant de ce type: ' + this.typeDeComposant);
-    }
-
-    private créeFormControl(): FormControl {
-        const formControl = new FormControl('');
-        return formControl;
     }
 
     litValeur(): KfValeurEntrée {
@@ -36,7 +33,7 @@ export abstract class KfEntrée extends KfComposant {
             return this.formControl.value;
         }
         if (this.estRacine) {
-            return this._valeur;
+            return this.gereValeur.valeur;
         } else {
             return this.valeurDansParent;
         }
@@ -61,6 +58,54 @@ export abstract class KfEntrée extends KfComposant {
 
     get formControl(): FormControl {
         return this.abstractControl as FormControl;
+    }
+
+    /**
+     *  méthodes pour fixer la façon de déterminer lectureSeule
+     */
+    set lectureSeule(lectureSeule: boolean) {
+        this._lectureSeule = lectureSeule;
+    }
+    set lectureSeuleFnc(lectureSeuleFnc: () => boolean) {
+        this._lectureSeuleFnc = lectureSeuleFnc;
+    }
+    /**
+     * permet d'affecter l'attribut readonly au DOM element
+     */
+    get lectureSeule(): boolean {
+        return (this._lectureSeuleFnc) ? this._lectureSeuleFnc() : this._lectureSeule;
+    }
+
+    /**
+     *  méthodes pour fixer l'attribut placeholder
+     */
+    set texteRemplissage(texte: string) {
+        this._texteRemplissageDef = texte;
+    }
+    set texteRemplissageFnc(texteFnc: () => string) {
+        this._texteRemplissageDef = texteFnc;
+    }
+    /**
+     * permet d'affecter l'attribut placeholder au DOM element
+     */
+    get texteRemplissage(): string {
+        if (this._texteRemplissageDef) {
+            return ValeurTexteDef(this._texteRemplissageDef);
+        }
+        return '';
+    }
+
+    /**
+     *  méthodes pour fixer l'attribut placeholder
+     */
+    set texteAide(etiquette: KfEtiquette) {
+        this._etiquetteAide = etiquette;
+    }
+    /**
+     * permet d'affecter l'attribut placeholder au DOM element
+     */
+    get texteAide(): KfEtiquette {
+        return this._etiquetteAide;
     }
 
 }

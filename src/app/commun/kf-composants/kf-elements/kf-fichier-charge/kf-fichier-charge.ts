@@ -1,10 +1,11 @@
 import { KfTypeDeComposant, KfTypeDeValeur, KfTypeDeBaliseDEtiquette } from '../../kf-composants-types';
-import { KfTexteImage } from '../../kf-partages/kf-texte-image';
+import { KfTexteImage } from '../../kf-partages/kf-texte-image/kf-texte-image';
 import { KfElement } from '../../kf-composant/kf-element';
 import { KfTypeDHTMLEvents } from '../../kf-partages/kf-evenements';
 import { KfSuperGroupe } from '../../kf-groupe/kf-super-groupe';
 import { KfParametres } from '../../kf-composants-parametres';
 import { KfFichier } from '../kf-fichier/kf-fichier';
+import { KfTexteDef } from '../../kf-partages/kf-texte-def';
 
 export interface KfResultatFichierCharge {
     file: File;
@@ -30,9 +31,9 @@ export class KfFichierCharge extends KfElement {
      * @param imageApres image du bouton
      */
     constructor(nom: string, extension?: string,
-        texte?: string | (() => string),
-        imageAvant?: string | (() => string),
-        imageApres?: string | (() => string)
+        texte?: KfTexteDef,
+        imageAvant?: KfTexteDef,
+        imageApres?: KfTexteDef
     ) {
         super(nom, KfTypeDeComposant.fichierCharge);
         this.fichier = new KfFichier(nom + '_f', texte, imageAvant, imageApres);

@@ -6,12 +6,11 @@ import { CommunModule } from '../commun/commun.module';
 
 import { MenuComponent } from './menu/menu.component';
 import { ItemDeMenuComponent } from './item-de-menu/item-de-menu.component';
-import { SousMenuComponent } from './sous-menu/sous-menu.component';
 import { PiedComponent } from './pied/pied.component';
-import { MenuConnectionComponent } from './menu-connection/menu-connection.component';
-import { DispositionComponent } from './disposition/disposition.component';
-import { PageInterditeComponent } from './page-message/page-interdite.component';
-import { PageIntrouvableComponent } from './page-message/page-introuvable.component';
+import { EtapeDeFormulaireComponent } from './formulaire/etape-de-formulaire.component';
+import { FormulaireAEtapeResolverService } from './formulaire/formulaire-a-etapes-resolver.service';
+import { FormulaireAEtapeService } from './formulaire/formulaire-a-etapes.service';
+import { TitrePageComponent } from './titre-page/titre-page.component';
 
 @NgModule({
     imports: [
@@ -21,16 +20,19 @@ import { PageIntrouvableComponent } from './page-message/page-introuvable.compon
     ],
     declarations: [
         MenuComponent,
-        SousMenuComponent,
         ItemDeMenuComponent,
-        MenuConnectionComponent,
         PiedComponent,
-        DispositionComponent,
-        PageInterditeComponent,
-        PageIntrouvableComponent,
+        TitrePageComponent,
+        EtapeDeFormulaireComponent,
+    ],
+    providers: [
+        FormulaireAEtapeResolverService,
+        FormulaireAEtapeService,
     ],
     exports: [
-        DispositionComponent,
+        MenuComponent,
+        TitrePageComponent,
+        PiedComponent,
     ],
 })
 export class DispositionModule { }

@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { SiteInfo } from '../../site-info/site-info';
-import { SiteInfoStaticService } from '../../site-info/site-info-static.service';
+import { AppSite } from 'src/app/app-site/app-site';
 
 @Component({
   selector: 'app-pied',
@@ -8,15 +7,14 @@ import { SiteInfoStaticService } from '../../site-info/site-info-static.service'
   styleUrls: []
 })
 export class PiedComponent implements OnInit {
-    siteInfo: SiteInfo;
+    AppSite: any;
 
     constructor(
-        private service: SiteInfoStaticService
     ) {
+        this.AppSite = AppSite;
     }
 
   ngOnInit() {
-      this.siteInfo = this.service.siteInfo;
   }
 
 }

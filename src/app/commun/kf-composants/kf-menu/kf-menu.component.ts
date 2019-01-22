@@ -6,7 +6,7 @@ import { KfComposantComponent } from '../kf-composant/kf-composant.component';
 @Component({
     selector: 'app-kf-menu',
     template: `
-    <div #divElement [class]="composant.classe">
+    <div #divElement [ngClass]="composant.classe">
         <app-kf-sous-menu *ngFor="let sousMenu of composant.sousMenus"
             [composant]="sousMenu" (output)="traiteOuTransmet($event)"></app-kf-sous-menu>
     </div>

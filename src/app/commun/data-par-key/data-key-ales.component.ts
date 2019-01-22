@@ -1,39 +1,41 @@
-import { Router, ActivatedRoute } from '@angular/router';
-import { Title } from '@angular/platform-browser';
+import { Router, ActivatedRoute, Data } from '@angular/router';
 import { Observable } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
 
 import { AttenteAsyncService } from '../../services/attenteAsync.service';
-import { TitreHtmlService } from '../../services/titreHtml.service';
 
 import { FormulaireComponent } from '../../disposition/formulaire/formulaire.component';
 import { DataKeyService } from './data-key.service';
 import { ApiResult } from '../api-results/api-result';
-import { ApiResult200Ok } from '../api-results/api-result-200-ok';
-import { DataApiRoutes } from './data-api-routes';
+import { DataTexteSoumettre } from './data-pages';
 import { KfGroupe } from '../kf-composants/kf-groupe/kf-groupe';
 import { DataKey } from './data-key';
-import { DataChamp } from './data-champ';
 import { DataKeyEditeur } from './data-key-editeur';
+import { ApiAction } from '../api-route';
+import { KfLien } from '../kf-composants/kf-elements/kf-lien/kf-lien';
 
-export abstract class DataKeyALESComponent<T> extends FormulaireComponent {
+export abstract class DataKeyALESComponent<T extends DataKey> extends FormulaireComponent {
 
-    abstract action: string;
-    dataEditeur: DataKeyEditeur;
-    abstract créeDataEditeur();
+    get action(): string {
+        return this.pageDef.urlSegment;
+    }
 
-    créeBoutonsDeFormulaire = () => [this.créeBoutonSoumettreAsync(DataApiRoutes.texteBouton(this.action))];
+    abstract urlPageIndex: string;
+
+    protected chargeData: (data: Data) => void;
+
+    dataEditeur: DataKeyEditeur<T>;
+    abstract créeDataEditeur(): void;
+
+    créeBoutonsDeFormulaire = () => [this.créeBoutonSoumettre(DataTexteSoumettre(this.action))];
 
     constructor(
         protected router: Router,
         protected route: ActivatedRoute,
         protected service: DataKeyService<T>,
-        protected titleService: Title,
-        protected titreHtmlService: TitreHtmlService,
         protected attenteAsyncService: AttenteAsyncService,
     ) {
-        super(service, titleService, titreHtmlService, attenteAsyncService);
-        this.chargeAsync = [this.chargeAsync_ALES];
+        super(service, attenteAsyncService);
+        this.lienRetour = new KfLien('', () => this.urlPageIndex, 'Retour à la liste');
     }
 
     créeEdition = (): KfGroupe => {
@@ -42,60 +44,36 @@ export abstract class DataKeyALESComponent<T> extends FormulaireComponent {
         return this.dataEditeur.edition;
     }
 
-    private chargeAsync_A = (): Observable<ApiResult> => {
-        return this.service.créeKey()
-            .pipe(
-                map(
-                    apiResult => {
-                        if (apiResult.statusCode === 200) {
-                            const key = (apiResult as ApiResult200Ok<DataKey>).lecture;
-                            this.dataEditeur.fixeChampsKeys(key);
-                        }
-                        return apiResult;
-                    }
-                )
-            );
+    private prépareKeyAjout() {
+        const key = this.service.keyDeAjoute;
+        this.dataEditeur.fixeChampsKeys(key);
+    }
+    protected chargeValeur(data: Data) {
+        this.valeur = data.valeur;
     }
 
-    private chargeAsync_LES = (): Observable<ApiResult> => {
-        return this.route.data
-            .pipe(
-                switchMap(
-                    routeData => {
-                        const key = this.service.keyRouteData(routeData);
-                        return this.service.lit(key);
-                    }
-                ),
-                map(
-                    apiResult => {
-                        if (apiResult.statusCode === 200) {
-                            this.valeur = (apiResult as ApiResult200Ok<T>).lecture;
-                        }
-                        return apiResult;
-                    }
-                )
-            );
-    }
-
-    protected chargeAsync_ALES = (): Observable<ApiResult> => {
-        switch (this.action) {
-            case DataApiRoutes.Api.ajoute:
-                return this.chargeAsync_A();
-            case DataApiRoutes.Api.edite:
-            case DataApiRoutes.Api.supprime:
-                return this.chargeAsync_LES();
-            default:
-                break;
-        }
+    public ngOnInit_Charge() {
+        this.subscriptions.push(this.route.data.subscribe(
+            (data: Data) => {
+                if (this.chargeData) {
+                    this.chargeData(data);
+                }
+                if (this.action === ApiAction.data.ajoute) {
+                    this.prépareKeyAjout();
+                } else {
+                    this.chargeValeur(data);
+                }
+            }
+        ));
     }
 
     soumission = (): Observable<ApiResult> => {
         switch (this.action) {
-            case DataApiRoutes.Api.ajoute:
+            case ApiAction.data.ajoute:
                 return this.service.ajoute(this.valeur);
-            case DataApiRoutes.Api.edite:
+            case ApiAction.data.edite:
                 return this.service.edite(this.valeur);
-            case DataApiRoutes.Api.supprime:
+            case ApiAction.data.supprime:
                 return this.service.supprime(this.valeur);
             default:
                 break;
@@ -103,7 +81,7 @@ export abstract class DataKeyALESComponent<T> extends FormulaireComponent {
     }
 
     actionSiOk = (): void => {
-        this.router.navigate(['..']);
+        this.router.navigate([this.urlPageIndex]);
     }
 
     get valeur(): any {

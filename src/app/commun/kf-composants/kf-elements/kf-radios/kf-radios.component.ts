@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, ViewChild, ViewChildren, QueryList, AfterViewInit, ElementRef } from '@angular/core';
 import { KfRadios } from './kf-radios';
 import { KfComposantComponent } from '../../kf-composant/kf-composant.component';
-import { KfRadio } from './kf-radio';
+import { KfComposant } from '../../kf-composant/kf-composant';
 
 @Component({
     selector: 'app-kf-radios',
@@ -12,6 +12,10 @@ export class KfRadiosComponent extends KfComposantComponent implements OnInit, A
 
     get radios(): KfRadios {
         return this.composant as KfRadios;
+    }
+
+    get radioBoutons(): KfComposant[] {
+        return this.radios.contenus;
     }
 
     constructor() {

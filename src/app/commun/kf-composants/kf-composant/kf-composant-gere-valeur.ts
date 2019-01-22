@@ -1,29 +1,20 @@
-import { AbstractControl, ValidatorFn, Validators, FormArray, FormControl, FormGroup, ValidationErrors } from '@angular/forms';
+import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors } from '@angular/forms';
 import { KfComposant } from './kf-composant';
 import { KfEntrée } from './kf-entree';
 import { KfListe } from '../kf-liste/kf-liste';
 import { KfGroupe } from '../kf-groupe/kf-groupe';
 import { KfTypeDeComposant, KfTypeDeValeur } from '../kf-composants-types';
-import { isArray } from 'util';
-import { KfValidateur, KfValidateurs } from '../kf-partages/kf-validateur';
+import { KfValidateur } from '../kf-partages/kf-validateur';
+import { KfVueTable, IKfVueTable } from '../kf-vue-table/kf-vue-table';
+import { Noeud } from '../../outils/arbre/noeud';
 
-export interface KfIComposantAvecValeur {
-    composant: KfComposant;
-    litValeur(): any;
-    fixeValeur(valeur: any);
-    estEgal(valeur: any);
-    initialiseValeurEtControl();
-    ajouteAValeur(valeurGroupeParent: any);
-    ajouteAControls(controls: { [key: string]: AbstractControl; });
-    // si racine
-    initialise();
-    rétablit(valeur: any);
-}
-
-export type KfComposantAvecValeur = KfEntrée | KfListe | KfGroupe;
+export type KfComposantAvecValeur = KfEntrée | KfListe | KfGroupe | IKfVueTable;
 
 export class KfComposantGereValeur {
-    composant: KfComposantAvecValeur;
+    icomposant: KfComposantAvecValeur;
+    composant: KfComposant;
+    noeudV: Noeud; // disposition
+    estRacineV: boolean;
 
     /**
     * _valeur: any
@@ -45,11 +36,6 @@ export class KfComposantGereValeur {
      * si vrai et si _validateurs, affiche un message expliquant pourquoi le composant est invalide
      */
     private _afficheErreur = true;
-
-    /**
-     * listes des noms d'erreur de validation à attribuer au composant
-     */
-    nomsErreurValidation: string[];
 
     /**
      * typeDeValeur: TypeDeValeur
@@ -92,17 +78,29 @@ export class KfComposantGereValeur {
      *  les autres utilisent leur ValeurDansParent
      */
 
-    editionEnCours: boolean;
-
     constructor(composant: KfComposantAvecValeur, typeDeValeur?: KfTypeDeValeur) {
-        this.composant = composant;
+        this.icomposant = composant;
+        this.composant = composant.composant;
         this.typeDeValeur = typeDeValeur ? typeDeValeur : KfTypeDeValeur.aucun;
+        this.noeudV = new Noeud();
+        this.noeudV.objet = this;
+    }
+
+    // avec disposition
+    ajoute(gereValeur: KfComposantGereValeur) {
+        if (this.composant.typeDeComposant === KfTypeDeComposant.groupe) {
+            this.noeudV.Ajoute(gereValeur.noeudV);
+        }
+        throw new Error('ajout de valeur impossible si pas groupe');
+    }
+    get contenus(): KfComposant[] {
+        return this.noeudV.Enfants.map(e => (e.objet as KfComposantGereValeur).composant);
     }
 
     // ACCES AUX MEMBRES
 
     get abstractControl(): AbstractControl {
-        if (this.composant.estRacine) {
+        if (this.estRacineV) {
             return this._abstractControl;
         }
         const g = this.composant.groupeParent;
@@ -113,9 +111,16 @@ export class KfComposantGereValeur {
             }
         }
     }
+    set abstractControl(control: AbstractControl) {
+        if (this.estRacineV) {
+            this._abstractControl = control;
+            return;
+        }
+        throw new Error('impossible de fixer abstractControl');
+    }
 
     get valeur(): any {
-        if (this.composant.estRacine) {
+        if (this.estRacineV) {
             return this._valeur;
         } else {
             if (this.composant.groupeParent.valeur) {
@@ -124,7 +129,7 @@ export class KfComposantGereValeur {
         }
     }
     set valeur(valeur: any) {
-        if (this.composant.estRacine) {
+        if (this.estRacineV) {
             this._valeur = valeur;
         } else {
             if (this.composant.groupeParent.valeur) {
@@ -132,55 +137,140 @@ export class KfComposantGereValeur {
             }
         }
     }
-    estEgalA(valeur: any): boolean {
-        let contenus: KfComposant[];
+
+    // GROUPE
+
+    // INITIALISATION
+    /** */
+    prépare() {
+        if (!this.estRacineV) {
+            return;
+        }
         switch (this.composant.typeDeComposant) {
             case KfTypeDeComposant.groupe:
-                // si les champs sont dans un ordre différent, les JSON.stringify doivent avoir la même longueur
-                if (JSON.stringify(this.valeur).length !== JSON.stringify(valeur).length) {
-                    return false;
-                }
-                contenus = (this.composant as KfGroupe).contenus;
-                for (let i = 0; i < contenus.length; i++) {
-                    if (!contenus[i].gereValeur.estEgalA(valeur[contenus[i].nom])) {
-                        return false;
-                    }
-                }
-                return true;
+                this._valeur = this.créeValeur();
+                this._abstractControl = new FormGroup(this.créeControls());
+                this._abstractControl.setValue(this._valeur);
+                this.fixeValidators(this._abstractControl);
+                break;
             case KfTypeDeComposant.liste:
-                contenus = (this.composant as KfListe).contenus;
-                if (!isArray(valeur) || valeur.length !== contenus.length) {
-                    return false;
+                this._valeur = [];
+                this._abstractControl = new FormArray([]);
+                if (this._valeur) {
+                    this._abstractControl.setValue(this._valeur);
+                    this.fixeValidators(this._abstractControl);
                 }
-                for (let i = 0; i < contenus.length; i++) {
-                    if (!contenus[i].gereValeur.estEgalA(valeur[i])) {
-                        return false;
-                    }
-                }
-                return true;
+                break;
             default:
-                return this._valeur === valeur;
+                const entrée = this.composant as KfEntrée;
+                this._abstractControl = new FormControl();
+                this._abstractControl.setValue(entrée._valeur);
+                this.fixeValidators(this._abstractControl);
+                break;
         }
     }
 
+    // pour un groupe
+    private créeValeur(): any {
+        const valeur = {};
+        let enfant = this.noeudV.enfant;
+        while (enfant) {
+            const gereValeur = enfant.objet as KfComposantGereValeur;
+            switch (gereValeur.composant.typeDeComposant) {
+                case KfTypeDeComposant.groupe:
+                    const groupe = gereValeur.composant as KfGroupe;
+                    valeur[groupe.nom] = gereValeur.créeValeur();
+                    break;
+                case KfTypeDeComposant.liste:
+                    const liste = gereValeur.composant as KfListe;
+                    valeur[liste.nom] = [];
+                    break;
+                case KfTypeDeComposant.vuetable:
+                    const vueTable = gereValeur.icomposant as IKfVueTable;
+                    valeur[gereValeur.composant.nom] = vueTable.valeurs;
+                    break;
+                default:
+                    const entrée = gereValeur.composant as KfEntrée;
+                    valeur[entrée.nom] = entrée._valeur === undefined ? null : entrée._valeur;
+                    break;
+            }
+            enfant = enfant.suivant;
+        }
+        return valeur;
+    }
+
+    // pour un groupe
+    private créeControls(): { [key: string]: AbstractControl; } {
+        const controls: { [key: string]: AbstractControl; } = {};
+        let enfant = this.noeudV.enfant;
+        let abstractControl: AbstractControl;
+        while (enfant) {
+            const gereValeur = enfant.objet as KfComposantGereValeur;
+            switch (gereValeur.composant.typeDeComposant) {
+                case KfTypeDeComposant.groupe:
+                    abstractControl = new FormGroup(gereValeur.créeControls());
+                    break;
+                case KfTypeDeComposant.liste:
+                    abstractControl = new FormArray([]);
+                    break;
+                case KfTypeDeComposant.vuetable:
+                    const vueTable = gereValeur.icomposant as IKfVueTable;
+                    abstractControl = new FormArray(vueTable.formGroups);
+                    break;
+                default:
+                    const entrée = gereValeur.composant as KfEntrée;
+                    abstractControl = new FormControl();
+                    abstractControl.setValue(entrée._valeur);
+                    break;
+            }
+            controls[gereValeur.composant.nom] = abstractControl;
+            gereValeur.fixeValidators(abstractControl);
+            enfant = enfant.suivant;
+        }
+        return controls;
+    }
+
+    rétablit(valeur: any) {
+        if (!this.estRacineV) {
+            return;
+        }
+        switch (this.composant.typeDeComposant) {
+            case KfTypeDeComposant.groupe:
+                this._valeur = valeur;
+                this.recréeListes(valeur);
+                break;
+            case KfTypeDeComposant.liste:
+                const liste = this.composant as KfListe;
+                liste.remplit(liste.creeItems.recréeItems(valeur));
+                break;
+            default:
+                this._valeur = valeur;
+                break;
+        }
+        this._abstractControl.reset(this._valeur);
+    }
+
+    // pour un groupe
+    private recréeListes(valeur: any) {
+        let enfant = this.noeudV.enfant;
+        while (enfant) {
+            const gereValeur = enfant.objet as KfComposantGereValeur;
+            switch (gereValeur.composant.typeDeComposant) {
+                case KfTypeDeComposant.groupe:
+                    gereValeur.recréeListes(valeur[gereValeur.composant.nom]);
+                    break;
+                case KfTypeDeComposant.liste:
+                    const liste = gereValeur.composant as KfListe;
+                    liste.remplit(liste.creeItems.recréeItems(valeur[liste.nom]));
+                    break;
+                default:
+                    break;
+            }
+            enfant = enfant.suivant;
+        }
+    }
 
     /* VALIDATION */
-    get requis(): boolean {
-        return this._validateurs && this._validateurs[0].validatorFn.name === Validators.required.name;
-    }
-    set requis(valeur: boolean) {
-        if (!valeur && this.requis) {
-            this._validateurs.shift();
-        }
-        if (valeur) {
-            if (this._validateurs) {
-                if (this._validateurs[0].validatorFn.name !== Validators.required.name) {
-                    this._validateurs.unshift(KfValidateurs.required);
-                }
-            }
-            this._validateurs = [KfValidateurs.required];
-        }
-    }
 
     AjouteValidateur(validateur: KfValidateur) {
         if (this._validateurs) {
@@ -202,12 +292,20 @@ export class KfComposantGereValeur {
         }
         const control = this.abstractControl;
         if (control) {
-            control.setValidators(this.validatorsFn);
+            this.fixeValidators(control);
         }
     }
 
-    get validatorsFn(): ValidatorFn[] {
-        return this._validateurs.filter(v => !!v.validatorFn).map(v => v.validatorFn);
+    private fixeValidators(control: AbstractControl) {
+        if (!this._validateurs) { return; }
+        const validators = this._validateurs.filter(v => !!v.validatorFn).map(v => v.validatorFn);
+        if (validators.length > 0) {
+            control.setValidators(validators);
+        }
+        const asyncValidators = this._validateurs.filter(v => !!v.asyncValidatorFn).map(v => v.asyncValidatorFn);
+        if (asyncValidators.length > 0) {
+            control.setValidators(asyncValidators);
+        }
     }
 
     distribueValidationErrors(erreursADistribuer: ValidationErrors): ValidationErrors {
@@ -222,11 +320,18 @@ export class KfComposantGereValeur {
             );
         }
         const erreurs: ValidationErrors = {};
+        const validateurDe = (key: string) => {
+            return this._validateurs && this._validateurs.find(v => v.nom === key);
+        };
         const mesErreurs: ValidationErrors = {};
         Object.keys(erreursADistribuer).forEach(
             key => {
-                if (key === this.composant.nom || (this.nomsErreurValidation && this.nomsErreurValidation.includes(key))) {
+                const v = validateurDe(key);
+                if (v) {
                     mesErreurs[key] = erreursADistribuer[key];
+                    if (v.marqueErreur && this.abstractControl) {
+                        v.marqueErreur(this.abstractControl.value);
+                    }
                 } else {
                     erreurs[key] = erreursADistribuer[key];
                 }
@@ -307,180 +412,6 @@ export class KfComposantGereValeur {
             );
         }
         return messages;
-    }
-
-    // GROUPE
-
-    créeValeurDesEnfants(groupe: KfGroupe): any {
-        const valeur: any = {};
-        groupe.noeud.Enfants.forEach(
-            noeud => {
-                const composant = noeud.objet as KfComposant;
-                if (composant.gereValeur) {
-                    composant.gereValeur.ajouteAValeur(valeur);
-                }
-            }
-        );
-        if (Object.keys(valeur).length > 0) {
-            groupe.gereValeur.typeDeValeur = KfTypeDeValeur.avecGroupe;
-            return valeur;
-        } else {
-            groupe.gereValeur = null;
-            return null;
-        }
-    }
-
-    créeFormGroupDesEnfants(groupe: KfGroupe): FormGroup {
-        const controls: { [key: string]: AbstractControl } = {};
-        groupe.noeud.Enfants.forEach(noeud => {
-            const composant = noeud.objet as KfComposant;
-            if (composant.gereValeur) {
-                composant.gereValeur.ajouteAControls(controls);
-            }
-        });
-        if (this._validateurs) {
-            return new FormGroup(controls, this._validateurs.map(v => v.validatorFn));
-        } else {
-            return new FormGroup(controls);
-        }
-    }
-
-    // INITIALISATION
-    /** */
-    prépare() {
-        if (!this.composant.estRacine) {
-            return;
-        }
-        switch (this.composant.typeDeComposant) {
-            case KfTypeDeComposant.groupe:
-                const groupe = this.composant as KfGroupe;
-                this._valeur = this.créeValeurDesEnfants(groupe);
-                this._abstractControl = this.créeFormGroupDesEnfants(groupe);
-                break;
-            case KfTypeDeComposant.liste:
-                const liste = this.composant as KfListe;
-                this._valeur = [];
-                this._abstractControl = new FormArray([]);
-                break;
-            default:
-                const entrée = this.composant as KfEntrée;
-                if (this._valeur !== undefined) {
-                    this._valeur = null;
-                }
-                this._abstractControl = new FormControl();
-                this._abstractControl.setValue(this._valeur);
-                break;
-        }
-        if (this._valeur) {
-            this._abstractControl.setValue(this._valeur);
-            if (this._validateurs) {
-                this.abstractControl.setValidators(this.validatorsFn);
-            }
-        }
-    }
-
-    ajouteAValeur(valeurGroupeParent: any) {
-        switch (this.composant.typeDeComposant) {
-            case KfTypeDeComposant.groupe:
-                const groupe = this.composant as KfGroupe;
-                if (groupe.estConteneurSansValeur) {
-                    groupe.noeud.Enfants.forEach(
-                        noeud => {
-                            const composant = noeud.objet as KfComposant;
-                            if (composant.gereValeur) {
-                                composant.gereValeur.ajouteAValeur(valeurGroupeParent);
-                            }
-                        }
-                    );
-                } else {
-                    const valeur = this.créeValeurDesEnfants(groupe);
-                    if (valeur) {
-                        valeurGroupeParent[groupe.nom] = valeur;
-                    }
-                }
-                break;
-            case KfTypeDeComposant.liste:
-                const liste = this.composant as KfListe;
-                valeurGroupeParent[liste.nom] = [];
-                break;
-            default:
-                const entrée = this.composant as KfEntrée;
-                valeurGroupeParent[entrée.nom] = entrée._valeur === undefined ? null : entrée._valeur;
-                break;
-        }
-    }
-
-    ajouteAControls(controls: { [key: string]: AbstractControl; }) {
-        let abstractControl: AbstractControl;
-        switch (this.composant.typeDeComposant) {
-            case KfTypeDeComposant.groupe:
-                const groupe = this.composant as KfGroupe;
-                if (groupe.estConteneurSansValeur) {
-                    groupe.noeud.Enfants.forEach(noeud => {
-                        const composant = noeud.objet as KfComposant;
-                        if (composant.gereValeur) {
-                            composant.gereValeur.ajouteAControls(controls);
-                        }
-                    });
-                } else {
-                    abstractControl = this.créeFormGroupDesEnfants(groupe);
-                }
-                break;
-            case KfTypeDeComposant.liste:
-                const liste = this.composant as KfListe;
-                abstractControl = new FormArray([]);
-                break;
-            default:
-                const entrée = this.composant as KfEntrée;
-                abstractControl = new FormControl();
-                abstractControl.setValue(this._valeur);
-                break;
-        }
-        if (this._validateurs) {
-            abstractControl.setValidators(this.validatorsFn);
-        }
-        controls[this.composant.nom] = abstractControl;
-    }
-
-    rétablit(valeur: any) {
-        if (!this.composant.estRacine) {
-            return;
-        }
-        switch (this.composant.typeDeComposant) {
-            case KfTypeDeComposant.groupe:
-                const groupe = this.composant as KfGroupe;
-                this._valeur = valeur;
-                this.recréeListes(groupe, valeur);
-                break;
-            case KfTypeDeComposant.liste:
-                const liste = this.composant as KfListe;
-                liste.remplit(liste.creeItems.recréeItems(valeur));
-                break;
-            default:
-                const entrée = this.composant as KfEntrée;
-                this._valeur = valeur;
-                break;
-        }
-        this._abstractControl.reset(this._valeur);
-    }
-
-    private recréeListes(groupe: KfGroupe, valeur: any) {
-        groupe.noeud.Enfants.forEach(noeud => {
-            const composant = noeud.objet as KfComposant;
-            switch (composant.typeDeComposant) {
-                case KfTypeDeComposant.groupe:
-                    if (composant.gereValeur) {
-                        this.recréeListes(composant as KfGroupe, valeur[composant.nom]);
-                    }
-                    break;
-                case KfTypeDeComposant.liste:
-                    const liste = composant as KfListe;
-                    liste.remplit(liste.creeItems.recréeItems(valeur[composant.nom]));
-                    break;
-                default:
-                    break;
-            }
-        });
     }
 
     // MISE A JOUR

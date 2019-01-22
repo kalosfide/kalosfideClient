@@ -1,11 +1,9 @@
 import { KfComposant } from '../kf-composant/kf-composant';
 import { KfListe } from './kf-liste';
-import { KfTypeDeComposant, KfTypeDeBaliseDEtiquette } from '../kf-composants-types';
+import { KfTypeDeComposant } from '../kf-composants-types';
 import { KfBouton } from '../kf-elements/kf-bouton/kf-bouton';
 import { KfParametres } from '../kf-composants-parametres';
 import { KfTypeDEvenement, KfEvenement, KfStatutDEvenement } from '../kf-partages/kf-evenements';
-import { KfEtiquette } from '../kf-elements/kf-etiquette/kf-etiquette';
-import { TypeDEvenementDeListe, EvenementDeListe, DétailAjoute, DétailSupprime, DétailDéplace } from '../../outils/liste';
 import { KfLien } from '../kf-elements/kf-lien/kf-lien';
 
 /**
@@ -110,10 +108,10 @@ export class KfListeSelecteurs {
         this.liste = liste;
         const inter = selecteursInterface ? selecteursInterface : {};
         if (inter.creeSelecteur) {
-            this.creeSelecteur = (item?: object): KfComposant => {
+            this.creeSelecteur = (): KfComposant => {
                 const selecteur = inter.creeSelecteur();
-                selecteur.ajouteClasse(
-                    (composant: KfComposant) => composant === this.liste.selecteurChoisi ? 'kf-choisi' : null
+                selecteur.ajouteClasseDef(
+                    () => selecteur === this.liste.selecteurChoisi ? 'kf-choisi' : null
                 );
                 selecteur.inactivitéFnc = this.liste.editions.editionEnCoursFnc;
                 return selecteur;
@@ -146,7 +144,7 @@ export class KfListeSelecteurs {
                 if (this.liste.creeItems) {
                     id = this.liste.creeItems.id(item);
                 }
-                nom = nom + (id ? id : '_' + this.liste.contenu(item).nom);
+                nom = nom + (id ? id : '_' + this.liste.contenuDeItem(item).nom);
                 let t: string;
                 if (this.texte) {
                     t = this.texte(item);
@@ -176,9 +174,9 @@ export class KfListeSelecteurs {
                     default:
                         break;
                 }
-                selecteur.ajouteClasse('kf-liste-selecteur');
-                selecteur.ajouteClasse(
-                    (composant: KfComposant) => composant === this.liste.selecteurChoisi ? 'kf-choisi' : null
+                selecteur.ajouteClasseDef('kf-liste-selecteur');
+                selecteur.ajouteClasseDef(
+                    () => selecteur === this.liste.selecteurChoisi ? 'kf-choisi' : null
                 );
                 selecteur.inactivitéFnc = this.liste.editions.editionEnCoursFnc;
                 return selecteur;
@@ -204,7 +202,7 @@ export class KfListeSelecteurs {
         if (this.texte) {
             return this.texte(i);
         } else {
-            return this.liste.contenu(i).nom;
+            return this.liste.contenuDeItem(i).nom;
         }
     }
 

@@ -1,4 +1,7 @@
 import { Component } from '@angular/core';
+import { PageBaseComponent } from '../page-base/page-base.component';
+import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-groupe';
+import { PageDef } from 'src/app/commun/page-def';
 
 @Component({
     templateUrl: './page-message.component.html',
@@ -6,12 +9,10 @@ import { Component } from '@angular/core';
 })
 export abstract class PageMessageComponent {
 
-    abstract titre: string;
-    abstract message: string;
-    abstract urlDeSortie: string;
+    abstract pageDef: PageDef;
+    abstract messages: string[];
 
-    constructor(
-    ) {
+    get titre(): string {
+        return this.pageDef.titre;
     }
-
 }

@@ -1,12 +1,13 @@
 import { KfListeDeroulante } from '../kf-composants/kf-elements/kf-liste-deroulante/kf-liste-deroulante';
-import { IDataKey } from './data-key';
+import { DataKey } from './data-key';
+import { KfTexteDef } from '../kf-composants/kf-partages/kf-texte-def';
 
-export class DataListeDeroulante<T extends IDataKey> extends KfListeDeroulante {
+export class DataListeDeroulante<T extends DataKey> extends KfListeDeroulante {
 
     constructor(nom: string,
-        texte?: string | (() => string),
-        imageAvant?: string | (() => string),
-        imageApres?: string | (() => string)
+        texte?: KfTexteDef,
+        imageAvant?: KfTexteDef,
+        imageApres?: KfTexteDef
     ) {
         super(nom, texte, imageAvant, imageApres);
     }
