@@ -1,7 +1,7 @@
 <div class="form-group form-check">
     <input #inputElement type='radio' [name]="composant.radios.nom" [formControl]="composant.radios.formControl"
-        [value]="composant.valeur" [class]="composant.classe"  /><!--[appInactif]="composant.inactif" -->
-    <label *ngIf="composant.texteImage" #labelElement [attr.for]="composant.nom" class="form-check-label">
-        <app-kf-texte-image [texteImage]="composant.texteImage"></app-kf-texte-image>
+        [value]="composant.valeur" [class]="classe"  /><!--[appInactif]="composant.inactif" -->
+    <label *ngIf="composant.contenuPhrase" #labelElement [attr.for]="composant.nom" class="form-check-label text-dark">
+        <app-kf-contenu-phrase [contenuPhrase]="composant.contenuPhrase"></app-kf-contenu-phrase>
     </label>
 </div>

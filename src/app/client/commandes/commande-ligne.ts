@@ -3,7 +3,7 @@ import { TypesMesures } from '../../modeles/type-mesure';
 import { IdTypeCommande, TypesCommandes } from '../../modeles/type-commande';
 import { KfComposant } from '../../commun/kf-composants/kf-composant/kf-composant';
 import { KfListeDeroulante } from '../../commun/kf-composants/kf-elements/kf-liste-deroulante/kf-liste-deroulante';
-import { KfNombre } from '../../commun/kf-composants/kf-elements/kf-input/kf-nombre';
+import { KfInputNombre } from '../../commun/kf-composants/kf-elements/kf-input/kf-input-nombre';
 import { Commande } from './commande';
 import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-groupe';
 import { KfVueCelluleDef, KfVueTableEnTete } from 'src/app/commun/kf-composants/kf-vue-table/kf-vue-table';
@@ -114,7 +114,7 @@ export class CommandeLigne {
         this._superGroupe = new KfSuperGroupe('' + this.produit.no);
         this._superGroupe.créeGereValeur();
         this._superGroupe.estRacineV = true;
-        const no = new KfNombre('no');
+        const no = new KfInputNombre('no');
         no._valeur = this.produit.no;
         no.visibilite = false;
         this._superGroupe.ajoute(no);
@@ -192,11 +192,12 @@ export function CommeCommandeLigneDemande(composant: KfComposant): CommandeLigne
     }
 }
 
-export class CommandeLigneDemande extends KfNombre {
+export class CommandeLigneDemande extends KfInputNombre {
     ligne: CommandeLigne;
 
     constructor(ligne: CommandeLigne) {
         super(NomDemande(ligne));
+        this.ajouteClasseDef('form-control-sm');
         this.ligne = ligne;
         this.min = 0;
         this.rafraichit();
@@ -218,22 +219,35 @@ function compareCategorie(cl1: CommandeLigne, cl2: CommandeLigne): number {
     return CompareProduits.nomCategorie(cl1.produit, cl2.produit);
 }
 
+const enTeteCatégorie: KfVueTableEnTete<CommandeLigne> = {
+    texte: 'Catégorie',
+    tri: new Tri('categorie', compareCategorie)
+};
+const enTeteProduit: KfVueTableEnTete<CommandeLigne> = {
+    texte: 'Nom',
+    tri: new Tri('produit', compareProduit)
+};
+const enTetePrix: KfVueTableEnTete<CommandeLigne> = {
+    texte: 'Prix',
+};
+const enTeteType: KfVueTableEnTete<CommandeLigne> = {
+    texte: 'Type de commande',
+};
+const enTeteQuantité: KfVueTableEnTete<CommandeLigne> = {
+    texte: 'Quantité',
+};
+
 export const CommandeLigneEnTetes: KfVueTableEnTete<CommandeLigne>[] = [
-    {
-        texte: 'Catégorie',
-        tri: new Tri('categorie', compareCategorie)
-    },
-    {
-        texte: 'Nom',
-        tri: new Tri('produit', compareProduit)
-    },
-    {
-        texte: 'Prix',
-    },
-    {
-        texte: 'Type de commande',
-    },
-    {
-        texte: 'Quantité',
-    },
+    enTeteCatégorie,
+    enTeteProduit,
+    enTetePrix,
+    enTeteQuantité,
+];
+
+export const CommandeLigneEnTetesEditables: KfVueTableEnTete<CommandeLigne>[] = [
+    enTeteCatégorie,
+    enTeteProduit,
+    enTetePrix,
+    enTeteType,
+    enTeteQuantité,
 ];

@@ -16,7 +16,9 @@ import { ApiResult } from '../../commun/api-results/api-result';
 import { KfTypeDEvenement, KfEvenement } from '../../commun/kf-composants/kf-partages/kf-evenements';
 import { FCommandePages, FCommandeRoutes } from './f-commande-pages';
 import { FCommandeService } from './f-commande.service';
-import { FCommandeLigne, FCommandeEnTetes } from './f-commande';
+import { FCommandeLigne, FCommandeEnTetes, CODE_ACCEPTE } from './f-commande';
+import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
+import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',
@@ -35,26 +37,23 @@ export class FCommandeComponent extends FormulaireBaseComponent implements OnIni
     identifiant: Identifiant;
 
     vueTableDef: KfVueTableDef<FCommandeLigne> = {
-        enTetes: FCommandeEnTetes,
-        cellules: (ligne: FCommandeLigne): KfVueCelluleDef[] => ligne.cellulesEditables,
-        superGroupe: (ligne: FCommandeLigne): KfSuperGroupe => ligne.superGroupe
+        enTetesDef: FCommandeEnTetes,
+        cellules: (ligne: FCommandeLigne): KfVueCelluleDef[] => ligne.cellules,
+        superGroupe: (ligne: FCommandeLigne): KfSuperGroupe => ligne.superGroupe,
+        composantsAValider: (ligne: FCommandeLigne): KfComposant[] => ligne.composantsAValider
     };
 
     commandes: FCommandeLigne[];
     terminé = false;
 
-    commandesAcceptées(): FCommandeLigne[] {
-        return this.commandes.filter(l => l.accepte);
-    }
-
     actionSiOk = (): void => {
-        const commandes = this.commandes.filter(l => !l.accepte);
+        const commandes = this.commandes.filter(l => l.etat === CODE_ACCEPTE);
         if (commandes.length === 0) { }
         this.terminé = true;
         this.router.navigate([FCommandeRoutes.url(this.site.nomSite, FCommandePages.reception.urlSegment)]);
     }
     soumission = (): Observable<ApiResult> => {
-        return this.service.accepte(this.site, this.commandes.map(l => l.créeFCommandeDetail()));
+        return this.service.enregistre(this.site, this.commandes.map(l => l.créeFCommandeDetail()));
     }
 
     constructor(
@@ -67,7 +66,7 @@ export class FCommandeComponent extends FormulaireBaseComponent implements OnIni
     }
 
     ngOnInit() {
-        const vueTable = new KfVueTable<FCommandeLigne>(this.nom + '_table', this.vueTableDef);
+        const vueTable = Fabrique.vueTable<FCommandeLigne>(this.nom + '_table', this.vueTableDef);
         this.site = this.service.navigation.siteEnCours;
         this.identifiant = this.service.identification.litIdentifiant();
 
@@ -76,6 +75,7 @@ export class FCommandeComponent extends FormulaireBaseComponent implements OnIni
                 this.commandes = data.commandes;
                 this.formulaire = new KfSuperGroupe(this.nom);
                 this.formulaire.créeGereValeur();
+                this.formulaire.sauveQuandChange = true;
                 const boutons = [];
                 if (this.commandes.length === 0) {
                     const resultatListeVide = new KfAfficheResultat('listevide');
@@ -86,7 +86,7 @@ export class FCommandeComponent extends FormulaireBaseComponent implements OnIni
                 } else {
                     vueTable.initialise(this.commandes);
                     this.formulaire.ajoute(vueTable);
-                    const boutonSoumettre = this.créeBoutonSoumettre('Accepter les bons de commande sélectionnés');
+                    const boutonSoumettre = this.créeBoutonSoumettre('Enregistrer');
                     boutons.push(boutonSoumettre);
                 }
                 this.formulaire.ajouteBoutonsDeFormulaire(boutons);
@@ -102,6 +102,9 @@ export class FCommandeComponent extends FormulaireBaseComponent implements OnIni
     traite(evenement: KfEvenement) {
         if (evenement.type === KfTypeDEvenement.soumet) {
             this.soumet();
+        }
+        if (evenement.type === KfTypeDEvenement.valeurChange) {
+            console.log(this.formulaire);
         }
     }
 }

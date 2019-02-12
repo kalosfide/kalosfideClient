@@ -4,19 +4,22 @@ import { RouterModule } from '@angular/router';
 
 import { CommunModule } from '../commun/commun.module';
 
-import { MenuComponent } from './menu/menu.component';
-import { ItemDeMenuComponent } from './item-de-menu/item-de-menu.component';
+import { MenuComponent } from './menus/menu.component';
+import { ItemDeMenuComponent } from './menus/item-de-menu.component';
 import { PiedComponent } from './pied/pied.component';
 import { EtapeDeFormulaireComponent } from './formulaire/etape-de-formulaire.component';
 import { FormulaireAEtapeResolverService } from './formulaire/formulaire-a-etapes-resolver.service';
 import { FormulaireAEtapeService } from './formulaire/formulaire-a-etapes.service';
 import { TitrePageComponent } from './titre-page/titre-page.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { AlerteComponent } from './alerte/alerte.component';
 
 @NgModule({
     imports: [
         CommonModule,
         RouterModule,
-        CommunModule
+        CommunModule,
+        NgbModule,
     ],
     declarations: [
         MenuComponent,
@@ -24,6 +27,7 @@ import { TitrePageComponent } from './titre-page/titre-page.component';
         PiedComponent,
         TitrePageComponent,
         EtapeDeFormulaireComponent,
+        AlerteComponent,
     ],
     providers: [
         FormulaireAEtapeResolverService,
@@ -33,6 +37,7 @@ import { TitrePageComponent } from './titre-page/titre-page.component';
         MenuComponent,
         TitrePageComponent,
         PiedComponent,
+        AlerteComponent,
     ],
 })
 export class DispositionModule { }

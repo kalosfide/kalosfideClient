@@ -1,35 +1,42 @@
 import { KfTypeDeComposant } from '../../kf-composants-types';
 import { KfElement } from '../../kf-composant/kf-element';
 import { KfTypeDHTMLEvents } from '../../kf-partages/kf-evenements';
-import { isFunction } from 'util';
 import { KfTexteDef, ValeurTexteDef } from '../../kf-partages/kf-texte-def';
 import { Params } from '@angular/router';
+import { KfContenuPhrase } from '../../kf-partages/kf-contenu-phrase/kf-contenu-phrase';
 
 export class KfLien extends KfElement {
 
-    private _route: KfTexteDef;
+    private _url: KfTexteDef;
+    private _params?: any;
 
     queryParams?: Params | null;
 
     constructor(nom: string,
-        route: KfTexteDef,
+        url?: KfTexteDef,
         texte?: KfTexteDef,
-        imageAvant?: KfTexteDef,
-        imageApres?: KfTexteDef,
     ) {
         super(nom, KfTypeDeComposant.lien);
-        this._route = route ? route : '';
-        this.fixeTexteUrlImage(texte, imageAvant, imageApres);
+        this._url = url;
+        this.contenuPhrase = new KfContenuPhrase(this, texte);
         this.gereHtml.ajouteEvenementASuivre(KfTypeDHTMLEvents.keypress);
-        this.ajouteClasseDef('kf-lien kf-bouton');
     }
 
-    get route(): string {
-        return ValeurTexteDef(this._route);
+    get url(): string {
+        return ValeurTexteDef(this._url);
     }
 
-    fixeRoute(route: KfTexteDef) {
-        this._route = route;
+    get route(): any {
+        const route: any[] = [this.url];
+        if (this._params) {
+            route.push(this._params);
+        }
+        return route;
+    }
+
+    fixeRoute(url: KfTexteDef, params?: any) {
+        this._url = url;
+        this._params = params;
     }
 
 }

@@ -5,6 +5,7 @@ import { KfSuperGroupe } from '../../commun/kf-composants/kf-groupe/kf-super-gro
 import { PageDef } from 'src/app/commun/page-def';
 import { OnDestroy } from '@angular/core';
 import { isArray } from 'util';
+import { KfEvenement } from 'src/app/commun/kf-composants/kf-partages/kf-evenements';
 
 export abstract class PageBaseComponent implements OnDestroy {
 
@@ -29,6 +30,13 @@ export abstract class PageBaseComponent implements OnDestroy {
             return [this.superGroupe];
         }
     }
+    valeur1(superGroupe: KfSuperGroupe): any {
+        if (superGroupe.gereValeur) {
+            return superGroupe.gereValeur.valeur;
+        } else {
+            return 'indéfini';
+        }
+    }
 
     ngOnDestroy_Subscriptions() {
         this.subscriptions.forEach(
@@ -39,5 +47,7 @@ export abstract class PageBaseComponent implements OnDestroy {
     ngOnDestroy() {
         this.ngOnDestroy_Subscriptions();
     }
+
+    traite(evenement: KfEvenement) {}
 
 }

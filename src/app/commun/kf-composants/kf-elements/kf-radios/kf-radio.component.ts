@@ -25,7 +25,7 @@ export class KfRadioComponent extends KfComposantComponent implements OnInit, Af
 
     get classe(): string {
         return 'form-check-input'
-            + (!this.composant.texteImage ? 'position-static' : '')
+            + (!this.composant.contenuPhrase ? 'position-static' : '')
             + this.composant.classe;
     }
 

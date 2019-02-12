@@ -5,15 +5,16 @@ import { RouterModule } from '@angular/router';
 import { RouteurService } from '../services/routeur.service';
 import { KfComposantComponent } from './kf-composants/kf-composant/kf-composant.component';
 import { AnimeAttenteComponent } from './anime-attente/anime-attente.component';
-import { KfTexteImageComponent } from './kf-composants/kf-partages/kf-texte-image/kf-texte-image.component';
 import { PeutQuitterComponent } from './peut-quitter/peut-quitter.component';
 import { PeutQuitterGarde } from './peut-quitter/peut-quitter-garde.service';
 import { PeutQuitterService } from './peut-quitter/peut-quitter.service';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
     imports: [
         CommonModule,
         RouterModule,
+        NgbModule,
         KfComposantsModule,
     ],
     declarations: [
@@ -29,7 +30,6 @@ import { PeutQuitterService } from './peut-quitter/peut-quitter.service';
         PeutQuitterService,
     ],
     exports: [
-        KfTexteImageComponent,
         KfComposantComponent,
         AnimeAttenteComponent,
     ]

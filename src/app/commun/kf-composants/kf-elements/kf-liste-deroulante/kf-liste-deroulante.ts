@@ -1,8 +1,8 @@
-import { KfTypeDeComposant, KfTypeDeValeur } from '../../kf-composants-types';
-import { KfTexteImage } from '../../kf-partages/kf-texte-image/kf-texte-image';
+import { KfTypeDeComposant } from '../../kf-composants-types';
 import { Liste, TypeDEvenementDeListe, EvenementDeListe, DétailAjoute, DétailSupprime, DétailDéplace } from '../../../outils/liste';
 import { KfEntrée } from '../../kf-composant/kf-entree';
 import { KfTexteDef } from '../../kf-partages/kf-texte-def';
+import { KfContenuPhrase } from '../../kf-partages/kf-contenu-phrase/kf-contenu-phrase';
 
 export interface OptionDeListe { texte: string; valeur: string | number; estObject: boolean; }
 
@@ -20,16 +20,15 @@ export class KfListeDeroulante extends KfEntrée {
     estLiée: boolean;
     nullImpossible: boolean;
 
-    constructor(nom: string,
-        texte?: KfTexteDef,
-        imageAvant?: KfTexteDef,
-        imageApres?: KfTexteDef
-    ) {
-        super(nom, KfTypeDeComposant.listederoulante, texte, imageAvant, imageApres);
+    constructor(nom: string, texte?: KfTexteDef) {
+        super(nom, KfTypeDeComposant.listederoulante);
         this.liste = new Liste();
         this._valeur = null;
         this._options = [];
         this.estLiée = false;
+        if (texte) {
+            this.contenuPhrase = new KfContenuPhrase(this, texte);
+        }
     }
 
     lieAListe(liste: Liste, creeTexte?: (item: any) => string, creeValeur?: (item: any) => string | number) {
@@ -133,9 +132,6 @@ export class KfListeDeroulante extends KfEntrée {
         return this.liste ? this.créeOptions() : this._options;
     }
 
-    get contenus(): any[] {
-        return this.liste ? this.liste.Objets : this._options;
-    }
     // DONNEES
 
     _ajouteAValeurParent(valeurParent: any) {
@@ -180,8 +176,8 @@ export class KfListeDeroulante extends KfEntrée {
                 this.quandDeplace(d.IndexAvant, d.IndexAprès);
             }
         );
-        this.liste.Abonne(this, TypeDEvenementDeListe.vide, (e: EvenementDeListe) => this.quandVide());
-        this.liste.Abonne(this, TypeDEvenementDeListe.remplit, (e: EvenementDeListe) => this.quandRemplit());
+        this.liste.Abonne(this, TypeDEvenementDeListe.vide, () => this.quandVide());
+        this.liste.Abonne(this, TypeDEvenementDeListe.remplit, () => this.quandRemplit());
     }
 
     quandAjout(objet: any, index: number) {

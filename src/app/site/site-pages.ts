@@ -2,6 +2,9 @@ import { AppPages, AppRoutes } from '../app-pages';
 import { Identifiant } from '../securite/identifiant';
 import { TypesRoles } from '../securite/type-role';
 import { strictEqual } from 'assert';
+import { FournisseurRoutes } from '../fournisseur/fournisseur-pages';
+import { ClientRoutes } from '../client/client-pages';
+import { VisiteurRoutes } from '../visiteur/visiteur-pages';
 
 export const SitePages = {
     fournisseur: {
@@ -94,6 +97,10 @@ class CSiteRoutes implements ISiteRoutes {
         return this.urlRole(nomSite, typeRole, segments);
     }
 
+    /**
+     * retourne le nom du site si la route passe par un site
+     * @param routeUrl url à examiner
+     */
     nomSite(routeUrl: string): string {
         const segments = routeUrl.split(AppRoutes.séparateur);
         if (segments.length > 2 && segments[1] === AppPages.site.urlSegment) {
@@ -101,6 +108,12 @@ class CSiteRoutes implements ISiteRoutes {
         }
     }
 
+    /**
+     * retourne un array de string
+     * [0] nom du site si la route passe par un site
+     * [1] préfixe de l'identifiant s'il y un site (Visiteur par défaut)
+     * @param routeUrl url à examiner
+     */
     nomSite_Base(routeUrl: string): string[] {
         const segments = routeUrl.split(AppRoutes.séparateur);
         if (segments.length > 2 && segments[1] === AppPages.site.urlSegment) {
@@ -120,6 +133,13 @@ class CSiteRoutes implements ISiteRoutes {
         }
     }
 
+    /**
+     * retourne un array de string
+     * [0] nom du site si la route passe par un site
+     * [1] préfixe de l'identifiant s'il y un site (Visiteur par défaut)
+     * [2] urlSegment s'il y un site (Accueil par défaut)
+     * @param routeUrl url à examiner
+     */
     nomSite_typeRole_page(routeUrl: string): {
         nomSite: string,
         typeRole: string,

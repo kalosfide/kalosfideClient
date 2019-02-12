@@ -8,6 +8,7 @@ import { CategorieService } from 'src/app/modeles/categorie.service';
 import { AttenteAsyncService } from 'src/app/services/attenteAsync.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { CategorieEditeur } from './categorie-editeur';
+import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 
 export abstract class CategorieALESComponent extends DataKeyALESComponent<Categorie> implements OnInit {
 
@@ -15,9 +16,10 @@ export abstract class CategorieALESComponent extends DataKeyALESComponent<Catego
         return this.pageDef.titre;
     }
 
-    site: Site;
+    dataPages = CategoriePages;
+    dataRoutes = CategorieRoutes;
 
-    urlPageIndex: string;
+    site: Site;
 
     constructor(
         protected router: Router,
@@ -35,7 +37,6 @@ export abstract class CategorieALESComponent extends DataKeyALESComponent<Catego
 
     ngOnInit() {
         this.site = this.service.navigation.siteEnCours;
-        this.urlPageIndex = CategorieRoutes.url(this.site.nomSite, CategoriePages.index.urlSegment);
         this.créeFormulaire();
         this.ngOnInit_Charge();
     }

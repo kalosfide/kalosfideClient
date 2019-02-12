@@ -6,6 +6,7 @@ export class Commande extends KeyUidRnoNo {
     livraisonNo?: number;
     date: Date;
     details: CommandeDetail[];
+    etat: string;
 }
 
 export class CommandeVue extends KeyUidRnoNo {
@@ -13,6 +14,7 @@ export class CommandeVue extends KeyUidRnoNo {
     date: Date;
     lignes: CommandeLigne[];
     produits: Produit[];
+    etat: string;
 
     constructor(derniere: Commande, produits: Produit[]) {
         super();
@@ -21,6 +23,7 @@ export class CommandeVue extends KeyUidRnoNo {
         this.no = derniere.no;
         this.date = new Date(derniere.date);
         this.livraisonNo = derniere.livraisonNo;
+        this.etat = derniere.etat;
         this.lignes = produits.map(p => {
             return new CommandeLigne(p, derniere);
         });

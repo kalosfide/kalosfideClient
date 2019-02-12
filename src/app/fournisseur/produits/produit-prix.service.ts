@@ -5,6 +5,7 @@ import { ApiConfigService } from 'src/app/services/api-config.service';
 import { IdentificationService } from 'src/app/securite/identification.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { HttpClient } from '@angular/common/http';
+import { RouteurService } from 'src/app/services/routeur.service';
 
 @Injectable({
     providedIn: 'root'
@@ -18,6 +19,7 @@ export class ProduitPrixService extends KeyUidRnoNoService<ProduitPrix> {
         private _apiConfig: ApiConfigService,
         private _identification: IdentificationService,
         private _navigation: NavigationService,
+        private _routeur: RouteurService
     ) {
         super();
     }
@@ -26,4 +28,5 @@ export class ProduitPrixService extends KeyUidRnoNoService<ProduitPrix> {
     get config(): ApiConfigService { return this._apiConfig; }
     get identification(): IdentificationService { return this._identification; }
     get navigation(): NavigationService { return this._navigation; }
+    get routeur(): RouteurService { return this._routeur; }
 }

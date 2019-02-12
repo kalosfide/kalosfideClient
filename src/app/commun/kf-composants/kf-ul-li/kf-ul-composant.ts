@@ -4,12 +4,8 @@ import { KfTexteDef } from '../kf-partages/kf-texte-def';
 import { KfLiComposant } from './kf-li-composant';
 
 export class KfUlComposant extends KfComposant {
-    constructor(nom: string,
-        texte?: KfTexteDef,
-        imageAvant?: KfTexteDef,
-        imageApres?: KfTexteDef,
-    ) {
-        super(nom, KfTypeDeComposant.ul, texte, imageAvant, imageApres);
+    constructor(nom: string) {
+        super(nom, KfTypeDeComposant.ul);
     }
 
     ajoute(composant: KfComposant) {

@@ -83,7 +83,7 @@ export class KfComposantGereVisible {
             gereVisible = this.composant.parent.gereVisible;
         } else {
             if (this.composant.listeParent) {
-                gereVisible = this.composant.listeParent.gereVisible;
+                gereVisible = this.composant.listeParent.composant.gereVisible;
             }
         }
         return gereVisible && gereVisible.cacheContenu(this.composant);

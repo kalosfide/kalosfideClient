@@ -17,7 +17,7 @@ import { DevenirFournisseurPages, DevenirFournisseurRoutes } from './devenir-fou
 import { ReglesDeMotDePasse } from 'src/app/securite/mot-de-passe/mot-de-passe';
 import { ComponentAAutoriserAQuitter } from 'src/app/commun/peut-quitter/peut-quitter-garde.service';
 import { AppSite } from 'src/app/app-site/app-site';
-import { SiteEditeur } from 'src/app/fournisseur/f-sites/site-editeur';
+import { SiteEditeur } from 'src/app/fournisseur/f-site/site-editeur';
 import { RouteurService } from 'src/app/services/routeur.service';
 import { AppSitePages } from '../app-site-pages';
 import { DevenirConnectionEditeur } from 'src/app/compte/devenir/devenir-connection-model';
@@ -50,9 +50,9 @@ export class DevenirFournisseurComponent extends FormulaireAEtapesComponent impl
     }
 
     actionSiOk = (): void => {
-        const roles = this.identification.litIdentifiant().roles;
-        const site = roles[roles.length - 1].nomSite;
-        this.routeur.navigate([FournisseurRoutes.url(site, [FournisseurPages.accueil.urlSegment])]);
+        const sites = this.identification.litIdentifiant().sites;
+        const site = sites[sites.length - 1];
+        this.routeur.naviguePageDef(FournisseurPages.accueil, FournisseurRoutes, site.nomSite);
     }
 
     constructor(

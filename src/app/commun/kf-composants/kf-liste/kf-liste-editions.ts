@@ -1,14 +1,12 @@
-import { KfSuperGroupe } from '../kf-groupe/kf-super-groupe';
 import { KfListe } from './kf-liste';
 import { KfEvenement, KfTypeDEvenement, KfStatutDEvenement, KfTraitementDEvenement } from '../kf-partages/kf-evenements';
 import { KfBouton } from '../kf-elements/kf-bouton/kf-bouton';
 import { KfComposant } from '../kf-composant/kf-composant';
-import { KfTypeDeBouton, KfTypeDeBaliseDEtiquette, KfTypeDeComposant } from '../kf-composants-types';
+import { KfTypeDeBaliseHTML, KfTypeDeComposant } from '../kf-composants-types';
 import { KfEtiquette } from '../kf-elements/kf-etiquette/kf-etiquette';
 import { KfParametres } from '../kf-composants-parametres';
 import { KfListeEditeur } from './kf-liste-editeur';
 import { KfGroupe } from '../kf-groupe/kf-groupe';
-import { KfComposantGereValeur } from '../kf-composant/kf-composant-gere-valeur';
 import { KfDialogueDef } from '../kf-dialogue/kf-dialogue-def';
 import { KfListeMiseAJour } from './kf-liste-mise-a-jour';
 import { KfTexteDef, ValeurTexteDef } from '../kf-partages/kf-texte-def';
@@ -19,21 +17,21 @@ export interface KfListeEditionsInterface {
      */
     titreListe?: {
         texte?: string;
-        balise?: KfTypeDeBaliseDEtiquette;
+        balise?: KfTypeDeBaliseHTML;
     };
     /**
      * texte à afficher quand la liste est vide
      */
     listeVide?: {
         texte?: string;
-        balise?: KfTypeDeBaliseDEtiquette;
+        balise?: KfTypeDeBaliseHTML;
     };
     /**
      * texte à afficher quand aucun item n'est sélectionné
      */
     rienAEditer?: {
         texte?: string;
-        balise?: KfTypeDeBaliseDEtiquette;
+        balise?: KfTypeDeBaliseHTML;
     };
     /**
      * permet de proposer des aides à l'édition (ex.: choix prédéfinis à modifier)
@@ -49,7 +47,7 @@ export interface KfListeEditionsInterface {
      */
     titreItem?: {
         texte?: KfTexteDef;
-        balise?: KfTypeDeBaliseDEtiquette;
+        balise?: KfTypeDeBaliseHTML;
         /** si true, le titre précédera l'en-tête */
         avantEnTete?: boolean;
     };
@@ -153,38 +151,40 @@ export class KfListeEditions {
         const parDefaut = KfParametres.listeParDefaut;
         if (inter.titreListe) {
             this.etiquetteTitreListe = new KfEtiquette('', inter.titreListe.texte || parDefaut.texteEtiquetteTitre);
-            this.etiquetteTitreListe.baliseHTML = inter.titreListe.balise || KfTypeDeBaliseDEtiquette.P;
+            this.etiquetteTitreListe.baliseHtml = inter.titreListe.balise || KfTypeDeBaliseHTML.p;
         }
         if (inter.listeVide) {
             this.etiquetteListeVide = new KfEtiquette('', inter.listeVide.texte || parDefaut.texteListeVide);
-            this.etiquetteListeVide.baliseHTML = inter.listeVide.balise || KfTypeDeBaliseDEtiquette.P;
+            this.etiquetteListeVide.baliseHtml = inter.listeVide.balise || KfTypeDeBaliseHTML.p;
         }
         if (inter.rienAEditer) {
             this.etiquetteRienAEditer = new KfEtiquette('', inter.rienAEditer.texte || parDefaut.texteRienAEditer);
-            this.etiquetteRienAEditer.baliseHTML = inter.rienAEditer.balise || KfTypeDeBaliseDEtiquette.P;
+            this.etiquetteRienAEditer.baliseHtml = inter.rienAEditer.balise || KfTypeDeBaliseHTML.p;
         }
         this.enTete = inter.enTete.composant;
         this._quandEvenementEnTete = inter.enTete.quandEvenement;
         if (inter.titreItem) {
             this._titreAvantEnTete = inter.titreItem.avantEnTete;
             this.titre = (item: object) => {
+                let t: KfTexteDef;
                 if (inter.titreItem.texte) {
-                    return ValeurTexteDef(inter.titreItem.texte);
+                    t = inter.titreItem.texte;
                 } else {
                     if (this.liste.selecteurs) {
                         if (item === this.itemNouveau) {
-                            return this.liste.selecteurs.texte(null);
+                            t = this.liste.selecteurs.texte(null);
                         } else {
-                            return this.liste.selecteurs.texte(item);
+                            t = this.liste.selecteurs.texte(item);
                         }
                     } else {
-                        return this.liste.creeItems.composant(item).nom;
+                        t = this.liste.creeItems.composant(item).nom;
                     }
                 }
+                return ValeurTexteDef(t);
             };
             this.etiquetteTitre = (item: object) => {
                 const e = new KfEtiquette('titre', item ? this.titre(item) : '');
-                e.baliseHTML = inter.titreItem.balise;
+                e.baliseHtml = inter.titreItem.balise;
                 return e;
             };
         }
@@ -201,14 +201,7 @@ export class KfListeEditions {
             if (inter.dansTable.titresDesColonnes) {
                 const enTetesDesColonnes = new KfGroupe('');
                 enTetesDesColonnes.ajouteClasseDef('kf-row');
-                let nbColonnes = 0;
-                const etiquettesDesColonnes = inter.dansTable.titresDesColonnes.map(
-                    (t: string) => {
-                        const e = new KfEtiquette('c' + ++nbColonnes, t);
-                        e.ajouteClasseDef('kf-cell');
-                        enTetesDesColonnes.ajoute(e);
-                    }
-                );
+                const nbColonnes = 0;
                 if (nbColonnes > 0) {
                     this.dansTable.enTetesDesColonnes = enTetesDesColonnes;
                 }
@@ -341,13 +334,13 @@ export class KfListeEditions {
         }
     }
 
-    traiteOk: KfTraitementDEvenement = (evenement: KfEvenement): void => {
+    traiteOk: KfTraitementDEvenement = (): void => {
         this.liste.ajoute(this.itemNouveau);
         this.liste.quandListeChange();
         this.initialiseAjout();
     }
 
-    traiteAnnuler: KfTraitementDEvenement = (evenement: KfEvenement): void => {
+    traiteAnnuler: KfTraitementDEvenement = (): void => {
         const itemAvantNouveau = this.itemAvantNouveau;
         this.initialiseAjout();
         this.liste.fixeChoisi(itemAvantNouveau);

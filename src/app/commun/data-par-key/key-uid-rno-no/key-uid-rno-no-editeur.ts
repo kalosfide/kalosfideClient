@@ -1,21 +1,21 @@
 import { DataKeyEditeur } from '../data-key-editeur';
-import { KfTexte } from '../../kf-composants/kf-elements/kf-input/kf-texte';
-import { KfNombre } from '../../kf-composants/kf-elements/kf-input/kf-nombre';
+import { KfInputTexte } from '../../kf-composants/kf-elements/kf-input/kf-input-texte';
+import { KfInputNombre } from '../../kf-composants/kf-elements/kf-input/kf-input-nombre';
 import { IKeyUidRnoNo } from './i-key-uid-rno-no';
 
 export abstract class KeyUidRnoNoEditeur<T extends IKeyUidRnoNo> extends DataKeyEditeur<T> {
 
-    protected _kfUid: KfTexte;
-    protected _kfRno: KfNombre;
-    protected _kfNo: KfNombre;
+    protected _kfUid: KfInputTexte;
+    protected _kfRno: KfInputNombre;
+    protected _kfNo: KfInputNombre;
 
     créeChampsKeys() {
         this.champsKeys = [];
-        this._kfUid =  new KfTexte('uid');
+        this._kfUid =  new KfInputTexte('uid');
         this.champsKeys.push(this._kfUid);
-        this._kfRno = new KfNombre('rno');
+        this._kfRno = new KfInputNombre('rno');
         this.champsKeys.push(this._kfRno);
-        this._kfNo = new KfNombre('no');
+        this._kfNo = new KfInputNombre('no');
         this.champsKeys.push(this._kfNo);
     }
     fixeChampsKeys(key: IKeyUidRnoNo) {

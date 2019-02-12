@@ -8,11 +8,10 @@ import { CommandePages, CommandeRoutes } from './commande-pages';
 import { CommandeService } from './commande.service';
 import { KfSuperGroupe } from '../../commun/kf-composants/kf-groupe/kf-super-groupe';
 import { KfGroupe } from '../../commun/kf-composants/kf-groupe/kf-groupe';
-import { CommandeLigne, CommeCommandeLigneType, CommeCommandeLigneDemande, CommandeLigneEnTetes } from './commande-ligne';
+import { CommandeLigne, CommeCommandeLigneType, CommeCommandeLigneDemande, CommandeLigneEnTetesEditables } from './commande-ligne';
 import { PageTableComponent } from '../../disposition/page-table/page-table.component';
 import { Identifiant } from '../../securite/identifiant';
-import { CommandeLigneFiltre, TypeCacheProduits } from './commande-ligne-filtre';
-import { KfEvenement, KfTypeDEvenement } from '../../commun/kf-composants/kf-partages/kf-evenements';
+import { KfEvenement } from '../../commun/kf-composants/kf-partages/kf-evenements';
 import { KfLien } from '../../commun/kf-composants/kf-elements/kf-lien/kf-lien';
 import { ComponentAAutoriserAQuitter } from '../../commun/peut-quitter/peut-quitter-garde.service';
 import { Observable } from 'rxjs';
@@ -21,9 +20,9 @@ import { KfVueTableDef, KfVueCelluleDef, KfVueTable } from 'src/app/commun/kf-co
 import { KfVueTableFiltre } from 'src/app/commun/kf-composants/kf-vue-table/kf-vue-table-filtre';
 import { IdEtatCommandeLigne, EtatsCommandeLignes } from './etat-commande-ligne';
 import { Categorie } from 'src/app/modeles/categorie';
+import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
+import { KfTexteDef } from 'src/app/commun/kf-composants/kf-partages/kf-texte-def';
 
-const NOM_TRI_CATEGORIE = 'categorie';
-const NOM_TRI_PRODUIT = 'produit';
 const NOM_FILTRE_CATEGORIE = 'categorie';
 const NOM_FILTRE_DEMANDE = 'demande';
 
@@ -44,7 +43,7 @@ export class CommandeProduitsComponent extends PageTableComponent<CommandeLigne>
     identifiant: Identifiant;
 
     vueTableDef: KfVueTableDef<CommandeLigne> = {
-        enTetes: CommandeLigneEnTetes,
+        enTetesDef: CommandeLigneEnTetesEditables,
         cellules: (ligne: CommandeLigne): KfVueCelluleDef[] => ligne.cellulesEditables,
         superGroupe: (ligne: CommandeLigne): KfSuperGroupe => ligne.superGroupe,
         filtres: [
@@ -65,8 +64,8 @@ export class CommandeProduitsComponent extends PageTableComponent<CommandeLigne>
         super();
     }
 
-    get urlPageEnvoi(): string {
-        return CommandeRoutes.url(this.site.nomSite, CommandePages.envoi.urlSegment);
+    get urlPageEnvoi(): KfTexteDef {
+        return Fabrique.url(CommandePages.envoi, CommandeRoutes, this.site.nomSite);
     }
 
     peutQuitter = (nextState?: RouterStateSnapshot): boolean | Observable<boolean> | Promise<boolean> => {
@@ -110,14 +109,16 @@ export class CommandeProduitsComponent extends PageTableComponent<CommandeLigne>
         this.avantTable = () => {
             const groupe = new KfGroupe('');
             groupe.ajouteClasseDef('nav');
-            const lien = new KfLien(CommandePages.envoi.urlSegment, this.urlPageEnvoi, CommandePages.envoi.lien);
+            const lien = Fabrique.lienBouton(CommandePages.envoi, CommandeRoutes, this.site.nomSite);
+            lien.fixeTexte(CommandePages.envoi.lien);
             lien.ajouteClasseDef('nav-link');
             groupe.ajoute(lien);
             return [
                 groupe,
             ];
         };
-        this.vueTable = new KfVueTable(this.nom + '_table', this.vueTableDef);
+        this.vueTable = Fabrique.vueTable(this.nom + '_table', this.vueTableDef);
+        this.vueTable.ajouteClasseDef('table-sm');
         this.subscriptions.push(this.route.data.subscribe(
             (data: Data) => {
                 this.liste = data.commande.lignes;

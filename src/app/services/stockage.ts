@@ -14,20 +14,20 @@ export class Stockage<T> {
     }
 
     public get estNull(): boolean {
-        return window.localStorage[this.nom] === undefined ||
-            window.localStorage[this.nom] === null ||
-            window.localStorage[this.nom] === 'null' ||
-            window.localStorage[this.nom] === 'undefined' ||
-            window.localStorage[this.nom] === '';
+        return window.sessionStorage[this.nom] === undefined ||
+            window.sessionStorage[this.nom] === null ||
+            window.sessionStorage[this.nom] === 'null' ||
+            window.sessionStorage[this.nom] === 'undefined' ||
+            window.sessionStorage[this.nom] === '';
     }
 
     public litStock(): T {
-        return this.estNull ? null : JSON.parse(window.localStorage[this.nom]) as T;
+        return this.estNull ? null : JSON.parse(window.sessionStorage[this.nom]) as T;
     }
 
     public fixeStock(stock: T): void {
         const ancien = !this.estNull ? this.litStock() : null;
-        window.localStorage[this.nom] = stock ? JSON.stringify(stock) : undefined;
+        window.sessionStorage[this.nom] = stock ? JSON.stringify(stock) : undefined;
         if (this.quandStockChange) {
             if ((ancien && (!stock || this.quandStockChange.distincts(stock, ancien))) || (!ancien && !!stock)) {
                 this.quandStockChange.action();

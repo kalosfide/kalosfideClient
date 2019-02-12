@@ -90,6 +90,7 @@ export class KfComposantGereValeur {
     ajoute(gereValeur: KfComposantGereValeur) {
         if (this.composant.typeDeComposant === KfTypeDeComposant.groupe) {
             this.noeudV.Ajoute(gereValeur.noeudV);
+            return;
         }
         throw new Error('ajout de valeur impossible si pas groupe');
     }
@@ -390,26 +391,28 @@ export class KfComposantGereValeur {
                         messages.push(msgs[0]);
                     } else {
                         if (msgs.length > 1) {
-                            messages.push((composant.texte ? composant.texte : composant.nom) + ' est invalide.');
+                            messages.push(`${composant.nomPourErreur} est invalide.`);
                         }
                     }
                 }
             });
         } else {
             const errors = this.composant.abstractControl.errors;
-            Object.keys(errors).forEach(
-                key => {
-                    let validateur: KfValidateur;
-                    if (this.Validateurs) {
-                        validateur = this.Validateurs.find(v => v.nom.toLowerCase() === key.toLowerCase());
+            if (errors) {
+                Object.keys(errors).forEach(
+                    key => {
+                        let validateur: KfValidateur;
+                        if (this.Validateurs) {
+                            validateur = this.Validateurs.find(v => v.nom.toLowerCase() === key.toLowerCase());
+                        }
+                        if (validateur) {
+                            messages.push(validateur.message);
+                        } else {
+                            messages.push(errors[key]);
+                        }
                     }
-                    if (validateur) {
-                        messages.push(validateur.message);
-                    } else {
-                        messages.push(errors[key]);
-                    }
-                }
-            );
+                );
+            }
         }
         return messages;
     }

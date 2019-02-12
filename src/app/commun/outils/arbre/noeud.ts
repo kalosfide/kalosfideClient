@@ -196,6 +196,24 @@ export class Noeud {
             enfant = enfant._suivant;
         }
     }
+    /**
+     * Ce noeud est remplacé par nouveauParent dans les enfants de son parent et devient l'enfant de nouveauParent
+     * @param nouveauParent nouveau parent de ce noeud
+     */
+    InséreParent(nouveauParent: Noeud) {
+        if (this._parent !== undefined) {
+            if (this._parent._enfant === this) {
+                this._parent._enfant = nouveauParent;
+            } else {
+                this.Précédent._suivant = nouveauParent;
+            }
+            nouveauParent._parent = this._parent;
+            nouveauParent._suivant = this._suivant;
+            this._suivant = undefined;
+        }
+        nouveauParent._enfant = this;
+        this._parent = nouveauParent;
+    }
     Insére(noeud: Noeud, après?: boolean) {
         if (this._parent === undefined) { return; }
         let suivant: Noeud;

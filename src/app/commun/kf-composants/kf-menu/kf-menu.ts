@@ -1,12 +1,9 @@
 import { KfComposant } from '../kf-composant/kf-composant';
 import { Noeud } from '../../outils/arbre/noeud';
 import { KfElement } from '../kf-composant/kf-element';
-import { KfTypeDEvenement, KfEvenement, KfStatutDEvenement, KfTraitementDEvenement, KfTypeDHTMLEvents } from '../kf-partages/kf-evenements';
+import { KfTypeDEvenement, KfEvenement, KfStatutDEvenement, KfTraitementDEvenement } from '../kf-partages/kf-evenements';
 import { KfSousMenu } from './kf-sous-menu';
-import { KfBouton } from '../kf-elements/kf-bouton/kf-bouton';
-import { KfEtiquette } from '../kf-elements/kf-etiquette/kf-etiquette';
 import { KfGereTabIndex } from '../kf-composant/kf-composant-gere-tabindex';
-import { KfParametres } from '../kf-composants-parametres';
 import { KfMenuDirection, KfDefinitionDeMenu } from './kf-menu-types';
 import { KfTypeDeComposant } from '../kf-composants-types';
 
@@ -82,14 +79,11 @@ export class KfMenu extends KfElement {
 
     ajouteItem(idParent: any, definition: KfDefinitionDeMenu): KfSousMenu {
         let parent: KfMenu | KfSousMenu;
-        let niveau: number;
         // si idParent est null, c'est le sous-menu racine
         if (!idParent) {
             parent = this;
-            niveau = 1;
         } else {
             parent = this.sousMenu(idParent);
-            niveau = (parent as KfSousMenu).niveau + 1;
         }
         return this.ajouteSousMenu(parent, definition);
     }

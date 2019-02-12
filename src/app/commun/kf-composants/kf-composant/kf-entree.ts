@@ -19,12 +19,8 @@ export abstract class KfEntrée extends KfComposant {
     private _texteRemplissageDef: KfTexteDef;
     private _etiquetteAide: KfEtiquette;
 
-    constructor(nom: string, typeDeComposant: KfTypeDeComposant,
-        texte?: KfTexteDef,
-        imageAvant?: KfTexteDef,
-        imageApres?: KfTexteDef
-    ) {
-        super(nom, typeDeComposant, texte, imageAvant, imageApres);
+    constructor(nom: string, typeDeComposant: KfTypeDeComposant) {
+        super(nom, typeDeComposant);
         this.gereValeur = new KfComposantGereValeur(this, KfTypeDeValeur.avecEntree);
     }
 
@@ -40,7 +36,11 @@ export abstract class KfEntrée extends KfComposant {
     }
     fixeValeur(valeur: KfValeurEntrée) {
         if (this.formControl) {
-            this.formControl.setValue(valeur);
+            const ancien = this.formControl.value;
+            if (ancien !== valeur) {
+                this.formControl.setValue(valeur);
+                this.formControl.markAsDirty();
+            }
         } else {
             if (this.estRacine) {
                 this._valeur = valeur;

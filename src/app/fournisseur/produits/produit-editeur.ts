@@ -4,7 +4,7 @@ import { KfListeDeroulante } from 'src/app/commun/kf-composants/kf-elements/kf-l
 import { ProduitService } from 'src/app/modeles/produit.service';
 import { KfValidateurs } from 'src/app/commun/kf-composants/kf-partages/kf-validateur';
 import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
-import { KfTexte } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-texte';
+import { KfInputTexte } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-input-texte';
 import { TypesMesures } from 'src/app/modeles/type-mesure';
 import { TypesCommandes } from 'src/app/modeles/type-commande';
 import { Categorie } from 'src/app/modeles/categorie';
@@ -16,13 +16,13 @@ export class ProduitEditeur extends KeyUidRnoNoEditeur<Produit> {
         this.keyAuto = true;
 
         const categorieNo = new KfListeDeroulante('categorieNo', 'Catégorie');
-        categorieNo.AjouteValidateur(KfValidateurs.required);
+        categorieNo.ajouteValidateur(KfValidateurs.required);
         this.listeCategorieNo = categorieNo;
 
-        const nom: KfComposant = new KfTexte('nom', 'Nom');
-        nom.AjouteValidateur(KfValidateurs.required);
-        nom.AjouteValidateur(KfValidateurs.longueurMax(200));
-        nom.AjouteValidateur(KfValidateurs.validateurDoublon('nomPris', 'Ce nom est déjà pris'));
+        const nom: KfComposant = new KfInputTexte('nom', 'Nom');
+        nom.ajouteValidateur(KfValidateurs.required);
+        nom.ajouteValidateur(KfValidateurs.longueurMax(200));
+        nom.ajouteValidateur(KfValidateurs.validateurDoublon('nomPris', 'Ce nom est déjà pris'));
 
         const typeMesure = new KfListeDeroulante('typeMesure', 'Unité de mesure');
         TypesMesures.Mesures.forEach(mesure => typeMesure.ajouteOption(mesure.texteListe(), mesure.valeur));

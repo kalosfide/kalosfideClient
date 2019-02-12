@@ -1,3 +1,3 @@
-<button #htmlElement [type]="buttonType" [name]="nomBouton" [disabled]="inactif" [ngClass]="composant.classe">
-    <app-kf-texte-image *ngIf="composant.texteImage" [texteImage]="composant.texteImage"></app-kf-texte-image>
+<button #htmlElement [type]="buttonType" [name]="nomBouton" [disabled]="inactif" [ngClass]="composant.classe" [ngStyle]="composant.style">
+    <app-kf-contenu-phrase *ngIf="composant.contenuPhrase" [contenuPhrase]="composant.contenuPhrase"></app-kf-contenu-phrase>
 </button>

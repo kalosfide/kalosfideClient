@@ -1,8 +1,30 @@
-<div #divElement [ngClass]="composant.classe">
-    <ng-container *ngFor="let radio of radioBoutons">
-        <app-kf-composant [composant]="radio" (output)="transmet($event)"></app-kf-composant>
-    </ng-container>
-    <div class="invalid-feedback">
-        <p *ngFor="let erreur of composant.erreurs">{{erreur}}</p>
+<ng-container *ngIf="radios.avecNgBootstrap; then ngBootstrapTemplate; else classicTemplate"></ng-container>
+
+<ng-template #ngBootstrapTemplate>
+    <div #divElement [class]="composant.classe" [ngStyle]="composant.style">
+        <div class="btn-group btn-group-toggle" ngbRadioGroup [formControl]="composant.formControl">
+            <ng-container *ngFor="let radio of radios.contenus">
+                <label ngbButtonLabel [class]="radio.classe">
+                    <input ngbButton type="radio" [value]="radio.valeur">
+                    <app-kf-contenu-phrase [contenuPhrase]="radio.contenuPhrase"></app-kf-contenu-phrase>
+                </label>
+            </ng-container>
+        </div>
+        <div *ngIf="composant.avecInvalidFeedback" class="invalid-feedback">
+            <p *ngFor="let erreur of composant.erreurs">{{erreur}}</p>
+        </div>
     </div>
-</div>
+</ng-template>
+
+<ng-template #classicTemplate>
+
+    <div #divElement [class]="composant.classe" [ngStyle]="composant.style">
+        <ng-container *ngFor="let radio of radios.contenus">
+            <app-kf-composant [composant]="radio" (output)="transmet($event)"></app-kf-composant>
+        </ng-container>
+        <div *ngIf="composant.avecInvalidFeedback" class="invalid-feedback">
+            <p *ngFor="let erreur of composant.erreurs">{{erreur}}</p>
+        </div>
+    </div>
+
+</ng-template>

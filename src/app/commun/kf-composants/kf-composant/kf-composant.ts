@@ -13,22 +13,22 @@
  */
 import { AbstractControl } from '@angular/forms';
 
-import { KfTypeDeComposant, KfTypeDeValeur } from '../kf-composants-types';
+import { KfTypeDeComposant, KfTypeDeValeur, KfTypeDeBaliseHTML } from '../kf-composants-types';
 import { Noeud } from '../../outils/arbre/noeud';
 import { KfListe } from '../kf-liste/kf-liste';
 import { KfSuperGroupe } from '../kf-groupe/kf-super-groupe';
 import { KfGroupe } from '../kf-groupe/kf-groupe';
-import { KfBaliseConteneur } from '../kf-partages/kf-balises-html';
 import { KfComposantGereHtml } from './kf-composant-gere-html';
 import { KfComposantGereVisible } from './kf-composant-gere-visible';
 import { KfGereTabIndex } from './kf-composant-gere-tabindex';
-import { KfTexteImage } from '../kf-partages/kf-texte-image/kf-texte-image';
+import { KfContenuPhrase } from '../kf-partages/kf-contenu-phrase/kf-contenu-phrase';
 import { KfComposantGereValeur } from './kf-composant-gere-valeur';
 import { KfValidateur } from '../kf-partages/kf-validateur';
-import { KfTexteDef, ValeurTexteDef } from '../kf-partages/kf-texte-def';
-import { KfClasseDefs } from '../kf-partages/kf-classe-def';
-import { KfImageDef } from '../kf-partages/kf-image-def/kf-image-def';
-import { ValeurNombreDef, KfNombreDef } from '../kf-partages/kf-nombre-def';
+import { KfTexteDef } from '../kf-partages/kf-texte-def';
+import { KfClasseDefs } from '../kf-partages/kf-classe-defs';
+import { KfImageDef } from '../kf-partages/kf-image-def';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { IKfVueTable } from '../kf-vue-table/kf-vue-table';
 
 export interface IKfComposant {
     composant: KfComposant;
@@ -53,15 +53,18 @@ export abstract class KfComposant implements IKfComposant {
 
     // STRUCTURE
     /**
-     *  les KfComposants sont les noeuds d'un arbre.
+     * STRUCTURE
+     *  les KfComposants sont les objets des noeuds d'un arbre.
+     *  on appelle <app-kf-composant [composant]="racine"> pour rendre l'arbre.
+     * Si le template parent est rendu
      */
     noeud: Noeud;
-    enligne: boolean;
+
     /**
-     * listeParent: Liste
+     * listeParent:
      *  lorsqu'un composant est destiné à une liste, il faut renseigner ce champ
      */
-    listeParent: KfListe;
+    listeParent: KfListe | IKfVueTable;
 
     // VALEUR
     /**
@@ -103,20 +106,36 @@ export abstract class KfComposant implements IKfComposant {
     gereTabIndex: KfGereTabIndex;
 
     /**
-     * balises Html à ajouter dans le template autour de la partie rendant le composant
-     */
-    balisesAAjouter: KfBaliseConteneur[];
-
-    /**
      * _classeDefs: KfClasseDef[]
      *  classes css à appliquer
      */
-    private _classeDefs: KfClasseDefs;
+    classeDefs: KfClasseDefs;
+
+    style: { [keys: string]: any };
 
     /**
-     * KfTexteImage de l'element ou de son label (facultatif)
+     * si vrai, le template du composant sera suivi d'un <br>
+     * implémenté par KfEtiquette si pas dans balises, par KfTexte
      */
-    texteImage: KfTexteImage;
+    suiviDeSaut: boolean;
+
+    /**
+     * contenu phrasé de l'element ou de son label
+     */
+    private _contenuPhrase?: KfContenuPhrase;
+    // pour debug
+    get contenuPhrase(): KfContenuPhrase {
+//        console.log(this);
+        return this._contenuPhrase;
+    }
+    set contenuPhrase(contenuPhrase: KfContenuPhrase) {
+        this._contenuPhrase = contenuPhrase;
+    }
+
+    /**
+     * pour désigner le composant dans les messages
+     */
+    private _nomPourErreur: string;
 
     /**
      * title de l'element
@@ -134,23 +153,18 @@ export abstract class KfComposant implements IKfComposant {
     private _inactivité: boolean;
     private _inactivitéFnc: () => boolean;
 
-    constructor(nom: string,
-        typeDeComposant: KfTypeDeComposant,
-        texte?: KfTexteDef,
-        imageAvant?: KfTexteDef,
-        imageApres?: KfTexteDef
-    ) {
+    constructor(nom: string, typeDeComposant: KfTypeDeComposant) {
         this.nom = nom;
         this.typeDeComposant = typeDeComposant;
-        if (texte || imageAvant || imageApres) {
-            this.texteImage = new KfTexteImage(texte, imageAvant, imageApres);
-        }
         this.noeud = new Noeud;
         this.noeud.objet = this;
         this.gereVisible = new KfComposantGereVisible(this);
         this.gereHtml = new KfComposantGereHtml(this);
     }
 
+    /**
+     * implémentation de IKfComposant
+     */
     get composant(): KfComposant {
         return this;
     }
@@ -182,6 +196,15 @@ export abstract class KfComposant implements IKfComposant {
         return !!(this.listeParent);
     }
 
+    get estDansVueTable(): boolean {
+        if (this.listeParent) {
+            return this.listeParent.composant.typeDeComposant === KfTypeDeComposant.vuetable;
+        }
+        if (this.parent) {
+            return this.parent.estDansVueTable;
+        }
+    }
+
     ascendantVérifiant(vérifie: (c: KfComposant) => boolean): KfComposant {
         let p = this.parent;
         while (p) {
@@ -205,7 +228,14 @@ export abstract class KfComposant implements IKfComposant {
         }
     }
 
+    /**
+     * ajoute un composant à rendre dans le template de ce composant
+     * @param composant le composant à ajouter
+     */
     ajoute(composant: KfComposant) {
+        if (composant.noeud.parent) {
+            throw new Error(`Le composant ${composant.nom} a déjà un parent.`);
+        }
         this.noeud.Ajoute(composant.noeud);
     }
 
@@ -285,7 +315,7 @@ export abstract class KfComposant implements IKfComposant {
 
     /* VALIDATION */
 
-    AjouteValidateur(validateur: KfValidateur) {
+    ajouteValidateur(validateur: KfValidateur) {
         if (this.gereValeur) {
             this.gereValeur.AjouteValidateur(validateur);
         }
@@ -304,6 +334,10 @@ export abstract class KfComposant implements IKfComposant {
         if (this.gereValeur) {
             return this.gereValeur.erreurs;
         }
+    }
+
+    get estInvalide(): boolean {
+        return this.erreurs && this.erreurs.length > 0;
     }
 
     // INTERFACE
@@ -361,7 +395,7 @@ export abstract class KfComposant implements IKfComposant {
         let inactif = (this._inactivitéFnc) ? this._inactivitéFnc() : this._inactivité;
         inactif = (this.abstractControl && this.abstractControl.disabled)
             || (this.parent && this.parent.inactif)
-            || (this.listeParent && this.listeParent.inactif)
+            || (this.listeParent && this.listeParent.composant.inactif)
             || inactif;
         return inactif;
     }
@@ -376,10 +410,10 @@ export abstract class KfComposant implements IKfComposant {
     }
 
     get parentPourTabIndex(): KfComposant {
-        let parent = this.listeParent ? this.listeParent : this.parent;
+        let parent = this.listeParent ? this.listeParent.composant : this.parent;
         if (parent) {
-            if (!parent.gereTabIndex) {
-                parent = parent.parentPourTabIndex;
+            if (!parent.composant.gereTabIndex) {
+                parent = parent.composant.parentPourTabIndex;
             }
         }
         return parent;
@@ -406,20 +440,20 @@ export abstract class KfComposant implements IKfComposant {
 
     // CSS
     trouveClasse(classe: string): KfTexteDef {
-        return this._classeDefs.trouveClasse(classe);
+        return this.classeDefs.trouveClasse(classe);
     }
     ajouteClasseDef(...classeDefs: KfTexteDef[]) {
-        if (!this._classeDefs) {
-            this._classeDefs = new KfClasseDefs();
+        if (!this.classeDefs) {
+            this.classeDefs = new KfClasseDefs();
         }
-        this._classeDefs.ajouteClasseDef(classeDefs);
+        this.classeDefs.ajouteClasseDef(classeDefs);
     }
     supprimeClasseDef(...classeDefs: KfTexteDef[]) {
-        this._classeDefs.supprimeClasseDef(classeDefs);
+        this.classeDefs.supprimeClasseDef(classeDefs);
     }
 
     get classes(): string[] {
-        const classes = this._classeDefs ? this._classeDefs.classes : [];
+        const classes = this.classeDefs ? this.classeDefs.classes : [];
         return classes;
     }
 
@@ -427,80 +461,96 @@ export abstract class KfComposant implements IKfComposant {
         return ' ' + this.classes.join(' ');
     }
 
+    get avecClassesOuStyle(): boolean {
+        return !!this.classeDefs || !!this.style;
+    }
+
+    copieClassesEtStyle(composant: KfComposant) {
+        this.classeDefs = composant.classeDefs;
+        if (composant.style) {
+            this.style = composant.style;
+        }
+    }
+
     /**
-     * retourne le texte de l'element ou de son label (facultatif)
+     * retourne le texte de l'element ou de son label si l'élément est équivalent à un label ou a un label
+     * surcharge: KfTexte
      */
     get texte(): string {
-        if (this.texteImage) {
-            return this.texteImage.texte;
+        if (this.contenuPhrase) {
+            return this.contenuPhrase.texte;
         }
     }
     /**
-     * l'un au moins est attendu
-     */
-    fixeTexteUrlImage(texte?: KfTexteDef, imageAvant?: KfTexteDef, imageApres?: KfTexteDef) {
-        if (!this.texteImage) {
-            this.texteImage = new KfTexteImage(texte, imageAvant, imageApres);
-        } else {
-            this.texteImage.fixeTexte(texte);
-        }
-    }
-    /**
-     * fixe le texte de l'element ou de son label (facultatif)
+     * fixe le texte de l'element ou de son label
+     * surcharge: KfTexte
      */
     fixeTexte(texte: KfTexteDef) {
-        if (!this.texteImage) {
-            this.texteImage = new KfTexteImage(texte);
+        if (!this.contenuPhrase) {
+            throw new Error(`Ce composant n'a pas de contenu phrasé.`);
         } else {
-            this.texteImage.fixeTexte(texte);
+            this.contenuPhrase.fixeTexte(texte);
+        }
+    }
+
+    /**
+     * retourne l'image de l'element ou de son label si l'élément est équivalent à un label ou a un label
+     */
+    get image(): KfImageDef {
+        if (this.contenuPhrase) {
+            return this.contenuPhrase.imageDef;
         }
     }
     /**
-     * retourne l'image avant le texte de l'element ou de son label (facultatif)
+     * fixe l'image de l'element ou de son label
      */
-    get imageAvant(): KfImageDef {
-        if (this.texteImage) {
-            return this.texteImage.imageAvant;
-        }
-    }
-    /**
-     * fixe l'image avant le texte de l'element ou de son label (facultatif)
-     */
-    fixeUrlImageAvant(url: KfTexteDef) {
-        if (!this.texteImage) {
-            this.texteImage = new KfTexteImage(null, url);
+    fixeImage(image: KfImageDef) {
+        if (!this.contenuPhrase) {
+            throw new Error(`Ce composant n'a pas de contenu phrasé.`);
         } else {
-            this.texteImage.fixeUrlImageAvant(url);
+            this.contenuPhrase.fixeImage(image);
         }
     }
-    fixeDimensionsImageAvant(largeur?: KfNombreDef, hauteur?: KfNombreDef) {
-        if (this.texteImage) {
-            this.texteImage.fixeDimensionsImageAvant(largeur, hauteur);
+
+    /**
+     * retourne l'icone de l'element ou de son label si l'élément est équivalent à un label ou a un label
+     */
+    get icone(): IconDefinition {
+        if (this.contenuPhrase) {
+            return this.contenuPhrase.icone;
         }
     }
     /**
-     * retourne l'image après le texte de l'element ou de son label (facultatif)
+     * fixe le icone de l'element ou de son label
      */
-    get imageApres(): KfImageDef {
-        if (this.texteImage) {
-            return this.texteImage.imageApres;
-        }
-    }
-    /**
-     * fixe l'image après le texte de l'element ou de son label (facultatif)
-     */
-    fixeUrlImageApres(url: KfTexteDef) {
-        if (!this.texteImage) {
-            this.texteImage = new KfTexteImage(null, null, url);
+    fixeIcone(icone: IconDefinition) {
+        if (!this.contenuPhrase) {
+            throw new Error(`Ce composant n'a pas de contenu phrasé.`);
         } else {
-            this.texteImage.fixeUrlImageApres(url);
+            this.contenuPhrase.fixeIcone(icone);
         }
     }
-    fixeDimensionsImageApres(largeur?: KfNombreDef, hauteur?: KfNombreDef) {
-        if (this.texteImage) {
-            this.texteImage.fixeDimensionsImageApres(largeur, hauteur);
+
+    get nomPourErreur(): string {
+        if (this._nomPourErreur) {
+            return this._nomPourErreur;
+        }
+        const t = this.texte;
+        if (t) {
+            return t;
+        }
+        return this.nom;
+    }
+    set nomPourErreur(nom: string) {
+        this._nomPourErreur = nom;
+    }
+
+    get avecInvalidFeedback(): boolean {
+        if (this.parent) {
+            return this.parent.avecInvalidFeedback;
         }
     }
+
 
     /**
      * title de l'element

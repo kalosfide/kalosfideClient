@@ -1,16 +1,28 @@
 <!-- <span>{{ composant.nom + ' ' + composant.tabIndex }}</span> -->
 <ng-container [ngSwitch]="composant.typeDeComposant">
 
-    <!-- composés -->
+    <!-- composants conteneurs -->
     <app-kf-groupe *ngSwitchCase="typeDeComposant.groupe" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-groupe>
 
     <app-kf-liste *ngSwitchCase="typeDeComposant.liste" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-liste>
 
     <app-kf-liste-editeur *ngSwitchCase="typeDeComposant.listeEditeur" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-liste-editeur>
 
+    <app-kf-ngb-dropdown *ngSwitchCase="typeDeComposant.ngbDropdown" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-ngb-dropdown>
+
+    <app-kf-radios *ngSwitchCase="typeDeComposant.radios" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-radios>
+
     <ng-container *ngSwitchDefault>
 
         <ng-container [ngSwitch]="composant.typeDeComposant">
+
+            <!-- contenus phrasés simples -->
+
+            <app-kf-texte *ngSwitchCase="typeDeComposant.texte" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-texte>
+
+            <app-kf-image *ngSwitchCase="typeDeComposant.image" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-image>
+
+            <app-kf-icone *ngSwitchCase="typeDeComposant.icone" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-icone>
 
             <!-- composés -->
             <app-kf-menu *ngSwitchCase="typeDeComposant.menu" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-menu>
@@ -39,11 +51,9 @@
 
             <app-kf-input *ngSwitchCase="typeDeComposant.input" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-input>
 
-            <app-kf-radios *ngSwitchCase="typeDeComposant.radios" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-radios>
+            <app-kf-radio *ngSwitchCase="typeDeComposant.radio" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-radio>
 
             <app-kf-liste-deroulante *ngSwitchCase="typeDeComposant.listederoulante" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-liste-deroulante>
-
-            <app-kf-radio *ngSwitchCase="typeDeComposant.radio" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-radio>
 
             <!-- patience -->
 
@@ -51,7 +61,7 @@
 
         </ng-container>
         <ng-container *ngFor="let contenu of composant.contenus">
-            <app-kf-composant [attr.nom]="contenu.nom" [class.kf-invisible]="!contenu.visible" [composant]="contenu"
+            <app-kf-composant [attr.nom]="contenu.nom" [ngClass]="{'kf-invisible': !contenu.visible}" [composant]="contenu"
                 (output)="transmet($event)"></app-kf-composant>
         </ng-container>
 

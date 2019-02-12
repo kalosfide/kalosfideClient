@@ -10,8 +10,9 @@ import { FAccueilComponent } from './f-accueil.component';
 import { MessagesModule } from '../messages/messages.module';
 import { ModelesModule } from '../modeles/modeles.module';
 import { FCommandeComponent } from './f-commandes/f-commande.component';
-import { FSiteOuvertureComponent } from './f-sites/f-site-ouverture.component';
+import { FSiteOuvertureComponent } from './f-site/f-site-ouverture.component';
 import { FCommandeResolverService } from './f-commandes/f-commande-resolver.service';
+import { FCommandeNbOuvertesResolverService } from './f-commandes/f-commande-nb-ouvertes-resolver.service';
 
 @NgModule({
     imports: [
@@ -30,6 +31,7 @@ import { FCommandeResolverService } from './f-commandes/f-commande-resolver.serv
     providers: [
         FournisseurService,
         FCommandeResolverService,
+        FCommandeNbOuvertesResolverService,
     ],
 })
 export class FournisseurModule { }

@@ -3,7 +3,7 @@ import { KfListe } from './kf-liste';
 import { KfEvenement, KfTypeDEvenement, KfStatutDEvenement, KfTraitementDEvenement } from '../kf-partages/kf-evenements';
 import { KfBouton } from '../kf-elements/kf-bouton/kf-bouton';
 import { KfComposant } from '../kf-composant/kf-composant';
-import { KfTypeDeBouton, KfTypeDeBaliseDEtiquette, KfTypeDeComposant } from '../kf-composants-types';
+import { KfTypeDeBouton, KfTypeDeBaliseHTML, KfTypeDeComposant } from '../kf-composants-types';
 import { KfEtiquette } from '../kf-elements/kf-etiquette/kf-etiquette';
 import { KfParametres } from '../kf-composants-parametres';
 import { KfListeEditions } from './kf-liste-editions';

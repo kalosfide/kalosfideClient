@@ -9,6 +9,7 @@ import { ApiResult } from '../commun/api-results/api-result';
 import { ApiAction } from '../commun/api-route';
 import { NavigationService } from '../services/navigation.service';
 import { KeyUidRnoService } from '../commun/data-par-key/key-uid-rno/key-uid-rno.service';
+import { RouteurService } from '../services/routeur.service';
 
 @Injectable()
 export class FournisseurService extends KeyUidRnoService<Fournisseur> {
@@ -20,6 +21,7 @@ export class FournisseurService extends KeyUidRnoService<Fournisseur> {
         private _apiConfig: ApiConfigService,
         private _identification: IdentificationService,
         private _navigation: NavigationService,
+        private _routeur: RouteurService
     ) {
         super();
     }
@@ -28,6 +30,7 @@ export class FournisseurService extends KeyUidRnoService<Fournisseur> {
     get config(): ApiConfigService { return this._apiConfig; }
     get identification(): IdentificationService { return this._identification; }
     get navigation(): NavigationService { return this._navigation; }
+    get routeur(): RouteurService { return this._routeur; }
 
     trouveParSite(nomSite: string): Observable<ApiResult> {
         console.log(nomSite);

@@ -9,6 +9,7 @@ import { Categorie } from './categorie';
 import { map, take } from 'rxjs/operators';
 import { ApiResult200Ok } from '../commun/api-results/api-result-200-ok';
 import { KeyUidRnoNoService } from '../commun/data-par-key/key-uid-rno-no/key-uid-rno-no.service';
+import { RouteurService } from '../services/routeur.service';
 
 @Injectable({
     providedIn: 'root'
@@ -22,6 +23,7 @@ export class CategorieService extends KeyUidRnoNoService<Categorie> {
         private _apiConfig: ApiConfigService,
         private _identification: IdentificationService,
         private _navigation: NavigationService,
+        private _routeur: RouteurService
     ) {
         super();
     }
@@ -30,6 +32,7 @@ export class CategorieService extends KeyUidRnoNoService<Categorie> {
     get config(): ApiConfigService { return this._apiConfig; }
     get identification(): IdentificationService { return this._identification; }
     get navigation(): NavigationService { return this._navigation; }
+    get routeur(): RouteurService { return this._routeur; }
 
     nomPris(nom: string): Observable<boolean> {
         return this.get<boolean>(this.dataUrl, ApiAction.categorie.nomPris, nom).pipe(

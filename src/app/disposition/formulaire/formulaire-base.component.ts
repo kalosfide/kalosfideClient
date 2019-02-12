@@ -56,8 +56,8 @@ export abstract class FormulaireBaseComponent extends PageBaseComponent implemen
         this.edition.formGroup.setValue(valeur);
     }
 
-    créeBoutonSoumettre(texte?: string, image?: string): KfBouton {
-        return FormulaireFabrique.CréeBoutonSoumettre(this.formulaire, texte, image);
+    créeBoutonSoumettre(texte?: string): KfBouton {
+        return FormulaireFabrique.CréeBoutonSoumettre(this.formulaire, texte);
     }
 
     soumet() {
@@ -71,6 +71,6 @@ export abstract class FormulaireBaseComponent extends PageBaseComponent implemen
             titreErreur: this.titreRésultatErreur,
             titreSucces: this.titreRésultatSucces
         };
-        soumet(this.attenteAsyncService, àSoumettre);
+        soumet(this.attenteAsyncService, àSoumettre, this.service.routeur);
     }
 }

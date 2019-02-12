@@ -1,17 +1,13 @@
 import {
     Component, OnInit, ViewChild, AfterViewInit, ElementRef
 } from '@angular/core';
-import { KfTypeDeComposant, KfTypeDeValeur } from '../kf-composants-types';
 import { KfComposantComponent } from '../kf-composant/kf-composant.component';
 import { KfListe } from './kf-liste';
-import { KfComposant } from '../kf-composant/kf-composant';
-import { KfTexteImage } from '../kf-partages/kf-texte-image/kf-texte-image';
 import { KfEvenement, KfTypeDEvenement } from '../kf-partages/kf-evenements';
 import { KfListeEditions } from './kf-liste-editions';
 import { KfListeSelecteurs } from './kf-liste-selecteurs';
 import { KfListeCommandes } from './kf-liste-commandes';
 import { Router, ActivatedRoute } from '@angular/router';
-import { KfDialogueService } from '../kf-dialogue/kf-dialogue.service';
 
 @Component({
     selector: 'app-kf-liste-avec-dialogue',
@@ -26,7 +22,6 @@ export class KfListeAvecDialogueComponent extends KfComposantComponent implement
     constructor(
         private router: Router,
         private route: ActivatedRoute,
-        private service: KfDialogueService,
     ) {
         super();
     }

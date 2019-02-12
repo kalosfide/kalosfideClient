@@ -10,6 +10,7 @@ import { HttpClient } from '@angular/common/http';
 import { ApiConfigService } from '../services/api-config.service';
 import { IdentificationService } from '../securite/identification.service';
 import { ApiController, ApiAction } from 'src/app/commun/api-route';
+import { RouteurService } from '../services/routeur.service';
 
 @Injectable()
 export class CompteService extends DataService {
@@ -20,6 +21,7 @@ export class CompteService extends DataService {
         private _http: HttpClient,
         private _apiConfig: ApiConfigService,
         private _identification: IdentificationService,
+        private _routeur: RouteurService
     ) {
         super();
     }
@@ -27,6 +29,7 @@ export class CompteService extends DataService {
     get http(): HttpClient { return this._http; }
     get config(): ApiConfigService { return this._apiConfig; }
     get identification(): IdentificationService { return this._identification; }
+    get routeur(): RouteurService { return this._routeur; }
 
     public connecte(connectionModel: ConnectionModel): Observable<ApiResult> {
         return this.post(this.dataUrl, ApiAction.utilisateur.connecte, connectionModel);

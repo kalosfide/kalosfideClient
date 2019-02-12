@@ -1,9 +1,13 @@
 import { KfBouton } from '../kf-elements/kf-bouton/kf-bouton';
 import { KfListe } from './kf-liste';
 import { KfComposant } from '../kf-composant/kf-composant';
-import { KfTypeDeComposant, KfTypeDActionDeListe, KfTypeDeBaliseDEtiquette } from '../kf-composants-types';
+import { KfTypeDeComposant, KfTypeDActionDeListe } from '../kf-composants-types';
 import { KfTypeDEvenement, KfEvenement, KfStatutDEvenement } from '../kf-partages/kf-evenements';
 import { KfParametres } from '../kf-composants-parametres';
+import { KfTexteDef } from '../kf-partages/kf-texte-def';
+import { KfImageDef } from '../kf-partages/kf-image-def';
+import { KfImage } from '../kf-elements/kf-image/kf-image';
+import { KfTexte } from '../kf-elements/kf-texte/kf-texte';
 
 /**
  * KfCommandesDeListeInterface
@@ -13,9 +17,9 @@ import { KfParametres } from '../kf-composants-parametres';
 export interface KfCommandesDeListeInterface {
     types?: KfTypeDActionDeListe[];
     creeDeclencheur?: (type: KfTypeDActionDeListe) => KfComposant;
-    texte?: (type: KfTypeDActionDeListe) => string;
-    imageAvant?: (type: KfTypeDActionDeListe) => string;
-    imageApres?: (type: KfTypeDActionDeListe) => string;
+    texte?: (type: KfTypeDActionDeListe) => KfTexteDef;
+    imageAvant?: (type: KfTypeDActionDeListe) => KfImageDef;
+    imageApres?: (type: KfTypeDActionDeListe) => KfImageDef;
     typeDeComposant?: KfTypeDeComposant;
     position?: number;
 }
@@ -85,16 +89,14 @@ export class KfListeCommandes {
                     c.declencheur = commandesInterface.creeDeclencheur(c.type);
                 } else {
                     const nom = KfParametres.listeParDefaut.nomBouton(c.type);
-                    const t = commandesInterface.texte(c.type);
-                    let iav: string;
+                    c.declencheur = new KfBouton(nom);
                     if (commandesInterface.imageAvant) {
-                        iav = commandesInterface.imageAvant(c.type);
+                        c.declencheur.contenuPhrase.ajoute(new KfImage('', commandesInterface.imageAvant(c.type)));
                     }
-                    let iap: string;
+                    c.declencheur.contenuPhrase.ajoute(new KfTexte('', commandesInterface.texte(c.type)));
                     if (commandesInterface.imageApres) {
-                        iap = commandesInterface.imageApres(c.type);
+                        c.declencheur.contenuPhrase.ajoute(new KfImage('', commandesInterface.imageApres(c.type)));
                     }
-                    c.declencheur = new KfBouton(nom, t, iav, iap);
                 }
                 c.declencheur.inactivitéFnc = this.inactivitéFnc(c.type);
                 c.declencheur.listeParent = this.liste;

@@ -1,5 +1,5 @@
 import { KfComposant } from '../commun/kf-composants/kf-composant/kf-composant';
-import { KfTexte } from '../commun/kf-composants/kf-elements/kf-input/kf-texte';
+import { KfInputTexte } from '../commun/kf-composants/kf-elements/kf-input/kf-input-texte';
 import { KfValidateurs } from '../commun/kf-composants/kf-partages/kf-validateur';
 import { IKeyUidRno } from '../commun/data-par-key/key-uid-rno/i-key-uid-rno';
 import { EtapeDeFormulaireEditeur } from '../disposition/formulaire/etape-de-formulaire';
@@ -63,11 +63,11 @@ export class FournisseurEditeur implements EtapeDeFormulaireEditeur {
 
     créeContenus(): KfComposant[] {
         const champs: KfComposant[] = [];
-        const nom = new KfTexte('nom', 'Nom');
-        nom.AjouteValidateur(KfValidateurs.required);
+        const nom = new KfInputTexte('nom', 'Nom');
+        nom.ajouteValidateur(KfValidateurs.required);
         champs.push(nom);
-        const adresse = new KfTexte('adresse', 'Adresse');
-        adresse.AjouteValidateur(KfValidateurs.required);
+        const adresse = new KfInputTexte('adresse', 'Adresse');
+        adresse.ajouteValidateur(KfValidateurs.required);
         champs.push(adresse);
         return champs;
     }
@@ -81,11 +81,11 @@ export class FournisseurSite implements IKeyUidRno {
 
     static créeChamps(): KfComposant[] {
         const champs: KfComposant[] = [];
-        const nomSite = new KfTexte('nomSite', 'Nom du site');
-        nomSite.AjouteValidateur(KfValidateurs.required);
+        const nomSite = new KfInputTexte('nomSite', 'Nom du site');
+        nomSite.ajouteValidateur(KfValidateurs.required);
         champs.push(nomSite);
-        const titre = new KfTexte('titre', 'Titre du site');
-        titre.AjouteValidateur(KfValidateurs.required);
+        const titre = new KfInputTexte('titre', 'Titre du site');
+        titre.ajouteValidateur(KfValidateurs.required);
         champs.push(titre);
         return champs;
     }

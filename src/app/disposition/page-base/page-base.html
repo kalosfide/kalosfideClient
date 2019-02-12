@@ -1,4 +1,9 @@
-<app-titre-page [titre]="titre"></app-titre-page>
-<ng-container *ngFor="let superGroupe of superGroupes">
-<app-kf-composant [composant]="superGroupe" (output)="traite($event)"></app-kf-composant>
-</ng-container>
+<div class="container-fluid">
+    <app-titre-page [titre]="titre"></app-titre-page>
+    <div class="container-fluid">
+        <ng-container *ngFor="let superGroupe of superGroupes">
+            {{ valeur1(superGroupe) | json }}
+            <app-kf-composant [composant]="superGroupe" (output)="traite($event)"></app-kf-composant>
+        </ng-container>
+    </div>
+</div>

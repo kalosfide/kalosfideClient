@@ -10,6 +10,7 @@ import { FCommandeLigne, FCommandeDetail } from './f-commande';
 import { KeyUidRnoNo } from 'src/app/commun/data-par-key/key-uid-rno-no/key-uid-rno-no';
 import { ApiAction } from 'src/app/commun/api-route';
 import { KeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno';
+import { RouteurService } from 'src/app/services/routeur.service';
 
 @Injectable({
     providedIn: 'root'
@@ -23,6 +24,7 @@ export class FCommandeService extends KeyUidRnoNoService<FCommandeLigne> {
         private _apiConfig: ApiConfigService,
         private _identification: IdentificationService,
         private _navigation: NavigationService,
+        private _routeur: RouteurService
     ) {
         super();
     }
@@ -31,13 +33,18 @@ export class FCommandeService extends KeyUidRnoNoService<FCommandeLigne> {
     get config(): ApiConfigService { return this._apiConfig; }
     get identification(): IdentificationService { return this._identification; }
     get navigation(): NavigationService { return this._navigation; }
+    get routeur(): RouteurService { return this._routeur; }
+
+    nbOuvertes(key: KeyUidRno) {
+        return this.get<number>(this.dataUrl, ApiAction.commande.nbouvertes, this.créeParams(key));
+    }
 
     ouvertes(key: KeyUidRno) {
         return this.getAll<FCommandeDetail>(this.dataUrl, ApiAction.commande.ouvertes, this.créeParams(key));
     }
 
-    accepte(key: KeyUidRno, details: FCommandeDetail[]): Observable<ApiResult> {
-        return this.post<FCommandeDetail[]>(this.dataUrl, ApiAction.commande.accepte, details, this.créeParams(key));
+    enregistre(key: KeyUidRno, details: FCommandeDetail[]): Observable<ApiResult> {
+        return this.post<FCommandeDetail[]>(this.dataUrl, ApiAction.commande.enregistre, details, this.créeParams(key));
     }
 
 }

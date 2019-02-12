@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 import { JwtIdentifiant, Identifiant } from './identifiant';
 import { Stockage } from '../services/stockage';
-import { SiteService } from '../modeles/site.service';
 
 class IdentifiantStocké {
     jwt: JwtIdentifiant;

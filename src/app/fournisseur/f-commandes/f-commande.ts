@@ -1,14 +1,22 @@
 import { KeyUidRnoNo } from '../../commun/data-par-key/key-uid-rno-no/key-uid-rno-no';
 import { KfComposant } from '../../commun/kf-composants/kf-composant/kf-composant';
-import { KfCaseACocher } from 'src/app/commun/kf-composants/kf-elements/kf-case-a-cocher/kf-case-a-cocher';
 import { KfEtiquette } from 'src/app/commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
 import { KfVueCelluleDef, KfVueTableEnTete } from 'src/app/commun/kf-composants/kf-vue-table/kf-vue-table';
 import { KeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno';
 import { copieKeyUidRnoNo } from 'src/app/commun/data-par-key/data-key';
 import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-groupe';
-import { KfNombre } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-nombre';
-import { CommandeLigneType, CommandeLigneDemande } from 'src/app/client/commandes/commande-ligne';
+import { KfInputNombre } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-input-nombre';
 import { Tri } from 'src/app/commun/outils/trieur';
+import { KfInputTexte } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-input-texte';
+import {
+    KfTypeDEvenement, KfEvenement, KfStatutDEvenement, KfTypeDHTMLEvents } from 'src/app/commun/kf-composants/kf-partages/kf-evenements';
+import { KfValidateurs } from 'src/app/commun/kf-composants/kf-partages/kf-validateur';
+import { KfIcone } from 'src/app/commun/kf-composants/kf-elements/kf-icone/kf-icone';
+import { faCheck, faBan } from '@fortawesome/free-solid-svg-icons';
+import { KfTypeDeBaliseHTML } from 'src/app/commun/kf-composants/kf-composants-types';
+import { KfTexte } from 'src/app/commun/kf-composants/kf-elements/kf-texte/kf-texte';
+import { KfRadios } from 'src/app/commun/kf-composants/kf-elements/kf-radios/kf-radios';
+import { KfRadio } from 'src/app/commun/kf-composants/kf-elements/kf-radios/kf-radio';
 
 export class FCommande extends KeyUidRno {
     // key: fournisseur
@@ -23,8 +31,16 @@ export class FCommandeDetail extends KeyUidRnoNo {
     nouveauClient?: boolean;
     nbDetails?: number;
     // définis à la sortie
-    accepte?: boolean;
+    etat?: string;
 }
+
+export const CODE_ACCEPTE = 'A';
+export const CODE_REFUSE = 'R';
+const TEXTE_ACCEPTE = 'accepté';
+const TEXTE_REFUSE = 'refusé';
+const TEXTE_A_FIXER = '(à fixer)';
+export const ICONE_ACCEPTER = faCheck;
+export const ICONE_REFUSER = faBan;
 
 export class FCommandeLigne extends KeyUidRnoNo {
     // key: commande
@@ -32,11 +48,10 @@ export class FCommandeLigne extends KeyUidRnoNo {
     nomClient: string;
     nouveauClient: boolean;
     nbLignes: number;
-    private _accepte: boolean;
+    private _etat: string;
 
-    caseSelection: KfCaseACocher;
-    etiquetteAccepte: KfEtiquette;
-    etiquetteNomClient: KfEtiquette;
+    etiquetteClient: KfEtiquette;
+    radiosEtat: KfRadios;
 
     private _superGroupe: KfSuperGroupe;
 
@@ -46,13 +61,20 @@ export class FCommandeLigne extends KeyUidRnoNo {
         this.date = new Date(fCommande.date);
         this.nomClient = fCommande.nomClient;
         this.nouveauClient = fCommande.nouveauClient;
+        if (!this.nouveauClient) {
+            this._etat = CODE_ACCEPTE;
+        }
         this.nbLignes = fCommande.nbDetails;
+    }
+
+    get etat(): string {
+        return this.radiosEtat.valeur;
     }
 
     créeFCommandeDetail(): FCommandeDetail {
         const detail = new FCommandeDetail();
         copieKeyUidRnoNo(this, detail);
-        detail.accepte = this.accepte;
+        detail.etat = this.etat;
         return detail;
     }
 
@@ -69,29 +91,58 @@ export class FCommandeLigne extends KeyUidRnoNo {
     }
 
     get texteDétails(): string {
-        return `${ this.nbLignes } produit${ this.nbLignes > 1 ? 's' : ''}`;
+        return `${this.nbLignes} produit${this.nbLignes > 1 ? 's' : ''}`;
     }
 
-    private _créeSuperGroupe() {
-        this._superGroupe = new KfSuperGroupe('' + this.uid);
-        this._superGroupe.créeGereValeur();
-        this._superGroupe.estRacineV = true;
-        const uid = new KfNombre('uid');
+    private  _créeSuperGroupe() {
+        const superGroupe = new KfSuperGroupe('' + this.uid);
+        superGroupe.créeGereValeur();
+        superGroupe.estRacineV = true;
+        const uid = new KfInputNombre('uid');
         uid._valeur = this.no;
         uid.visibilite = false;
-        this._superGroupe.ajoute(uid);
-        const rno = new KfNombre('rno');
+        superGroupe.ajoute(uid);
+        const rno = new KfInputNombre('rno');
         rno._valeur = this.rno;
         rno.visibilite = false;
-        this._superGroupe.ajoute(rno);
-        const no = new KfNombre('no');
+        superGroupe.ajoute(rno);
+        const no = new KfInputNombre('no');
         no._valeur = this.no;
         no.visibilite = false;
-        this._superGroupe.ajoute(no);
-        this.caseSelection = new KfCaseACocher('selection');
-        this.caseSelection.valeur = this.nouveauClient ? null : true;
-        this._superGroupe.ajoute(this.caseSelection);
-        this._superGroupe.quandTousAjoutés();
+        superGroupe.ajoute(no);
+
+        const etiquetteClient = new KfEtiquette('client', this.nomClient);
+        if (this.nouveauClient) {
+            const nouveau = new KfTexte('nouveau', '(nouveau)');
+            nouveau.balisesAAjouter = [KfTypeDeBaliseHTML.strong];
+            etiquetteClient.contenuPhrase.ajoute(nouveau);
+        }
+        superGroupe.ajoute(etiquetteClient);
+
+        const radios = new KfRadios('etat');
+        radios.avecNgBootstrap = true;
+        radios.ajouteValidateur(KfValidateurs.required);
+        const classeRadio = 'btn-secondary btn-sm';
+        const classeTexteChoisi = 'text-warning';
+        let radio = new KfRadio(radios.nom + 1, CODE_ACCEPTE);
+        radio.ajouteClasseDef(classeRadio);
+        let texte = new KfTexte('', 'Accepté');
+        texte.ajouteClasseDef(() => radios.valeur === CODE_ACCEPTE ? classeTexteChoisi : '');
+        radio.contenuPhrase.ajoute(texte);
+        radios.ajoute(radio);
+        radio = new KfRadio(radios.nom + 2, CODE_REFUSE);
+        radio.ajouteClasseDef(classeRadio);
+        texte = new KfTexte('', 'Refusé');
+        texte.ajouteClasseDef(() => radios.valeur === CODE_REFUSE ? classeTexteChoisi : '');
+        radio.contenuPhrase.ajoute(texte);
+        radios.ajoute(radio);
+        radios.valeur = this._etat;
+        superGroupe.ajoute(radios);
+
+        superGroupe.quandTousAjoutés();
+        this._superGroupe = superGroupe;
+        this.etiquetteClient = etiquetteClient;
+        this.radiosEtat = radios;
     }
 
     créeSuperGroupe() {
@@ -107,30 +158,21 @@ export class FCommandeLigne extends KeyUidRnoNo {
         return this._superGroupe;
     }
 
-    get cellulesEditables(): KfVueCelluleDef[] {
+    get cellules(): KfVueCelluleDef[] {
         if (!this._superGroupe) {
             this._créeSuperGroupe();
         }
         return [
-            this.texteClient,
+            this.etiquetteClient,
             this.texteNoBon,
             this.texteDate,
             this.texteDétails,
-            this.caseSelection
+            this.radiosEtat
         ];
     }
 
-    get accepte(): boolean {
-        return this._accepte;
-    }
-    set accepte(valeur: boolean) {
-        if (this.estChoisie) {
-            this._accepte = valeur;
-        }
-    }
-
-    get estChoisie(): boolean {
-        return this.caseSelection.aPourValeur(true);
+    get composantsAValider(): KfComposant[] {
+        return [this.radiosEtat];
     }
 
 }
@@ -154,6 +196,6 @@ export const FCommandeEnTetes: KfVueTableEnTete<FCommandeLigne>[] = [
         texte: 'Produits',
     },
     {
-        texte: 'Accepter',
+        texte: 'Réception',
     },
 ];

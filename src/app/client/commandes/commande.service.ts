@@ -12,6 +12,7 @@ import { ApiAction } from 'src/app/commun/api-route';
 import { KeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno';
 import { Autorisation } from 'src/app/securite/autorisation';
 import { CommandeVue } from '../livraisons/suivi-commande';
+import { RouteurService } from 'src/app/services/routeur.service';
 
 @Injectable({
     providedIn: 'root'
@@ -25,7 +26,8 @@ export class CommandeService extends KeyUidRnoNoService<Commande> {
         private _apiConfig: ApiConfigService,
         private _identification: IdentificationService,
         private _navigation: NavigationService,
-    ) {
+        private _routeur: RouteurService
+        ) {
         super();
     }
 
@@ -33,6 +35,7 @@ export class CommandeService extends KeyUidRnoNoService<Commande> {
     get config(): ApiConfigService { return this._apiConfig; }
     get identification(): IdentificationService { return this._identification; }
     get navigation(): NavigationService { return this._navigation; }
+    get routeur(): RouteurService { return this._routeur; }
 
     derniereCommande(): Observable<ApiResult> {
         const identifiant = this.identification.litIdentifiant();

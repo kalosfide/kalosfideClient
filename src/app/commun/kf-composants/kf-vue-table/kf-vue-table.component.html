@@ -1,16 +1,16 @@
 <ng-template #enTetesTemplate>
     <ng-container *ngFor="let enTete of vueTable.enTetes">
         <th>
-            {{ enTete.texte }}
-            <span *ngIf="enTete.tri" [class]="'fas fa-' + icone(enTete)" (click)="trie(enTete)"></span>
+            <app-kf-composant [composant]="enTete" (output)="transmet($event)"></app-kf-composant>
         </th>
     </ng-container>
     <th *ngIf="vueTable.avecCommandes"></th>
+    <th *ngIf="vueTable.avecComposantsAValider" class="kf-invisible"></th>
 </ng-template>
 
 <ng-template #ligneTemplate let-ligne="ligne1">
     <ng-container *ngFor="let cellule of ligne.cellules">
-        <td>
+        <td [class]="cellule.classe">
             <ng-container *ngIf="cellule.texte">{{ cellule.texte }}</ng-container>
             <ng-container *ngIf="cellule.composant">
                 <app-kf-composant [composant]="cellule.composant" (output)="transmet($event)"></app-kf-composant>
@@ -22,13 +22,18 @@
             <app-kf-composant [composant]="commande" (output)="transmet($event)"></app-kf-composant>
         </ng-container>
     </td>
+    <td *ngIf="ligne.composantsAValider" class="kf-invisible">
+        <ng-container *ngFor="let composant of ligne.composantsAValider">
+            <app-kf-composant [composant]="composant" (output)="transmet($event)"></app-kf-composant>
+        </ng-container>
+    </td>
 </ng-template>
 
-<ng-container *ngIf="vueTable.avecValeur; then thenTemplate; else elseTemplate"></ng-container>
+<ng-container *ngIf="vueTable.avecValeur; then thenTemplate; else autreTemplate"></ng-container>
 
 <ng-template #thenTemplate>
-    <table class="table" #tableElement>
-        <thead *ngIf="vueTable.enTetes">
+    <table [class]="vueTable.classe" #tableElement>
+        <thead *ngIf="vueTable.enTetes" [class]="vueTable.classeEntete">
             <tr>
                 <ng-container *ngTemplateOutlet="enTetesTemplate"></ng-container>
             </tr>
@@ -43,9 +48,9 @@
     </table>
 </ng-template>
 
-<ng-template #elseTemplate>
-    <table class="table" #tableElement>
-        <thead *ngIf="vueTable.enTetes">
+<ng-template #autreTemplate>
+    <table [class]="vueTable.classe" #tableElement>
+        <thead *ngIf="vueTable.enTetes" [class]="vueTable.classeEntete">
             <tr>
                 <ng-container *ngTemplateOutlet="enTetesTemplate"></ng-container>
             </tr>

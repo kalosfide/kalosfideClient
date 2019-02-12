@@ -1,27 +1,23 @@
-import { KfTypeDeComposant, KfTypeDeValeur, KfTypeDeBaliseDEtiquette } from '../../kf-composants-types';
-import { KfTexteImage } from '../../kf-partages/kf-texte-image/kf-texte-image';
+import { KfTypeDeComposant } from '../../kf-composants-types';
 import { KfElement } from '../../kf-composant/kf-element';
-import { KfTypeDHTMLEvents, KfEvenement, KfTypeDEvenement } from '../../kf-partages/kf-evenements';
-import { KfSuperGroupe } from '../../kf-groupe/kf-super-groupe';
+import { KfTypeDHTMLEvents } from '../../kf-partages/kf-evenements';
 import { KfParametres } from '../../kf-composants-parametres';
 import { KfTexteDef } from '../../kf-partages/kf-texte-def';
+import { KfContenuPhrase } from '../../kf-partages/kf-contenu-phrase/kf-contenu-phrase';
 
 export class KfFichierSauve extends KfElement {
     texteASauver: () => string;
     private _nomFichier: () => string;
 
     constructor(nom: string, texteASauver: () => string, nomFichier: () => string,
-    texte?: KfTexteDef,
-    imageAvant?: KfTexteDef,
-    imageApres?: KfTexteDef
-) {
+        texte?: KfTexteDef,
+    ) {
         super(nom, KfTypeDeComposant.fichierSauve);
         this.texteASauver = texteASauver;
         this._nomFichier = nomFichier;
-        if (texte || imageAvant || imageApres) {
+        this.contenuPhrase = new KfContenuPhrase(this, texte);
+        if (texte) {
             this.fixeTexte(texte);
-            this.fixeUrlImageAvant(imageAvant);
-            this.fixeUrlImageApres(imageApres);
         } else {
             this.fixeTexte(KfParametres.fichierParDefaut.texteSauve);
         }

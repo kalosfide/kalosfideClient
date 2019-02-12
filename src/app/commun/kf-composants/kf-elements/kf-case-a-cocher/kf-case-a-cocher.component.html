@@ -1,12 +1,12 @@
-<div class="form-group form-check">
-    <label *ngIf="composant.texteImageAvant" #labelElement [attr.for]="composant.nom" class="form-check-label">
-        <app-kf-texte-image [texteImage]="composant.texteImage"></app-kf-texte-image>
+<div class="form-check" [ngClass]="{'form-group': !composant.estDansVueTable}">
+    <label *ngIf="composant.contenuPhraseAvant" #labelElement [attr.for]="composant.nom" class="form-check-label">
+        <app-kf-contenu-phrase [contenuPhrase]="composant.contenuPhrase"></app-kf-contenu-phrase>
     </label>
     <input type='checkbox' #inputElement [name]="composant.nom" [formControl]="composant.formControl" [ngClass]="ngClass" [attr.disabled]="composant.inactif" />
-    <label *ngIf="composant.texteImageApres" #labelElement [attr.for]="composant.nom" class="form-check-label">
-        <app-kf-texte-image [texteImage]="composant.texteImage"></app-kf-texte-image>
+    <label *ngIf="composant.contenuPhraseApres" #labelElement [attr.for]="composant.nom" class="form-check-label">
+        <app-kf-contenu-phrase [contenuPhrase]="composant.contenuPhrase"></app-kf-contenu-phrase>
     </label>
-    <div class="invalid-feedback">
+    <div *ngIf="composant.avecInvalidFeedback" class="invalid-feedback">
         <p *ngFor="let erreur of composant.erreurs">{{erreur}}</p>
     </div>
 </div>

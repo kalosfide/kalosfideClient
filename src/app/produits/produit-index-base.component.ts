@@ -14,7 +14,7 @@ import { Tri } from '../commun/outils/trieur';
 import { Categorie } from '../modeles/categorie';
 import { TypesCommandes } from '../modeles/type-commande';
 import { IdEtatProduit, EtatsProduits } from '../modeles/etat-produit';
-import { KfVueCelluleDef, KfVueTableDef, KfVueTableEnTete } from '../commun/kf-composants/kf-vue-table/kf-vue-table';
+import { KfVueCelluleDef, KfVueTableDef } from '../commun/kf-composants/kf-vue-table/kf-vue-table';
 import { KfVueTableFiltre } from '../commun/kf-composants/kf-vue-table/kf-vue-table-filtre';
 
 const NOM_TRI_CATEGORIE = 'categorie';
@@ -36,7 +36,7 @@ export abstract class ProduitIndexBaseComponent extends KeyUidRnoNoIndexComponen
     ) {
         super(router, route, service);
         this.vueTableDef = {
-            enTetes: [
+            enTetesDef: [
                 {
                     texte: 'Catégorie',
                     tri: new Tri(NOM_TRI_CATEGORIE, CompareProduits.nomCategorie)
@@ -55,7 +55,7 @@ export abstract class ProduitIndexBaseComponent extends KeyUidRnoNoIndexComponen
             cellules: this._cellules,
             filtres: [
                 new KfVueTableFiltre(NOM_FILTRE_CATEGORIE, 'Filtrer par catégorie',
-                    (p: Produit, noCategorie: number) => p.categorieNo === noCategorie),
+                    (p: Produit, noCategorie: string) => p.categorieNo.toString() === noCategorie),
                 new KfVueTableFiltre(NOM_FILTRE_ETAT, 'Filtrer par état',
                     (p: Produit, idEtat: IdEtatProduit) => EtatsProduits.etat(idEtat).vérifie(p), true)
             ]

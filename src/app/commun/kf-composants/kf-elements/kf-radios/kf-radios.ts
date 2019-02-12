@@ -1,16 +1,24 @@
-import { KfTypeDeComposant, KfTypeDeValeur } from '../../kf-composants-types';
+import { KfTypeDeComposant } from '../../kf-composants-types';
 import { KfComposant } from '../../kf-composant/kf-composant';
-import { KfTexteImage } from '../../kf-partages/kf-texte-image/kf-texte-image';
 import { KfRadio } from './kf-radio';
 import { KfEntrée } from '../../kf-composant/kf-entree';
 import { KfGereTabIndex } from '../../kf-composant/kf-composant-gere-tabindex';
 
 export class KfRadios extends KfEntrée {
 
+    avecNgBootstrap: boolean;
+
     constructor(nom: string) {
         super(nom, KfTypeDeComposant.radios);
         this._valeur = null;
-        this.ajouteClasseDef('form-group', 'radio');
+    }
+
+    ajoute(composant: KfComposant) {
+        if (composant.typeDeComposant === KfTypeDeComposant.radio) {
+            this.noeud.Ajoute(composant.noeud);
+            return;
+        }
+        throw new Error(`On ne peut ajouter que des KfRadio à ${this.nom}`);
     }
 
     navigueAuClavier() {
@@ -20,14 +28,6 @@ export class KfRadios extends KfEntrée {
         });
     }
 
-    AjouteChoix(nom: string, valeur: string, texte: string) {
-        const c = new KfRadio(nom + (this.enfants.length + 1), valeur, texte);
-        this.noeud.Ajoute(c.noeud);
-    }
-
-    get contenus(): KfComposant[] {
-        return this.enfants;
-    }
     liéAChoisi(): KfComposant {
         const enCours = this.contenus.find(
             (c: KfComposant): boolean => {

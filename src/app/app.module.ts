@@ -20,6 +20,8 @@ import { MotDePasseResolverService } from './securite/mot-de-passe/mot-de-passe-
 import { ModelesModule } from './modeles/modeles.module';
 import { SiteOuvertGarde } from './securite/site-ouvert-garde';
 import { MessagesModule } from './messages/messages.module';
+import { AlerteService } from './disposition/alerte/alerte-service';
+import { SitePasOuvertGarde } from './securite/site-pas-ouvert-garde';
 
 @NgModule({
     imports: [
@@ -27,7 +29,7 @@ import { MessagesModule } from './messages/messages.module';
         FormsModule,
         ReactiveFormsModule,
         HttpClientModule,
-        NgbModule,
+        NgbModule.forRoot(),
 
         CommunModule,
         DispositionModule,
@@ -46,11 +48,13 @@ import { MessagesModule } from './messages/messages.module';
         IdentificationService,
         httpInterceptorProviders,
         NgbActiveModal,
+        AlerteService,
 
         MotDePasseService,
         MotDePasseResolverService,
         SiteRoleGarde,
-        SiteOuvertGarde
+        SiteOuvertGarde,
+        SitePasOuvertGarde,
     ],
     bootstrap: [AppComponent]
 })

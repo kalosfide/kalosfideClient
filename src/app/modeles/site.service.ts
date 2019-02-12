@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Site } from './site';
+import { Site, EtatSite } from './site';
 import { ApiConfigService } from '../services/api-config.service';
 import { IdentificationService } from '../securite/identification.service';
 import { Observable, Subject } from 'rxjs';
@@ -8,9 +8,10 @@ import { ApiAction } from '../commun/api-route';
 import { HttpClient } from '@angular/common/http';
 import { NavigationService } from '../services/navigation.service';
 import { KeyUidRnoService } from '../commun/data-par-key/key-uid-rno/key-uid-rno.service';
-import { map, tap } from 'rxjs/operators';
+import { map, tap, mergeMap } from 'rxjs/operators';
 import { ApiResult200Ok } from '../commun/api-results/api-result-200-ok';
 import { ApiResult201Created } from '../commun/api-results/api-result-201-created';
+import { RouteurService } from '../services/routeur.service';
 
 @Injectable({
     providedIn: 'root'
@@ -26,6 +27,7 @@ export class SiteService extends KeyUidRnoService<Site> {
         private _apiConfig: ApiConfigService,
         private _identification: IdentificationService,
         private _navigation: NavigationService,
+        private _routeur: RouteurService
     ) {
         super();
     }
@@ -34,6 +36,7 @@ export class SiteService extends KeyUidRnoService<Site> {
     get config(): ApiConfigService { return this._apiConfig; }
     get identification(): IdentificationService { return this._identification; }
     get navigation(): NavigationService { return this._navigation; }
+    get routeur(): RouteurService { return this._routeur; }
 
     public trouveParNom(nomSite: string): Observable<ApiResult> {
         console.log(nomSite);
@@ -64,35 +67,45 @@ export class SiteService extends KeyUidRnoService<Site> {
         );
     }
 
-    public ouvert(site: Site): Observable<boolean> {
-        return this.get<boolean>(this.dataUrl, ApiAction.site.ouvert, this.créeParams(site)).pipe(
-            map(apiResult => apiResult.statusCode === ApiResult200Ok.code && (apiResult as ApiResult200Ok<boolean>).lecture)
-        );
+    public vérifieEtat(site: Site): Observable<ApiResult> {
+        return this.get<EtatSite>(this.dataUrl, ApiAction.site.etat, this.créeParams(site)).pipe(
+            tap(apiResult => {
+                if (apiResult.statusCode === ApiResult200Ok.code) {
+                    const etat = (apiResult as ApiResult200Ok<EtatSite>).lecture;
+                    site.etat = etat.etat;
+                    site.dateEtat = etat.dateEtat;
+                }
+            }
+            ));
     }
 
-    public estOuvert$(): Observable<boolean> {
-        return this.siteOuvertSubject.asObservable();
+    public ouvert(site: Site): Observable<boolean> {
+        return this.vérifieEtat(site).pipe(
+            map(apiResult => {
+                if (apiResult.statusCode === ApiResult200Ok.code) {
+                    return site.ouvert;
+                }
+            }
+            ));
     }
 
     public ouvre(site: Site): Observable<ApiResult> {
         return this.post<string>(this.dataUrl, ApiAction.site.ouvre, '', this.créeParams(site)).pipe(
-            tap(apiResult => {
+            mergeMap(apiResult => {
                 if (apiResult.statusCode === ApiResult201Created.code) {
-                    site.etat = 'A';
-                    site.dateEtat = new Date();
-                    this.siteOuvertSubject.next(true);
+                    return this.vérifieEtat(site);
                 }
             })
         );
     }
 
     public ferme(site: Site, jusquA: Date): Observable<ApiResult> {
+        console.log('jusquA', jusquA);
+        console.log('jusquAJSON', JSON.stringify(jusquA));
         return this.post<Date>(this.dataUrl, ApiAction.site.ferme, jusquA, this.créeParams(site)).pipe(
             tap(apiResult => {
                 if (apiResult.statusCode === ApiResult201Created.code) {
-                    site.etat = 'I';
-                    site.dateEtat = new Date();
-                    this.siteOuvertSubject.next(false);
+                    return this.vérifieEtat(site);
                 }
             })
         );

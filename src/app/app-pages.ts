@@ -42,36 +42,38 @@ export const AppPages = {
     administrateur: 'administrateur',
 };
 
-export class AppRoutes {
-    public static séparateur = '/';
+class AppRoutesClass {
+    séparateur = '/';
 
-    private static _images = '/assets';
+    private _images = '/assets';
 
-    static urlIntrouvable = AppPages.appSite.urlSegment + AppRoutes.séparateur + AppPages.introuvable.urlSegment;
+    urlIntrouvable = AppPages.appSite.urlSegment + this.séparateur + AppPages.introuvable.urlSegment;
 
-    static éclateString(s: string): string[] {
-        return s.split(AppRoutes.séparateur);
+    éclateString(s: string): string[] {
+        return s.split(this.séparateur);
     }
 
-    static éclateStrings(ss: any[]): string[] {
+    éclateStrings(ss: any[]): string[] {
         const strings: string[] = [];
         ss.forEach(s => {
             if (typeof(s) === 'string') {
-                strings.concat(AppRoutes.éclateString(s));
+                strings.concat(this.éclateString(s));
             }
         });
         return strings;
     }
-    static url(segments?: string[]): string {
-        let u = AppRoutes.séparateur;
+    url(segments?: string[]): string {
+        let u = this.séparateur;
         if (segments) {
-            u += segments.join(AppRoutes.séparateur);
+            u += segments.join(this.séparateur);
         }
         return u;
     }
 
-    static urlImage(...segments: string[]): string {
-        return AppRoutes._images + AppRoutes.séparateur + segments.join(AppRoutes.séparateur);
+    urlImage(...segments: string[]): string {
+        return this._images + this.séparateur + segments.join(this.séparateur);
     }
 
 }
+
+export const AppRoutes = new AppRoutesClass();

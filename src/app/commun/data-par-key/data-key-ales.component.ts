@@ -6,12 +6,16 @@ import { AttenteAsyncService } from '../../services/attenteAsync.service';
 import { FormulaireComponent } from '../../disposition/formulaire/formulaire.component';
 import { DataKeyService } from './data-key.service';
 import { ApiResult } from '../api-results/api-result';
-import { DataTexteSoumettre } from './data-pages';
+import { DataTexteSoumettre, IDataPages } from './data-pages';
 import { KfGroupe } from '../kf-composants/kf-groupe/kf-groupe';
 import { DataKey } from './data-key';
 import { DataKeyEditeur } from './data-key-editeur';
 import { ApiAction } from '../api-route';
 import { KfLien } from '../kf-composants/kf-elements/kf-lien/kf-lien';
+import { ISiteRoutes } from 'src/app/site/site-pages';
+import { Site } from 'src/app/modeles/site';
+import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
+import { KfTexteDef } from '../kf-composants/kf-partages/kf-texte-def';
 
 export abstract class DataKeyALESComponent<T extends DataKey> extends FormulaireComponent {
 
@@ -19,7 +23,12 @@ export abstract class DataKeyALESComponent<T extends DataKey> extends Formulaire
         return this.pageDef.urlSegment;
     }
 
-    abstract urlPageIndex: string;
+    abstract dataPages: IDataPages;
+    abstract dataRoutes: ISiteRoutes;
+    abstract site: Site;
+    get nomSiteDef(): KfTexteDef {
+        return () => this.site.nomSite;
+    }
 
     protected chargeData: (data: Data) => void;
 
@@ -35,12 +44,13 @@ export abstract class DataKeyALESComponent<T extends DataKey> extends Formulaire
         protected attenteAsyncService: AttenteAsyncService,
     ) {
         super(service, attenteAsyncService);
-        this.lienRetour = new KfLien('', () => this.urlPageIndex, 'Retour à la liste');
     }
 
     créeEdition = (): KfGroupe => {
         this.créeDataEditeur();
         this.dataEditeur.créeEdition(this.action);
+        this.lienRetour = Fabrique.lienBouton(this.dataPages.index, this.dataRoutes, this.nomSiteDef);
+        this.lienRetour.fixeTexte('Retour à la liste');
         return this.dataEditeur.edition;
     }
 
@@ -81,7 +91,7 @@ export abstract class DataKeyALESComponent<T extends DataKey> extends Formulaire
     }
 
     actionSiOk = (): void => {
-        this.router.navigate([this.urlPageIndex]);
+        this.router.navigate([this.lienRetour.url]);
     }
 
     get valeur(): any {

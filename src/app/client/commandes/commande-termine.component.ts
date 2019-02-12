@@ -12,11 +12,12 @@ import { KfResultatAffichable } from '../../commun/kf-composants/kf-elements/kf-
 import { KfTypeResultatAffichable } from '../../commun/kf-composants/kf-elements/kf-affiche-resultat/kf-type-resultat-affichable';
 import { KfAfficheResultat } from '../../commun/kf-composants/kf-elements/kf-affiche-resultat/kf-affiche-resultat';
 import { KfEtiquette } from '../../commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
-import { KfTypeDeBaliseDEtiquette } from '../../commun/kf-composants/kf-composants-types';
+import { KfTypeDeBaliseHTML } from '../../commun/kf-composants/kf-composants-types';
 import { SitePages } from '../../site/site-pages';
 import { ComptePages } from '../../compte/compte-pages';
 import { ClientRoutes } from '../client-pages';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',
@@ -47,16 +48,16 @@ export class CommandeTermineComponent extends PageBaseComponent implements OnIni
         afficheResultat.finit(new KfResultatAffichable(KfTypeResultatAffichable.Ok, 'Le bon de commande a bien été enregistré.'));
         this.superGroupe.ajoute(afficheResultat);
         let etiquette = new KfEtiquette('', 'Le fournisseur le verra dans sa liste de bons de commande à traiter.');
-        etiquette.baliseHTML = KfTypeDeBaliseDEtiquette.P;
+        etiquette.baliseHtml = KfTypeDeBaliseHTML.p;
         this.superGroupe.ajoute(etiquette);
         etiquette = new KfEtiquette('', `Vous pourrez suivre son traitement sur la page ${SitePages.livraisons.lien}.`);
-        etiquette.baliseHTML = KfTypeDeBaliseDEtiquette.P;
+        etiquette.baliseHtml = KfTypeDeBaliseHTML.p;
         this.superGroupe.ajoute(etiquette);
         const groupe = new KfGroupe('');
         groupe.ajouteClasseDef('form-group btn-group form-inline');
         etiquette = new KfEtiquette('', 'Si vous avez terminé, pensez à vous déconnecter.');
         groupe.ajoute(etiquette);
-        const lien = new KfLien('', ClientRoutes.url(this.site.nomSite, [ComptePages.deconnection.urlSegment]), 'Déconnection');
+        const lien = Fabrique.lienBouton(ComptePages.deconnection, ClientRoutes, this.site.nomSite);
         groupe.ajoute(lien);
     }
 

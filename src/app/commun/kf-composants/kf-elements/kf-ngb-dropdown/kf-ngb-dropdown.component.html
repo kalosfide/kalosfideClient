@@ -1,0 +1,22 @@
+<div ngbDropdown #dropdown class="dropdown" [placement]="composant.placement">
+    <button [id]="composant.nom" ngbDropdownToggle #htmlElement [disabled]="inactif" [ngClass]="composant.bouton.classe"
+        class="dropdown-toggle">
+        <app-kf-contenu-phrase *ngIf="composant.bouton.contenuPhrase" [contenuPhrase]="composant.bouton.contenuPhrase"></app-kf-contenu-phrase>
+    </button>
+    <div ngbDropdownMenu [attr.aria-labelledby]="composant.nom" class="dropdown-menu">
+        <ng-container *ngFor="let contenu of composant.contenus">
+            <ng-container *ngIf="estGroupe(contenu); then groupeTemplate; else itemTemplate"></ng-container>
+            <ng-template #groupeTemplate>
+                <ng-container *ngIf="contenu.contenus.length > 0">
+                    <div class="dropdown-divider"></div>
+                    <ng-container *ngFor="let contenu1 of contenu.contenus" role="menuitem">
+                        <app-kf-composant [composant]="contenu1" (output)="transmet($event)"></app-kf-composant>
+                    </ng-container>
+                </ng-container>
+            </ng-template>
+            <ng-template #itemTemplate>
+                <app-kf-composant [composant]="contenu" (output)="transmet($event)"></app-kf-composant>
+            </ng-template>
+        </ng-container>
+    </div>
+</div>

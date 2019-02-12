@@ -4,7 +4,7 @@ import { TypesMesures } from '../../modeles/type-mesure';
 import { IdTypeCommande, TypesCommandes } from '../../modeles/type-commande';
 import { KfComposant } from '../../commun/kf-composants/kf-composant/kf-composant';
 import { KfListeDeroulante } from '../../commun/kf-composants/kf-elements/kf-liste-deroulante/kf-liste-deroulante';
-import { KfNombre } from '../../commun/kf-composants/kf-elements/kf-input/kf-nombre';
+import { KfInputNombre } from '../../commun/kf-composants/kf-elements/kf-input/kf-input-nombre';
 import { KfVueCelluleDef } from 'src/app/commun/kf-composants/kf-vue-table/kf-vue-table';
 
 export class CommandeDetail extends KeyUidRnoNo {
@@ -146,7 +146,7 @@ export function CommeCommandeLigneDemande(composant: KfComposant): CommandeLigne
     }
 }
 
-export class CommandeLigneDemande extends KfNombre {
+export class CommandeLigneDemande extends KfInputNombre {
     ligne: CommandeLigne;
 
     constructor(ligne: CommandeLigne) {

@@ -15,10 +15,16 @@ export enum KfTypeDeComposant {
     etiquette = 'etiquette',
     vuejson = 'vue-json',
     lien = 'lien',
+    icone = 'icone',
+    image = 'image',
+    texte = 'texte',
+
+    ngbDropdown = 'ngbDropdown',
+    ngbDropdownGroup = 'ngbDropdownGroup',
+    ngbPopover = 'ngbPopover',
     fichierSauve = 'fichier-sauve',
     fichier = 'fichier',
     fichierCharge = 'fichier-charge',
-    vuetable = 'vuetable',
 
     afficheResultat = 'affiche-resultat',
     /**
@@ -35,9 +41,11 @@ export enum KfTypeDeComposant {
     groupe = 'groupe',
     liste = 'liste',
     listeEditeur = 'listeEditeur',
+    nav = 'nav',
     menu = 'menu',
     sousmenu = 'sousmenu',
     dialogue = 'dialogue',
+    vuetable = 'vuetable',
     ul = 'ul',
     li = 'li',
 }
@@ -99,17 +107,23 @@ export enum KfKeyboardKey {
     pageUp = 'PageUp',
 }
 
-export enum KfTypeDeBaliseDEtiquette {
+export enum KfTypeDeBaliseHTML {
     aucun = 'aucun',
-    span = 'span',
+    b = 'b',
     div = 'div',
-    P = 'P',
-    pre = 'pre',
+    fieldset = 'fieldset',
     h1 = 'h1',
     h2 = 'h2',
     h3 = 'h3',
     h4 = 'h4',
     h5 = 'h5',
     h6 = 'h6',
+    i = 'i',
     label = 'label',
+    legend = 'legend',
+    p = 'P',
+    pre = 'pre',
+    span = 'span',
+    small = 'small',
+    strong = 'strong',
 }

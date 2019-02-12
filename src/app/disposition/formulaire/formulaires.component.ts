@@ -14,6 +14,7 @@ import { AttenteAsyncService } from '../../services/attenteAsync.service';
 
 import { PageBaseComponent } from '../page-base/page-base.component';
 import { soumet, FormulaireASoumettre, SoumissionDef, créeFormulaireASoumettre } from './i-formulaire';
+import { FormulaireFabrique } from './formulaire-fabrique';
 
 export abstract class FormulairesComponent extends PageBaseComponent implements OnInit, OnDestroy {
 
@@ -56,9 +57,10 @@ export abstract class FormulairesComponent extends PageBaseComponent implements 
 
     traite(evenement: KfEvenement) {
         if (evenement.type === KfTypeDEvenement.soumet) {
-            const formulaireASoumettre: FormulaireASoumettre = this.aSoumettre.find(fas => fas.formulaire === evenement.emetteur);
+            const formulaireASoumettre: FormulaireASoumettre = this.aSoumettre.find(fas =>
+                FormulaireFabrique.NomBoutonSoumettre(fas.formulaire) === evenement.emetteur.nom);
             if (formulaireASoumettre) {
-                soumet(this.attenteAsyncService, formulaireASoumettre);
+                soumet(this.attenteAsyncService, formulaireASoumettre, this.service.routeur);
             }
         }
     }

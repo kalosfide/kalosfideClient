@@ -1,5 +1,5 @@
 
-import { ItemDeMenu } from '../menus/item-de-menu';
+import { ItemDeMenu } from '../disposition/menus/item-de-menu';
 import { TypeAutorisation } from '../securite/autorisation';
 import { FournisseurRoutes, FournisseurPages } from './fournisseur-pages';
 import { Site } from '../modeles/site';

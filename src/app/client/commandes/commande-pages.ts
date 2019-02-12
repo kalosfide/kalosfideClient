@@ -1,4 +1,4 @@
-import { SitePages } from '../../site/site-pages';
+import { SitePages, ISiteRoutes } from '../../site/site-pages';
 import { ClientRoutes } from '../../client/client-pages';
 
 export const CommandePages = {
@@ -22,11 +22,12 @@ export const CommandePages = {
     },
 };
 
-export class CommandeRoutes {
-    static url(nomSite: string, ...segments: string[]): string {
+class CCommandeRoutes implements ISiteRoutes {
+    url(nomSite: string, segments?: string[]): string {
         let s: string[] = [];
         s.push(SitePages.commandes.urlSegment);
         s = s.concat(segments);
         return ClientRoutes.url(nomSite, s);
     }
 }
+export const CommandeRoutes = new CCommandeRoutes();

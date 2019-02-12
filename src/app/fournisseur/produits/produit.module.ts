@@ -11,9 +11,9 @@ import { ProduitAjouteComponent } from './produit-ajoute.component';
 import { ProduitResolverService } from './produit-resolver.service';
 import { ProduitPrixComponent } from './produit-prix.component';
 import { ProduitPrixResolverService } from './produit-prix-resolver.service';
-import { SitePasOuvertGarde } from './site-pas-ouvert-garde';
-import { ProduitAccueilComponent } from './produit-accueil.component';
 import { ModelesModule } from 'src/app/modeles/modeles.module';
+import { FProduitsComponent } from './F-produits.component';
+import { ProduitAccueilComponent } from './produit-accueil.component';
 
 @NgModule({
     imports: [
@@ -29,11 +29,11 @@ import { ModelesModule } from 'src/app/modeles/modeles.module';
         ProduitEditeComponent,
         ProduitIndexComponent,
         ProduitPrixComponent,
+        FProduitsComponent,
     ],
     providers: [
         ProduitResolverService,
         ProduitPrixResolverService,
-        SitePasOuvertGarde,
     ],
 })
 export class ProduitModule { }

@@ -5,12 +5,21 @@ import { DataKeyService } from './data-key.service';
 import { Router, ActivatedRoute, Data } from '@angular/router';
 import { DataKey } from './data-key';
 import { KfSuperGroupe } from '../kf-composants/kf-groupe/kf-super-groupe';
-import { KfVueTable } from '../kf-composants/kf-vue-table/kf-vue-table';
+import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
+import { ISiteRoutes } from 'src/app/site/site-pages';
+import { Site } from 'src/app/modeles/site';
+import { KfTexteDef, ValeurTexteDef } from '../kf-composants/kf-partages/kf-texte-def';
+import { PageDef } from '../page-def';
 
 export abstract class DataKeyIndexComponent<T extends DataKey> extends PageTableComponent<T>  {
 
     abstract appRouteDeKey: (key: T) => string;
     abstract dataPages: IDataPages;
+    abstract dataRoutes: ISiteRoutes;
+    abstract site: Site;
+    get nomSiteDef(): KfTexteDef {
+        return () => this.site.nomSite;
+    }
 
     protected chargeData: (data: Data) => void;
 
@@ -23,7 +32,7 @@ export abstract class DataKeyIndexComponent<T extends DataKey> extends PageTable
     }
 
     public ngOnInit_Charge() {
-        this.vueTable = new KfVueTable(this.nom + '_table', this.vueTableDef);
+        this.vueTable = Fabrique.vueTable(this.nom, this.vueTableDef);
         this.subscriptions.push(this.route.data.subscribe(
             (data: Data) => {
                 this.liste = data.liste;
@@ -38,29 +47,23 @@ export abstract class DataKeyIndexComponent<T extends DataKey> extends PageTable
         ));
     }
 
-    créeLien(action: string, texte: string, ligne?: T): KfLien {
-        let nom = action;
-        let url = '../' + action;
-        if (ligne) {
-            const appRouteDeKey = this.appRouteDeKey(ligne);
-            nom += appRouteDeKey;
-            url += '/' + appRouteDeKey;
-        }
-        const lien = new KfLien(nom, url, texte);
-        return lien;
-    }
-
     créeLienAjoute(): KfLien {
-        const lien = this.créeLien(this.dataPages.ajoute.urlSegment, this.dataPages.ajoute.lien);
+        const lien = Fabrique.lienBouton(this.dataPages.ajoute, this.dataRoutes, this.nomSiteDef);
         lien.ajouteClasseDef('nav-link');
         return lien;
     }
 
+    protected créeLien(pageDef: PageDef, ligne: T): KfLien {
+        const lien = Fabrique.lienBouton(pageDef, this.dataRoutes, this.nomSiteDef);
+        lien.fixeRoute(() => ValeurTexteDef(Fabrique.url(pageDef, this.dataRoutes, this.nomSiteDef)) + '/' + this.appRouteDeKey(ligne));
+        return lien;
+    }
+
     créeLienEdite(ligne: T): KfLien {
-        return this.créeLien(this.dataPages.edite.urlSegment, this.dataPages.edite.lien, ligne);
+        return this.créeLien(this.dataPages.edite, ligne);
     }
 
     créeLienSupprime(ligne: T): KfLien {
-        return this.créeLien(this.dataPages.supprime.urlSegment, this.dataPages.supprime.lien, ligne);
+        return this.créeLien(this.dataPages.supprime, ligne);
     }
 }

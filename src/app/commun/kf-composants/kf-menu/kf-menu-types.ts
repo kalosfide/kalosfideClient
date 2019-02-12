@@ -1,5 +1,7 @@
 import { KfTypeDeComposant } from '../kf-composants-types';
 import { KfComposant } from '../kf-composant/kf-composant';
+import { KfTexteDef } from '../kf-partages/kf-texte-def';
+import { KfImageDef } from '../kf-partages/kf-image-def';
 
 export enum KfTypeDeSousMenu {
     etiquette = 'etiquette',
@@ -16,9 +18,9 @@ export interface KfDefinitionDeMenu {
     /** selecteur doit être défini si type est special  */
     selecteur?: KfComposant;
     /** pour construire le sélecteur */
-    texte?: string;
-    imageAvant?: string;
-    imageApres?: string;
+    texte?: KfTexteDef;
+    imageAvant?: KfImageDef;
+    imageApres?: KfImageDef;
     /** pour pouvoir affecter la classe kf-choisi */
     peutEtreChoisi?: boolean;
     /** title de l'element (survol) */

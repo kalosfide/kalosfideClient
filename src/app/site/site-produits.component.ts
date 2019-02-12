@@ -18,6 +18,7 @@ export class SiteProduitsComponent extends ProduitIndexBaseComponent implements 
     }
 
     dataPages = null;
+    dataRoutes = null;
 
     constructor(
         protected router: Router,

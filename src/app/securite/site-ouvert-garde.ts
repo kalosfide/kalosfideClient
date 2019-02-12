@@ -3,9 +3,7 @@ import { CanActivate, CanActivateChild } from '@angular/router';
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Observable } from 'rxjs';
 import { NavigationService } from '../services/navigation.service';
-import { IdentificationService } from './identification.service';
 import { RouteurService } from '../services/routeur.service';
-import { SiteRoutes, SitePages } from '../site/site-pages';
 import { AppPages } from '../app-pages';
 
 @Injectable({
@@ -21,7 +19,7 @@ export class SiteOuvertGarde implements CanActivate, CanActivateChild {
 
     canActivate(_route: ActivatedRouteSnapshot, _state: RouterStateSnapshot): Observable<boolean> | boolean {
         const site = this.navigation.siteEnCours;
-        if (site && !site.ouvert) {
+        if (!site || !site.ouvert) {
             this.routeur.navigue([AppPages.pasOuvert.urlSegment]);
             return false;
         }

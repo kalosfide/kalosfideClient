@@ -3,18 +3,37 @@ import { KfTypeDeComposant, KfTypeDeValeur } from '../kf-composants-types';
 import { FormGroup } from '@angular/forms';
 import { KfComposantGereValeur } from '../kf-composant/kf-composant-gere-valeur';
 import { KfBouton } from '../kf-elements/kf-bouton/kf-bouton';
+import { KfEtiquette } from '../kf-elements/kf-etiquette/kf-etiquette';
 
 export class KfGroupe extends KfComposant {
     nbValeurs: number;
     nbEntrées: number;
 
+    private _masqué: boolean;
+    legende: KfEtiquette;
+
     constructor(nom: string) {
         super(nom, KfTypeDeComposant.groupe);
-        this.ajouteClasseDef(('kf-groupe'));
     }
 
     créeGereValeur() {
         this.gereValeur = new KfComposantGereValeur(this, KfTypeDeValeur.avecGroupe);
+    }
+
+    masquable(masqueInitial: boolean) {
+        this._masqué = masqueInitial;
+    }
+
+    get estMasquable(): boolean {
+        return this._masqué !== undefined;
+    }
+
+    get masque(): boolean {
+        return this._masqué === true;
+    }
+
+    basculeMasque() {
+        this._masqué = !this._masqué;
     }
 
     private get nomGroupeBoutonsDeFormulaire(): string {

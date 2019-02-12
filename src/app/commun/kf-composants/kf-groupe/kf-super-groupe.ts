@@ -2,6 +2,8 @@ import { KfGroupe } from './kf-groupe';
 import { KfTypeDEvenement, KfEvenement, KfStatutDEvenement } from '../kf-partages/kf-evenements';
 import { KfComposant } from '../kf-composant/kf-composant';
 import { KfTypeDeComposant } from '../kf-composants-types';
+import { KfInput, KfTypeDInput } from '../kf-elements/kf-input/kf-input';
+import { KfInputDateTemps } from '../kf-elements/kf-input/kf-input-date-temps';
 
 /**
  * racine d'un arbre de disposition
@@ -13,6 +15,29 @@ export class KfSuperGroupe extends KfGroupe {
      * n'aura un effet que si le groupe est racine et avec valeur
      */
     sauveQuandChange: boolean;
+
+    /**
+     * si formulaire et vrai, ajoute l'affichage des erreurs
+     */
+    private _avecInvalidFeedback: boolean;
+    get avecInvalidFeedback(): boolean {
+        return this._avecInvalidFeedback;
+    }
+    set avecInvalidFeedback(avecInvalidFeedback: boolean) {
+        this._avecInvalidFeedback = avecInvalidFeedback;
+    }
+
+    /**
+     * si formulaire à soumettre et vrai, autorise la soumission si valid ET si dirty
+     * true pour les editions
+     */
+    private _neSoumetPasSiPristine: boolean;
+    get neSoumetPasSiPristine(): boolean {
+        return this._neSoumetPasSiPristine;
+    }
+    set neSoumetPasSiPristine(neSoumetPasSiPristine: boolean) {
+        this._neSoumetPasSiPristine = neSoumetPasSiPristine;
+    }
 
     constructor(nom: string) {
         super(nom);
@@ -29,6 +54,7 @@ export class KfSuperGroupe extends KfGroupe {
      *  ajouter un noeudV qui n'est pas une racineV et qui n'a pas de parentV au noeudV
      *  du plus proche ancêtre de disposition qui en a un
      *  lancer gereValeur.prepare pour chaque racine
+     * Pour la disposition ensérer dans des balises
      */
     quandTousAjoutés() {
         const racines: KfComposant[] = [];
@@ -48,6 +74,14 @@ export class KfSuperGroupe extends KfGroupe {
                     }
                     if (composant.typeDeComposant === KfTypeDeComposant.groupe) {
                         pV = composant;
+                    } else {
+                        if (composant.typeDeComposant === KfTypeDeComposant.input) {
+                            if ((composant as KfInput).typeDInput === KfTypeDInput.datetemps) {
+                                const datetemps = composant as KfInputDateTemps;
+                                prépareV(datetemps.inputDate, null);
+                                prépareV(datetemps.inputTemps, null);
+                            }
+                        }
                     }
                 }
             }

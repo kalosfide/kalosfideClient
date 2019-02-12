@@ -4,9 +4,10 @@ import { AttenteAsyncService } from '../services/attenteAsync.service';
 import { IdentificationService } from '../securite/identification.service';
 import { NavigationService } from '../services/navigation.service';
 import { ActivatedRoute } from '@angular/router';
-import { Menu } from '../menus/menu';
+import { Menu } from '../disposition/menus/menu';
 import { ClientMenu } from '../client/client-menu';
 import { SiteRacineComponent } from './site-racine.component';
+import { AlerteService } from '../disposition/alerte/alerte-service';
 
 @Component({
     templateUrl: '../disposition/racine/racine.component.html',
@@ -19,6 +20,7 @@ export class ClientRacineComponent extends SiteRacineComponent implements OnInit
         protected attenteAsyncService: AttenteAsyncService,
         protected identification: IdentificationService,
         protected navigation: NavigationService,
+        protected alerteService: AlerteService,
     ) {
         super(
             route,
@@ -26,6 +28,7 @@ export class ClientRacineComponent extends SiteRacineComponent implements OnInit
             attenteAsyncService,
             identification,
             navigation,
+            alerteService,
         );
     }
 

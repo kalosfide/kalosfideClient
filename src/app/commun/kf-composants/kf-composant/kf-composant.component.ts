@@ -145,7 +145,7 @@ export class KfComposantComponent implements OnInit {
     }
 
     /**
-     * debug
+     * debug: log du composant
      */
     get debugComposant(): string {
         console.log('debugComposant', this.composant);

@@ -1,7 +1,8 @@
-import { ItemDeMenu } from '../menus/item-de-menu';
+import { ItemDeMenu } from '../disposition/menus/item-de-menu';
 import { SiteMenu } from '../site/site-menu';
 import { VisiteurRoutes, VisiteurPages } from './visiteur-pages';
 import { ItemCompte } from '../compte/menu/item-compte';
+import { TypeItemDeMenu } from '../disposition/menus/type-item-de-menu';
 
 export class VisiteurMenu extends SiteMenu {
     routes = VisiteurRoutes;
@@ -15,18 +16,18 @@ export class VisiteurMenu extends SiteMenu {
     }
 
     private créeItemDevenirClient(): ItemDeMenu {
-        const devenir = new ItemDeMenu('devenir', this);
+        const devenir = new ItemDeMenu('devenir', this, TypeItemDeMenu.dropdownGroup);
         devenir.dropDownDivider = true;
-        const client = new ItemDeMenu(VisiteurPages.devenirClient.urlSegment, this);
+        const client = new ItemDeMenu(VisiteurPages.devenirClient.urlSegment, this, TypeItemDeMenu.dropdownItem);
         client.texte = VisiteurPages.devenirClient.lien;
         client.url = VisiteurRoutes.url(this.menu.site.nomSite, [VisiteurPages.devenirClient.urlSegment]);
-        devenir.sousMenu = [client];
+        devenir.ajoute(client);
         return devenir;
     }
 
     protected créeItemCompte(): ItemDeMenu {
         const i = new ItemCompte(this);
-        i.sousMenu.push(this.créeItemDevenirClient());
+        i.ajoute(this.créeItemDevenirClient());
         return i;
     }
 

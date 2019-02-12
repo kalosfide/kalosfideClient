@@ -18,6 +18,7 @@ export class CProduitsComponent extends ProduitIndexBaseComponent implements OnI
     }
 
     dataPages = null;
+    dataRoutes = null;
 
     constructor(
         protected router: Router,

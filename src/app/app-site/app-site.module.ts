@@ -13,10 +13,12 @@ import { AppSiteRoutingModule } from './app-site.routing.module';
 import { MessagesModule } from '../messages/messages.module';
 import { DevenirFournisseurComponent } from './devenir-fournisseur/devenir-fournisseur.component';
 import { DevenirFournisseurService } from './devenir-fournisseur/devenir-fournisseur.service';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
     imports: [
         CommonModule,
+        NgbModule,
         CommunModule,
         ModelesModule,
         DispositionModule,

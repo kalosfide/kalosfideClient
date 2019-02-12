@@ -14,10 +14,6 @@ export class KfRadiosComponent extends KfComposantComponent implements OnInit, A
         return this.composant as KfRadios;
     }
 
-    get radioBoutons(): KfComposant[] {
-        return this.radios.contenus;
-    }
-
     constructor() {
         super();
     }
@@ -30,20 +26,6 @@ export class KfRadiosComponent extends KfComposantComponent implements OnInit, A
             divElement: this.divElement.nativeElement,
         };
         this.initialiseHtml();
-/*
-        let i = 0;
-        (this.composant as KfRadios).enfants.forEach(
-            radio => {
-                const r = (radio as KfRadio)
-                r.enfantsDeVue = {
-                   this.composant.htmlElement = r.inputElement.nativeElement),
-                    inputElement: r.inputElement.nativeElement),
-                    labelElement: r.labelElement.nativeElement),
-                };
-                i++;
-            }
-        );
-*/
     }
 
 }

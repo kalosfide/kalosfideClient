@@ -8,14 +8,17 @@ import { KfLien } from 'src/app/commun/kf-composants/kf-elements/kf-lien/kf-lien
 
 export class FormulaireFabrique {
 
-    static CréeBouton(nom: string, texte?: string, image?: string): KfBouton {
-        const bouton = new KfBouton(nom, texte, image);
+    static CréeBouton(nom: string, texte?: string): KfBouton {
+        const bouton = new KfBouton(nom, texte);
         bouton.ajouteClasseDef('btn', 'btn-light');
         return bouton;
     }
 
-    static CréeBoutonSoumettre(formulaire: KfSuperGroupe, texte?: string, image?: string): KfBouton {
-        const bouton = new KfBouton(formulaire.nom + '_soumettre', texte, image);
+    static NomBoutonSoumettre(formulaire: KfSuperGroupe): string {
+        return formulaire.nom + '_soumettre';
+    }
+    static CréeBoutonSoumettre(formulaire: KfSuperGroupe, texte?: string): KfBouton {
+        const bouton = new KfBouton(FormulaireFabrique.NomBoutonSoumettre(formulaire), texte);
         bouton.typeDeBouton = KfTypeDeBouton.soumettre;
         bouton.ajouteClasseDef('btn', 'btn-primary');
         return bouton;

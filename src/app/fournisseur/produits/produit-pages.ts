@@ -8,24 +8,12 @@ export const ProduitPages = {
         title: 'Produits',
         titre: 'Produits',
     },
-    modif: {
-        urlSegment: 'e'
+    visite: {
+        urlSegment: 'visite',
+        lien: '',
+        title: 'Produits',
+        titre: 'Produits',
     },
-};
-
-class CProduitRoutes implements ISiteRoutes {
-    url(nomSite: string, segments?: string[]): string {
-        let s: string[] = [];
-        s.push(SitePages.produits.urlSegment);
-        if (segments) {
-            s = s.concat(segments);
-        }
-        return FournisseurRoutes.url(nomSite, s);
-    }
-}
-export const ProduitRoutes = new CProduitRoutes;
-
-export const ProduitModifPages = {
     index: {
         urlSegment: 'index',
         lien: 'Retour à la liste des produits',
@@ -64,14 +52,14 @@ export const ProduitModifPages = {
     },
 };
 
-class CProduitModifRoutes implements ISiteRoutes {
+class CProduitRoutes implements ISiteRoutes {
     url(nomSite: string, segments?: string[]): string {
         let s: string[] = [];
-        s.push(ProduitPages.modif.urlSegment);
+        s.push(SitePages.produits.urlSegment);
         if (segments) {
             s = s.concat(segments);
         }
-        return ProduitRoutes.url(nomSite, s);
+        return FournisseurRoutes.url(nomSite, s);
     }
 }
-export const ProduitModifRoutes = new CProduitModifRoutes;
+export const ProduitRoutes = new CProduitRoutes;

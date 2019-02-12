@@ -9,8 +9,9 @@ import { PageConflitComponent } from '../messages/page-conflit.component';
 import { PageErreurComponent } from '../messages/page-erreur.component';
 import { PageIntrouvableComponent } from '../messages/page-introuvable.component';
 import { FCommandeComponent } from './f-commandes/f-commande.component';
-import { FSiteOuvertureComponent } from './f-sites/f-site-ouverture.component';
+import { FSiteOuvertureComponent } from './f-site/f-site-ouverture.component';
 import { FCommandeResolverService } from './f-commandes/f-commande-resolver.service';
+import { FCommandeNbOuvertesResolverService } from './f-commandes/f-commande-nb-ouvertes-resolver.service';
 
 const routes: Routes = [
     {
@@ -36,6 +37,9 @@ const routes: Routes = [
     {
         path: FournisseurPages.site.urlSegment,
         component: FSiteOuvertureComponent,
+        resolve: {
+            commandesEnCours: FCommandeNbOuvertesResolverService,
+        }
     },
     {
         path: AppPages.compte.urlSegment,

@@ -13,6 +13,7 @@ import { ApiResult404NotFound } from '../commun/api-results/api-result-404-not-f
 import { ApiResult409Conflict } from '../commun/api-results/api-result-409-conflict';
 import { ApiResultErreur } from '../commun/api-results/api-result-erreur';
 import { ApiResult403Forbidden } from '../commun/api-results/api-result-403-forbidden';
+import { RouteurService } from './routeur.service';
 
 export abstract class DataService {
 
@@ -23,6 +24,7 @@ export abstract class DataService {
     abstract http: HttpClient;
     abstract config: ApiConfigService;
     abstract identification: IdentificationService;
+    abstract routeur: RouteurService;
 
     traiteErreur: (error: Response) => boolean;
 
@@ -111,6 +113,23 @@ export abstract class DataService {
             .pipe(catchError(this.handleError));
     }
 
+    protected postJson(controller: string, action: string, body?: string, params?: { [param: string]: string }): Observable<ApiResult> {
+        return this.http.post(this.config.route(controller, action), body, {
+            headers: this.headers(),
+            withCredentials: true,
+            params: params,
+            observe: 'response'
+        }).pipe(
+            tap(res => console.log('create', res, res.headers.keys())),
+            map(res => {
+                const retour = new ApiResult201Created();
+                retour.entity = res.body;
+                return retour;
+            }
+            ))
+            .pipe(catchError(this.handleError));
+    }
+
     protected get<T>(controller: string, action: string, params: string | { [param: string]: string }): Observable<ApiResult> {
         const observé = (typeof (params) === 'string')
             ? this.http.get<T>(this.config.route(controller, action, params), {
@@ -137,7 +156,7 @@ export abstract class DataService {
             params: params,
             observe: 'response'
         })
-//            .pipe(tap(res => console.log('readAll', res)))
+            //            .pipe(tap(res => console.log('readAll', res)))
             .pipe(map(res => new ApiResult200Ok<T[]>(res.body)))
             .pipe(catchError(this.handleError));
     }

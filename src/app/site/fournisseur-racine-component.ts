@@ -5,8 +5,9 @@ import { IdentificationService } from '../securite/identification.service';
 import { NavigationService } from '../services/navigation.service';
 import { FournisseurMenu } from '../fournisseur/fournisseur-menu';
 import { ActivatedRoute } from '@angular/router';
-import { Menu } from '../menus/menu';
+import { Menu } from '../disposition/menus/menu';
 import { SiteRacineComponent } from './site-racine.component';
+import { AlerteService } from '../disposition/alerte/alerte-service';
 
 @Component({
     templateUrl: '../disposition/racine/racine.component.html',
@@ -19,6 +20,7 @@ export class FournisseurRacineComponent extends SiteRacineComponent implements O
         protected attenteAsyncService: AttenteAsyncService,
         protected identification: IdentificationService,
         protected navigation: NavigationService,
+        protected alerteService: AlerteService,
     ) {
         super(
             route,
@@ -26,6 +28,7 @@ export class FournisseurRacineComponent extends SiteRacineComponent implements O
             attenteAsyncService,
             identification,
             navigation,
+            alerteService,
         );
     }
 

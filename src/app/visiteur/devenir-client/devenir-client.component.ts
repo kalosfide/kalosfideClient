@@ -51,9 +51,9 @@ export class DevenirClientComponent extends FormulaireAEtapesComponent implement
     }
 
     actionSiOk = (): void => {
-        const roles = this.identification.litIdentifiant().roles;
-        const site = roles[roles.length - 1].nomSite;
-        this.routeur.navigate([ClientRoutes.url(site, [ClientPages.accueil.urlSegment])]);
+        const sites = this.identification.litIdentifiant().sites;
+        const site = sites[sites.length - 1];
+        this.routeur.naviguePageDef(ClientPages.accueil, ClientRoutes, site.nomSite);
     }
 
     constructor(

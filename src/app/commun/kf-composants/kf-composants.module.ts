@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DateValueAccessorModule } from 'angular-date-value-accessor';
 
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 import { KfComposantComponent } from './kf-composant/kf-composant.component';
 import { KfBoutonComponent } from './kf-elements/kf-bouton/kf-bouton.component';
 import { KfEtiquetteComponent } from './kf-elements/kf-etiquette/kf-etiquette.component';
@@ -26,12 +28,18 @@ import { KfDialogueComponent } from './kf-dialogue/kf-dialogue.component';
 import { KfDialogueService } from './kf-dialogue/kf-dialogue.service';
 import { KfAfficheResultatComponent } from './kf-elements/kf-affiche-resultat/kf-affiche-resultat.component';
 import { KfVueTableComponent } from './kf-vue-table/kf-vue-table.component';
-import { KfImageDefComponent } from './kf-partages/kf-image-def/kf-image-def.component';
-import { KfTexteImageComponent } from './kf-partages/kf-texte-image/kf-texte-image.component';
+import { KfContenuPhraseComponent } from './kf-partages/kf-contenu-phrase/kf-contenu-phrase.component';
 import { KfUlComponent } from './kf-ul-li/kf-ul.component';
 import { KfLiComponent } from './kf-ul-li/kf-li.component';
 import { KfInputComponent } from './kf-elements/kf-input/kf-input.component';
 import { KfInactifDirective } from './kf-partages/kf-inactif.directive';
+import { KfIconeComponent } from './kf-elements/kf-icone/kf-icone.component';
+import { KfImageComponent } from './kf-elements/kf-image/kf-image.component';
+import { KfTexteComponent } from './kf-elements/kf-texte/kf-texte.component';
+import { KfNgbDropdownComponent } from './kf-elements/kf-ngb-dropdown/kf-ngb-dropdown.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { KfBaliseComponent } from './kf-partages/kf-balise/kf-balise.component';
+import { KfNavComponent } from './kf-nav/kf-nav.component';
 
 @NgModule({
   imports: [
@@ -39,12 +47,15 @@ import { KfInactifDirective } from './kf-partages/kf-inactif.directive';
     DateValueAccessorModule,
     FormsModule,
     ReactiveFormsModule,
+    FontAwesomeModule,
+    NgbModule,
     OutilsModule,
     KfComposantsRoutingModule,
   ],
   declarations: [
-      KfImageDefComponent,
-      KfTexteImageComponent,
+      KfContenuPhraseComponent,
+      KfBaliseComponent,
+
       KfComposantComponent,
       KfGroupeComponent,
       KfBoutonComponent,
@@ -53,7 +64,10 @@ import { KfInactifDirective } from './kf-partages/kf-inactif.directive';
       KfFichierComponent,
       KfFichierChargeComponent,
       KfFichierSauveComponent,
+      KfImageComponent,
+      KfIconeComponent,
       KfLienComponent,
+      KfTexteComponent,
       KfListeComponent,
       KfListeEditeurComponent,
       KfListeDeroulanteComponent,
@@ -66,6 +80,9 @@ import { KfInactifDirective } from './kf-partages/kf-inactif.directive';
       KfDialogueComponent,
       KfAfficheResultatComponent,
       KfVueTableComponent,
+      KfNgbDropdownComponent,
+      KfNavComponent,
+
       KfUlComponent,
       KfLiComponent,
       KfInactifDirective,
@@ -74,8 +91,6 @@ import { KfInactifDirective } from './kf-partages/kf-inactif.directive';
       KfDialogueService,
   ],
   exports: [
-      KfImageDefComponent,
-      KfTexteImageComponent,
       KfComposantComponent,
       KfInactifDirective,
   ]

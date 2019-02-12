@@ -8,11 +8,10 @@ import { Observable } from 'rxjs';
 import { ApiResult } from 'src/app/commun/api-results/api-result';
 import { KfTypeResultatAffichable } from 'src/app/commun/kf-composants/kf-elements/kf-affiche-resultat/kf-type-resultat-affichable';
 import { KfResultatAffichable } from 'src/app/commun/kf-composants/kf-elements/kf-affiche-resultat/kf-resultat-affichable';
-import { DataService } from 'src/app/services/data.service';
-import { delay, map, catchError } from 'rxjs/operators';
+import { delay, map } from 'rxjs/operators';
 import { ApiResult400BadRequest } from 'src/app/commun/api-results/api-result-400-bad-request';
-import { ApiResultErreur } from 'src/app/commun/api-results/api-result-erreur';
 import { FormulaireFabrique } from './formulaire-fabrique';
+import { RouteurService } from 'src/app/services/routeur.service';
 
 export interface IFormulaireBase {
     nom: string;
@@ -51,6 +50,7 @@ export function créeFormulaireASoumettre(def: SoumissionDef): FormulaireASoumet
     const edition = def.créeEdition();
     if (edition.gereValeur) {
         formulaire.créeGereValeur();
+        formulaire.sauveQuandChange = true;
     }
     formulaire.ajoute(edition);
     let afficheResultat: KfAfficheResultat;
@@ -74,7 +74,7 @@ export function créeFormulaireASoumettre(def: SoumissionDef): FormulaireASoumet
     };
 }
 
-function resultatSoumission(result: ApiResult, formulaireASoumettre: FormulaireASoumettre): KfResultatAffichable {
+function resultatSoumission(result: ApiResult, formulaireASoumettre: FormulaireASoumettre, routeur: RouteurService): KfResultatAffichable {
     if (!result) {
         return null;
     }
@@ -105,14 +105,15 @@ function resultatSoumission(result: ApiResult, formulaireASoumettre: FormulaireA
             }
             return resultat;
         default:
-            console.log('log impossible');
-            break;
+            routeur.navigue(result.routeErreur);
+            return null;
     }
 }
 
 export function soumet(
     attenteAsyncService: AttenteAsyncService,
-    formulaireASoumettre: FormulaireASoumettre
+    formulaireASoumettre: FormulaireASoumettre,
+    routeur: RouteurService
 ) {
     attenteAsyncService.commence();
     if (formulaireASoumettre.afficheResultat) {
@@ -120,12 +121,15 @@ export function soumet(
     }
     const subscription = formulaireASoumettre.soumission().pipe(
         delay(0),
-        map((result: ApiResult): KfResultatAffichable => resultatSoumission(result, formulaireASoumettre)
+        map((result: ApiResult): KfResultatAffichable => resultatSoumission(result, formulaireASoumettre, routeur)
         )
     ).subscribe(
         resultat => {
             subscription.unsubscribe();
             attenteAsyncService.finit();
+            if (!resultat) {
+                return;
+            }
             if (resultat.type === KfTypeResultatAffichable.Ok) {
                 formulaireASoumettre.actionSiOk();
                 if (formulaireASoumettre.afficheResultat) {

@@ -26,8 +26,6 @@ export abstract class FormulaireComponent extends FormulaireBaseComponent implem
     abstract actionSiOk: () => void;
     abstract soumission: () => Observable<ApiResult>;
 
-    lienRetour: KfLien;
-
     // membres communs
     formulaire: KfSuperGroupe;
     edition: KfGroupe;
@@ -54,6 +52,7 @@ export abstract class FormulaireComponent extends FormulaireBaseComponent implem
         this.afficheResultat = FormulaireFabrique.AjouteAfficheResultat(this.formulaire);
         FormulaireFabrique.AjouteLienRetour(this.formulaire, this.lienRetour);
         if (this.edition.gereValeur) {
+            this.formulaire.avecInvalidFeedback = true;
             this.formulaire.quandTousAjoutés();
         }
     }

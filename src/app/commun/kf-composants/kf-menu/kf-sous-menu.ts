@@ -8,6 +8,8 @@ import { KfEtiquette } from '../kf-elements/kf-etiquette/kf-etiquette';
 import { KfBouton } from '../kf-elements/kf-bouton/kf-bouton';
 import { KfDefinitionDeMenu, KfMenuDirection, KfTypeDeSousMenu } from './kf-menu-types';
 import { KfLien } from '../kf-elements/kf-lien/kf-lien';
+import { KfImage } from '../kf-elements/kf-image/kf-image';
+import { KfTexte } from '../kf-elements/kf-texte/kf-texte';
 
 export class KfSousMenu extends KfElement {
     itemId: any;
@@ -21,16 +23,30 @@ export class KfSousMenu extends KfElement {
         this.itemId = def.id;
         this._ouvert = true;
         let selecteur: KfComposant;
+        const fixeContenuPhrasé = (s: KfComposant, d: KfDefinitionDeMenu) => {
+            if (d.imageAvant) {
+                s.contenuPhrase.ajoute(new KfImage('', d.imageAvant));
+            }
+            if (d.texte) {
+                s.contenuPhrase.ajoute(new KfTexte('', d.texte));
+            }
+            if (d.imageApres) {
+                s.contenuPhrase.ajoute(new KfImage('', d.imageApres));
+            }
+        };
         switch (def.type) {
             case KfTypeDeSousMenu.etiquette:
-                selecteur = new KfEtiquette(KfParametres.menuParDefaut.nomDeBaseSelecteur + no, def.texte, def.imageAvant, def.imageApres);
+                selecteur = new KfEtiquette(KfParametres.menuParDefaut.nomDeBaseSelecteur + no);
+                fixeContenuPhrasé(selecteur, def);
                 break;
             case KfTypeDeSousMenu.bouton:
-                selecteur = new KfBouton(KfParametres.menuParDefaut.nomDeBaseSelecteur + no, def.texte, def.imageAvant, def.imageApres);
+                selecteur = new KfBouton(KfParametres.menuParDefaut.nomDeBaseSelecteur + no);
+                fixeContenuPhrasé(selecteur, def);
                 this.gereHtml.ajouteTraiteur(KfTypeDEvenement.clic, this.traiteClicSurSelecteur);
                 break;
             case KfTypeDeSousMenu.lien:
-                selecteur = new KfLien(KfParametres.menuParDefaut.nomDeBaseSelecteur + no, def.texte, def.imageAvant, def.imageApres);
+                selecteur = new KfLien(KfParametres.menuParDefaut.nomDeBaseSelecteur + no);
+                fixeContenuPhrasé(selecteur, def);
                 this.gereHtml.ajouteTraiteur(KfTypeDEvenement.clic, this.traiteClicSurSelecteur);
                 break;
             case KfTypeDeSousMenu.special:
@@ -55,10 +71,6 @@ export class KfSousMenu extends KfElement {
         });
         this.noeud.Ajoute(selecteur.noeud);
         this._ouvert = true;
-    }
-
-    get contenus(): KfComposant[] {
-        return this.enfants;
     }
 
     get selecteur(): KfComposant {

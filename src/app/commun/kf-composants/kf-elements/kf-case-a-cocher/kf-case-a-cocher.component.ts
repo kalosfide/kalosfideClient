@@ -19,7 +19,7 @@ export class KfCaseACocherComponent extends KfComposantComponent implements OnIn
     get ngClass(): {[keys: string]: boolean} {
         return {
             'form-check-input': true,
-            'position-static': ! this.composant.texteImage,
+            'position-static': ! this.composant.contenuPhrase,
             'is-invalid': this.composant.erreurs.length > 0
         };
     }
@@ -32,7 +32,7 @@ export class KfCaseACocherComponent extends KfComposantComponent implements OnIn
         this.composant.gereHtml.enfantsDeVue = {
             inputElement: this.inputElement.nativeElement,
         };
-        if (this.case.texteImageAvant || this.case.texteImageApres) {
+        if (this.case.contenuPhraseAvant || this.case.contenuPhraseApres) {
             this.composant.gereHtml.enfantsDeVue['labelElement'] = this.labelElement.nativeElement;
         }
         this.initialiseHtml();

@@ -1,0 +1,4 @@
+<ng-container *ngFor="let contenu of contenuPhrase.contenus; index as i">
+    <app-kf-composant [attr.nom]="contenu.nom" [ngClass]="{'kf-invisible': !contenu.visible}" [composant]="contenu" (output)="transmet($event)">
+    </app-kf-composant>
+</ng-container>

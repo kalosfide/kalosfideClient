@@ -1,10 +1,12 @@
-import { KfTypeDeComposant, KfTypeDeValeur } from '../../kf-composants-types';
-import { KfTexteImage } from '../../kf-partages/kf-texte-image/kf-texte-image';
+import { KfTypeDeComposant } from '../../kf-composants-types';
 import { KfEntrée } from '../../kf-composant/kf-entree';
 import { KfTexteDef } from '../../kf-partages/kf-texte-def';
+import { KfContenuPhrase } from '../../kf-partages/kf-contenu-phrase/kf-contenu-phrase';
 
 export enum KfTypeDInput {
     date = 'date',
+    temps = 'time',
+    datetemps = 'datetemps',
     email = 'email',
     nombre = 'number',
     password = 'password',
@@ -16,12 +18,9 @@ export abstract class KfInput extends KfEntrée {
     texteParDéfaut: '';
     abstract typeDInput: string;
 
-    constructor(nom: string,
-        texte?: KfTexteDef,
-        imageAvant?: KfTexteDef,
-        imageApres?: KfTexteDef
-    ) {
-        super(nom, KfTypeDeComposant.input, texte, imageAvant, imageApres);
+    constructor(nom: string, texte?: KfTexteDef) {
+        super(nom, KfTypeDeComposant.input);
+        this.contenuPhrase = new KfContenuPhrase(this, texte);
         this._valeur = null;
     }
 

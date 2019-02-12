@@ -1,6 +1,6 @@
 import { Router, ActivatedRoute, Data } from '@angular/router';
 
-import { ProduitModifRoutes, ProduitModifPages } from './produit-pages';
+import { ProduitRoutes, ProduitPages } from './produit-pages';
 import { DataKeyALESComponent } from 'src/app/commun/data-par-key/data-key-ales.component';
 import { Produit } from 'src/app/modeles/produit';
 import { OnInit } from '@angular/core';
@@ -18,7 +18,8 @@ export abstract class ProduitALESComponent extends DataKeyALESComponent<Produit>
 
     site: Site;
 
-    urlPageIndex: string;
+    dataPages = ProduitPages;
+    dataRoutes = ProduitRoutes;
 
     constructor(
         protected router: Router,
@@ -43,7 +44,6 @@ export abstract class ProduitALESComponent extends DataKeyALESComponent<Produit>
 
     ngOnInit() {
         this.site = this.service.navigation.siteEnCours;
-        this.urlPageIndex = ProduitModifRoutes.url(this.site.nomSite, [ProduitModifPages.index.urlSegment]);
         this.créeFormulaire();
         this.ngOnInit_Charge();
     }

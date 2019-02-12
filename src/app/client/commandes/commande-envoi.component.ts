@@ -23,8 +23,12 @@ import { ComponentAAutoriserAQuitter } from '../../commun/peut-quitter/peut-quit
 import { KfTypeDEvenement, KfEvenement, KfStatutDEvenement } from '../../commun/kf-composants/kf-partages/kf-evenements';
 import { KfGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-groupe';
 import { KfEtiquette } from 'src/app/commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
-import { KfTypeDeBaliseDEtiquette } from 'src/app/commun/kf-composants/kf-composants-types';
+import { KfTypeDeBaliseHTML } from 'src/app/commun/kf-composants/kf-composants-types';
 import { PeutQuitterService } from 'src/app/commun/peut-quitter/peut-quitter.service';
+import { KfLien } from 'src/app/commun/kf-composants/kf-elements/kf-lien/kf-lien';
+import { KfNav } from 'src/app/commun/kf-composants/kf-nav/kf-nav';
+import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
+import { KfTexteDef } from 'src/app/commun/kf-composants/kf-partages/kf-texte-def';
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',
@@ -49,9 +53,13 @@ export class CommandeEnvoiComponent extends FormulaireBaseComponent implements O
         return this.commande.lignes.filter(l => l.demande > 0);
     }
 
+    private get urlProduits(): KfTexteDef {
+        return Fabrique.url(CommandePages.produits, CommandeRoutes, () => this.site.nomSite);
+    }
+
     actionSiOk = (): void => {
         this.terminé = true;
-        this.router.navigate([CommandeRoutes.url(this.site.nomSite, CommandePages.termine.urlSegment)]);
+        this.router.navigate([this.urlProduits]);
     }
     soumission = (): Observable<ApiResult> => {
         return this.service.envoieBon(this.commande.no, this.lignesAvecDemande());
@@ -67,15 +75,11 @@ export class CommandeEnvoiComponent extends FormulaireBaseComponent implements O
         super(service, attenteAsyncService);
     }
 
-    get urlPageProduits(): string {
-        return CommandeRoutes.url(this.site.nomSite, CommandePages.produits.urlSegment);
-    }
-
     peutQuitter = (nextState?: RouterStateSnapshot): boolean | Observable<boolean> | Promise<boolean> => {
         if (this.lignesAvecDemande().length === 0 || this.commande.inchangé) {
             return true;
         }
-        if (!this.terminé && (!nextState || nextState.url !== CommandeRoutes.url(this.site.nomSite, CommandePages.produits.urlSegment))) {
+        if (!this.terminé && (!nextState || nextState.url !== this.urlProduits)) {
             return this.peutQuitterService.confirme(this.pageDef.titre);
         }
         return true;
@@ -93,20 +97,43 @@ export class CommandeEnvoiComponent extends FormulaireBaseComponent implements O
         ));
     }
 
-    créeGroupeFermé(): KfGroupe {
-        const groupe = new KfGroupe('');
-        groupe.ajouteClasseDef('alert alert-primary');
-        let texte = new KfEtiquette('',
+    créeEtiquetteArrêté(): KfEtiquette {
+        const texte = new KfEtiquette('',
             ` Arrêté: ${this.commande.date.toLocaleDateString('fr-FR')} ${this.commande.date.toLocaleTimeString('fr-FR')}`);
-        texte.baliseHTML = KfTypeDeBaliseDEtiquette.P;
+        texte.baliseHtml = KfTypeDeBaliseHTML.p;
+        return texte;
+    }
+
+    créeGroupeAnnulé(): KfGroupe {
+        const groupe = new KfGroupe('');
+        groupe.ajouteClasseDef('alert alert-warning');
+        let texte = this.créeEtiquetteArrêté();
+        groupe.ajoute(texte);
+        texte = new KfEtiquette('',
+            'Le fournisseur a annulé ce bon de commande.');
+        texte.baliseHtml = KfTypeDeBaliseHTML.p;
+        groupe.ajoute(texte);
+        return groupe;
+    }
+
+    créeGroupeAccepté(): KfGroupe {
+        const groupe = new KfGroupe('');
+        groupe.ajouteClasseDef('alert alert-success');
+        let texte = this.créeEtiquetteArrêté();
         groupe.ajoute(texte);
         texte = new KfEtiquette('',
             'Le traitement de ce bon de commande a commencé. Vous pouvez le suivre dans les Livraisons.');
-        texte.baliseHTML = KfTypeDeBaliseDEtiquette.P;
+        texte.baliseHtml = KfTypeDeBaliseHTML.p;
         groupe.ajoute(texte);
-        texte = new KfEtiquette('',
-            'Vous ne pouvez plus le modifier. Pour créer un nouveau bon de commande');
-        texte.baliseHTML = KfTypeDeBaliseDEtiquette.P;
+        return groupe;
+    }
+
+    créeGroupeCréer(): KfGroupe {
+        const groupe = new KfGroupe('');
+        groupe.ajouteClasseDef('alert alert-primary');
+        const texte = new KfEtiquette('',
+            'Pour créer un nouveau bon de commande vous pouvez copier le précédent.');
+        texte.baliseHtml = KfTypeDeBaliseHTML.p;
         groupe.ajoute(texte);
         const boutonCopier = new KfBouton('copier', 'Copier ce bon');
         boutonCopier.ajouteClasseDef('btn btn-primary');
@@ -128,13 +155,33 @@ export class CommandeEnvoiComponent extends FormulaireBaseComponent implements O
         return groupe;
     }
 
+    créeGroupeFermé(): KfGroupe {
+        const groupe = new KfGroupe('');
+        if (this.commande.etat === 'R') {
+            groupe.ajoute(this.créeGroupeAnnulé());
+        } else {
+            groupe.ajoute(this.créeGroupeAccepté());
+        }
+        groupe.ajoute(this.créeGroupeCréer());
+        return groupe;
+    }
+
     créeVueTable(lignes: CommandeLigne[]): KfVueTable<CommandeLigne> {
-        const vueTable = new KfVueTable(this.nom + '_table', {
-            enTetes: CommandeLigneEnTetes,
+        const vueTable = Fabrique.vueTable(this.nom, {
+            enTetesDef: CommandeLigneEnTetes,
             cellules: (ligne: CommandeLigne): KfVueCelluleDef[] => ligne.cellules
         });
-        vueTable.remplitLignes(lignes);
+        vueTable.initialise(lignes);
         return vueTable;
+    }
+
+    créeNavProduits(texte: string, classe: string): KfNav {
+        const nav = new KfNav('navProduits');
+        const lien = Fabrique.lienBouton(CommandePages.produits, CommandeRoutes, this.site.nomSite);
+        lien.fixeTexte(texte);
+        lien.ajouteClasseDef(classe, 'nav-link');
+        nav.ajoute(lien);
+        return nav;
     }
 
     créeFormulaire() {
@@ -144,27 +191,20 @@ export class CommandeEnvoiComponent extends FormulaireBaseComponent implements O
             this.formulaire.ajoute(this.créeGroupeFermé());
             this.formulaire.ajoute(this.créeVueTable(lignes));
         } else {
-            const boutonProduits = new KfBouton('produits', CommandePages.produits.lien);
             if (lignes.length === 0) {
                 const resultatListeVide = new KfAfficheResultat('listevide');
                 const resultat = new KfResultatAffichable(KfTypeResultatAffichable.Avertissement, 'Il n\'a pas de lignes de commande.');
                 resultatListeVide.finit(resultat);
                 this.formulaire.ajoute(resultatListeVide);
-                boutonProduits.ajouteClasseDef('btn', 'btn-primary');
-                this.formulaire.ajouteBoutonsDeFormulaire([boutonProduits]);
+                const nav = this.créeNavProduits('Ajouter', 'btn btn-primary');
+                this.formulaire.ajoute(nav);
             } else {
                 this.formulaire.ajoute(this.créeVueTable(lignes));
-                boutonProduits.ajouteClasseDef('btn', 'btn-secundary');
-                const boutonSoumettre = this.créeBoutonSoumettre('Envoyer le bon de commande');
-                this.formulaire.ajouteBoutonsDeFormulaire([boutonProduits, boutonSoumettre]);
+                const nav = this.créeNavProduits('Modifier', 'btn btn-link');
+                this.formulaire.ajoute(nav);
+                const boutonSoumettre = this.créeBoutonSoumettre('Envoyer');
+                this.formulaire.ajouteBoutonsDeFormulaire([boutonSoumettre]);
             }
-            this.formulaire.gereHtml.ajouteTraiteur(KfTypeDEvenement.clic,
-                (evenement: KfEvenement) => {
-                    if (evenement.emetteur === boutonProduits) {
-                        evenement.statut = KfStatutDEvenement.fini;
-                        this.router.navigate([this.urlPageProduits]);
-                    }
-                });
         }
         this.formulaire.quandTousAjoutés();
     }
@@ -173,6 +213,7 @@ export class CommandeEnvoiComponent extends FormulaireBaseComponent implements O
         this.commande.no++;
         this.commande.date = undefined;
         this.commande.livraisonNo = undefined;
+        this.commande.etat = 'N';
         this.créeFormulaire();
     }
 

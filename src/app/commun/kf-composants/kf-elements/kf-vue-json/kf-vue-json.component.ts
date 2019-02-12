@@ -5,7 +5,7 @@ import { KfComposantComponent } from '../../kf-composant/kf-composant.component'
 @Component({
     selector: 'app-kf-vue-json',
     template: `
-    <div [ngClass]="composant.classe">
+    <div [ngClass]="composant.classe" [ngStyle]="composant.style">
         <pre #preElement>{{ composant.texte }}</pre>
     </div>
   `,

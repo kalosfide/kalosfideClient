@@ -2,15 +2,15 @@ import { Component, OnInit } from '@angular/core';
 
 import { Router, ActivatedRoute } from '@angular/router';
 
-import { ProduitPages, ProduitRoutes, ProduitModifPages, ProduitModifRoutes } from './produit-pages';
+import { ProduitPages, ProduitRoutes } from './produit-pages';
 import { ProduitIndexBaseComponent } from 'src/app/produits/produit-index-base.component';
 import { PageDef } from 'src/app/commun/page-def';
 import { Produit } from 'src/app/modeles/produit';
 import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
 import { ProduitService } from 'src/app/modeles/produit.service';
 import { KfGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-groupe';
-import { KfLien } from 'src/app/commun/kf-composants/kf-elements/kf-lien/kf-lien';
-import { KfVueCelluleDef, KfVueTableDef } from 'src/app/commun/kf-composants/kf-vue-table/kf-vue-table';
+import { KfVueCelluleDef } from 'src/app/commun/kf-composants/kf-vue-table/kf-vue-table';
+import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',
@@ -19,14 +19,15 @@ import { KfVueCelluleDef, KfVueTableDef } from 'src/app/commun/kf-composants/kf-
 export class ProduitIndexComponent extends ProduitIndexBaseComponent implements OnInit {
 
     // static pour pouvoir le lire dans le prototype sans avoir l'instance
-    static _pageDef: PageDef = ProduitModifPages.index;
-    pageDef: PageDef = ProduitModifPages.index;
+    static _pageDef: PageDef = ProduitPages.index;
+    pageDef: PageDef = ProduitPages.index;
 
     get titre(): string {
         return this.pageDef.titre;
     }
 
-    dataPages = ProduitModifPages;
+    dataPages = ProduitPages;
+    dataRoutes = ProduitRoutes;
 
     constructor(
         protected router: Router,
@@ -34,6 +35,7 @@ export class ProduitIndexComponent extends ProduitIndexBaseComponent implements 
         protected service: ProduitService,
     ) {
         super(router, route, service);
+        this.vueTableDef.commandes = this._commandes;
     }
 
     protected get _avantTable(): () => KfComposant[] {
@@ -43,9 +45,7 @@ export class ProduitIndexComponent extends ProduitIndexBaseComponent implements 
             if (this.categories.length !== 0) {
                 groupe.ajoute(this.créeLienAjoute());
             }
-            const lien = new KfLien(ProduitModifPages.categories.urlSegment,
-                ProduitModifRoutes.url(this.site.nomSite, [ProduitModifPages.categories.urlSegment]),
-                ProduitModifPages.categories.lien);
+            const lien = Fabrique.lien(ProduitPages.categories, ProduitRoutes, this.site.nomSite);
             lien.ajouteClasseDef('nav-link');
             groupe.ajoute(lien);
             return [
@@ -66,7 +66,7 @@ export class ProduitIndexComponent extends ProduitIndexBaseComponent implements 
     protected get _commandes(): (item: Produit) => KfComposant[] {
         return (ligne) => [
             this.créeLienEdite(ligne),
-            this.créeLien(ProduitModifPages.prix.urlSegment, ProduitModifPages.prix.lien, ligne)
+            this.créeLien(ProduitPages.prix, ligne)
         ];
     }
 

@@ -52,7 +52,7 @@ export const ApiAction = {
         nomPrisParAutre: 'nomPrisParAutre',
         titrePris: 'titrePris',
         titrePrisParAutre: 'titrePrisParAutre',
-        ouvert: 'ouvert',
+        etat: 'etat',
         ouvre: 'ouvre',
         ferme: 'ferme',
     },
@@ -79,6 +79,7 @@ export const ApiAction = {
         precedente: 'precedente',
         envoiBon: 'envoiBon',
         ouvertes: 'ouvertes',
-        accepte: 'accepte',
+        nbouvertes: 'nbouvertes',
+        enregistre: 'enregistre',
     },
 };

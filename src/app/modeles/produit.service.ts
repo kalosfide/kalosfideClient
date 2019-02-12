@@ -13,6 +13,7 @@ import { KeyUidRnoNoService } from '../commun/data-par-key/key-uid-rno-no/key-ui
 import { CategorieService } from './categorie.service';
 import { DataKey } from '../commun/data-par-key/data-key';
 import { KeyUidRno } from '../commun/data-par-key/key-uid-rno/key-uid-rno';
+import { RouteurService } from '../services/routeur.service';
 
 @Injectable({
     providedIn: 'root'
@@ -26,6 +27,7 @@ export class ProduitService extends KeyUidRnoNoService<Produit> {
         private _apiConfig: ApiConfigService,
         private _identification: IdentificationService,
         private _navigation: NavigationService,
+        private _routeur: RouteurService
     ) {
         super();
     }
@@ -34,6 +36,7 @@ export class ProduitService extends KeyUidRnoNoService<Produit> {
     get config(): ApiConfigService { return this._apiConfig; }
     get identification(): IdentificationService { return this._identification; }
     get navigation(): NavigationService { return this._navigation; }
+    get routeur(): RouteurService { return this._routeur; }
 
     disponibles(key: DataKey): Observable<ApiResult> {
         return this.getAll<Produit[]>(this.dataUrl, ApiAction.produit.disponibles, this.créeParams(key));

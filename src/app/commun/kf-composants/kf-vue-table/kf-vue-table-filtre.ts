@@ -1,7 +1,6 @@
 import { KfListeDeroulante } from '../kf-elements/kf-liste-deroulante/kf-liste-deroulante';
 import { KfGroupe } from '../kf-groupe/kf-groupe';
 import { KfTypeDEvenement, KfEvenement, KfStatutDEvenement } from '../kf-partages/kf-evenements';
-import { Trieur, Filtre } from '../../outils/trieur';
 import { KfVueTable, KfVueTableLigne } from './kf-vue-table';
 import { KfSuperGroupe } from '../kf-groupe/kf-super-groupe';
 
@@ -25,11 +24,11 @@ export class KfVueTableFiltre<T> {
 
         this._liste = new KfListeDeroulante(nom + '_L', texte);
         this._liste.nullImpossible = nullImpossible;
-        this._liste.ajouteClasseDef('mb-2 mr-sm-2');
+        this._liste.ajouteClasseDef('mx-sm-2');
         this._liste.gereHtml.suitLaValeur = true;
         this._groupe.ajoute(this._liste);
 
-        this._groupe.ajouteClasseDef('form-inline');
+        this._groupe.ajouteClasseDef('mr-5');
     }
 
     get groupe(): KfGroupe {

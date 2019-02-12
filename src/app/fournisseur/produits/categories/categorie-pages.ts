@@ -1,4 +1,5 @@
-import { ProduitModifPages, ProduitModifRoutes } from '../produit-pages';
+import { ProduitPages, ProduitRoutes } from '../produit-pages';
+import { ISiteRoutes } from 'src/app/site/site-pages';
 
 export const CategoriePages = {
     index: {
@@ -27,11 +28,12 @@ export const CategoriePages = {
     },
 };
 
-export class CategorieRoutes {
-    static url(nomSite: string, ...segments: string[]): string {
+class CCategorieRoutes implements ISiteRoutes {
+    url(nomSite: string, segments?: string[]): string {
         let s: string[] = [];
-        s.push(ProduitModifPages.categories.urlSegment);
+        s.push(ProduitPages.categories.urlSegment);
         s = s.concat(segments);
-        return ProduitModifRoutes.url(nomSite, s);
+        return ProduitRoutes.url(nomSite, s);
     }
 }
+export const CategorieRoutes = new CCategorieRoutes();

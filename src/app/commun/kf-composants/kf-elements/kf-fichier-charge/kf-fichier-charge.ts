@@ -1,7 +1,5 @@
-import { KfTypeDeComposant, KfTypeDeValeur, KfTypeDeBaliseDEtiquette } from '../../kf-composants-types';
-import { KfTexteImage } from '../../kf-partages/kf-texte-image/kf-texte-image';
+import { KfTypeDeComposant } from '../../kf-composants-types';
 import { KfElement } from '../../kf-composant/kf-element';
-import { KfTypeDHTMLEvents } from '../../kf-partages/kf-evenements';
 import { KfSuperGroupe } from '../../kf-groupe/kf-super-groupe';
 import { KfParametres } from '../../kf-composants-parametres';
 import { KfFichier } from '../kf-fichier/kf-fichier';
@@ -30,14 +28,10 @@ export class KfFichierCharge extends KfElement {
      * @param imageAvant image du bouton
      * @param imageApres image du bouton
      */
-    constructor(nom: string, extension?: string,
-        texte?: KfTexteDef,
-        imageAvant?: KfTexteDef,
-        imageApres?: KfTexteDef
-    ) {
+    constructor(nom: string, extension?: string, texte?: KfTexteDef, ) {
         super(nom, KfTypeDeComposant.fichierCharge);
-        this.fichier = new KfFichier(nom + '_f', texte, imageAvant, imageApres);
-        this.fichier.typesExtension.push( extension ? extension : KfParametres.fichierParDefaut.extension);
+        this.fichier = new KfFichier(nom + '_f', texte);
+        this.fichier.typesExtension.push(extension ? extension : KfParametres.fichierParDefaut.extension);
         this.fichier.multiple = false;
     }
 

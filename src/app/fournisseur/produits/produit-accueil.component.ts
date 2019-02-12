@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { Router, ActivatedRoute } from '@angular/router';
-import { ProduitPages, ProduitModifRoutes, ProduitModifPages } from './produit-pages';
+import { ProduitPages, ProduitRoutes } from './produit-pages';
 import { FormulaireComponent } from 'src/app/disposition/formulaire/formulaire.component';
 import { PageDef } from 'src/app/commun/page-def';
 import { Site } from 'src/app/modeles/site';
@@ -13,24 +13,24 @@ import { ApiResult } from 'src/app/commun/api-results/api-result';
 import { FormulaireFabrique } from 'src/app/disposition/formulaire/formulaire-fabrique';
 import { KfGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-groupe';
 import { KfEtiquette } from 'src/app/commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
-import { KfTypeDeBaliseDEtiquette } from 'src/app/commun/kf-composants/kf-composants-types';
+import { KfTypeDeBaliseHTML } from 'src/app/commun/kf-composants/kf-composants-types';
 import { KfTypeDEvenement, KfEvenement, KfStatutDEvenement } from 'src/app/commun/kf-composants/kf-partages/kf-evenements';
-import { SiteRoutes, SitePages } from 'src/app/site/site-pages';
 import { ProduitService } from 'src/app/modeles/produit.service';
-import { VisiteurRoutes, VisiteurPages } from 'src/app/visiteur/visiteur-pages';
+import { FournisseurRoutes } from '../fournisseur-pages';
+import { PageBaseComponent } from 'src/app/disposition/page-base/page-base.component';
+import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
+import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-groupe';
+import { FSitePages, FSiteRoutes } from '../f-site/f-site-pages';
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',
 })
-export class ProduitAccueilComponent extends FormulaireComponent implements OnInit, OnDestroy {
+export class ProduitAccueilComponent extends PageBaseComponent implements OnInit, OnDestroy {
 
     static _pageDef: PageDef = ProduitPages.accueil;
     pageDef: PageDef = ProduitPages.accueil;
 
     site: Site;
-
-    consulter: KfBouton;
-    editer: KfBouton;
 
     constructor(
         protected attenteAsyncService: AttenteAsyncService,
@@ -39,58 +39,47 @@ export class ProduitAccueilComponent extends FormulaireComponent implements OnIn
         protected service: ProduitService,
         private siteService: SiteService,
     ) {
-        super(service, attenteAsyncService);
+        super();
     }
 
-    soumission: () => Observable<ApiResult> = () => {
-        return this.siteService.ferme(this.site, new Date());
-    }
+    private créeContenus() {
+        this.superGroupe = new KfSuperGroupe(this.nom);
 
-    actionSiOk: () => void = () => {
-        this.router.navigate([ProduitModifRoutes.url(this.site.nomSite, [ProduitModifPages.index.urlSegment])]);
-    }
+        const message = Fabrique.messageSiteOuvert();
+        this.superGroupe.ajoute(message.groupe);
 
-    créeBoutonsDeFormulaire: () => KfBouton[] = () => {
-        return [FormulaireFabrique.CréeBoutonSoumettre(this.formulaire, 'Modifier les produits')];
-    }
-
-    créeEdition: () => KfGroupe = () => {
-        const edition = new KfGroupe(this.nom);
         let etiquette = new KfEtiquette('',
-            `Vous pouvez ouvrir la page Produits en mode consultation ou en mode modification.`);
-        etiquette.baliseHTML = KfTypeDeBaliseDEtiquette.P;
-        edition.ajoute(etiquette);
-        etiquette = new KfEtiquette('',
-            `En mode consultation, vous verrez la page qui est présentée aux visiteurs et aux clients.`);
-        etiquette.baliseHTML = KfTypeDeBaliseDEtiquette.P;
-        edition.ajoute(etiquette);
-        const groupe = new KfGroupe('');
+            `Vous pouvez voir votre page Produits telle qu'elle est présentée aux visiteurs et aux clients.`);
+        etiquette.baliseHtml = KfTypeDeBaliseHTML.p;
+        this.superGroupe.ajoute(etiquette);
+        let groupe = new KfGroupe('');
         groupe.ajouteClasseDef('nav');
-        this.consulter = new KfBouton('consulter', 'Consulter les produits');
-        this.consulter.ajouteClasseDef('btn', 'btn-primary');
-        groupe.ajoute(this.consulter);
-        groupe.gereHtml.ajouteTraiteur(KfTypeDEvenement.clic, (evenement: KfEvenement) => {
-            if (evenement.emetteur.nom === this.consulter.nom) {
-                this.router.navigate([VisiteurRoutes.url(this.site.nomSite, [VisiteurPages.produits.urlSegment])]);
-            }
-            evenement.statut = KfStatutDEvenement.fini;
-        });
-        edition.ajoute(groupe);
+        let lien = Fabrique.lien(ProduitPages.visite, ProduitRoutes, this.site.nomSite);
+        lien.contenuPhrase.fixeTexte('Voir les produits');
+        lien.ajouteClasseDef('btn', 'btn-primary');
+        groupe.ajoute(lien);
+        this.superGroupe.ajoute(groupe);
 
         etiquette = new KfEtiquette('',
-            `En mode modification, vous pourrez créer et modifier les produits et les catégories et fixer les prix.`);
-        etiquette.baliseHTML = KfTypeDeBaliseDEtiquette.P;
-        edition.ajoute(etiquette);
-        etiquette = new KfEtiquette('',
-            `Avant les modifications, les commandes en cours sont arrêtées et les nouvelles commandes suspendues`);
-        etiquette.baliseHTML = KfTypeDeBaliseDEtiquette.P;
-        edition.ajoute(etiquette);
-        return edition;
+            `Pour pouvoir créer et modifier les produits et les catégories et fixer les prix, vous devez fermer le site.`);
+        etiquette.baliseHtml = KfTypeDeBaliseHTML.p;
+        this.superGroupe.ajoute(etiquette);
+        groupe = new KfGroupe('');
+        groupe.ajouteClasseDef('nav');
+        lien = Fabrique.lien(FSitePages.ouverture, FSiteRoutes, this.site.nomSite);
+        lien.contenuPhrase.fixeTexte('Fermer le site');
+        lien.ajouteClasseDef('btn', 'btn-primary');
+        groupe.ajoute(lien);
+        this.superGroupe.ajoute(groupe);
+        return this.superGroupe;
     }
 
     ngOnInit() {
         this.site = this.service.navigation.siteEnCours;
-        this.créeFormulaire();
+        if (!this.site.ouvert) {
+            this.router.navigate([ProduitRoutes.url(this.site.nomSite, [ProduitPages.index.urlSegment])]);
+        }
+        this.créeContenus();
     }
 
 }

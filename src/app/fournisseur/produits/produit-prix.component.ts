@@ -3,15 +3,16 @@ import { Router, ActivatedRoute, Data } from '@angular/router';
 import { DataKeyALESComponent } from 'src/app/commun/data-par-key/data-key-ales.component';
 import { ProduitPrix, EtatPrix, textePrix } from '../../modeles/produit-prix';
 import { PageDef } from 'src/app/commun/page-def';
-import { ProduitPages, ProduitRoutes, ProduitModifRoutes, ProduitModifPages } from './produit-pages';
+import { ProduitPages, ProduitRoutes } from './produit-pages';
 import { Site } from 'src/app/modeles/site';
 import { KfVueTable } from 'src/app/commun/kf-composants/kf-vue-table/kf-vue-table';
-import { KfNombre } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-nombre';
+import { KfInputNombre } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-input-nombre';
 import { ProduitPrixService } from './produit-prix.service';
 import { AttenteAsyncService } from 'src/app/services/attenteAsync.service';
 import { KfGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-groupe';
-import { KfTexte } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-texte';
+import { KfInputTexte } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-input-texte';
 import { ProduitPrixEditeur } from './produit-prix-editeur';
+import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',
@@ -19,24 +20,25 @@ import { ProduitPrixEditeur } from './produit-prix-editeur';
 })
 export class ProduitPrixComponent extends DataKeyALESComponent<ProduitPrix> implements OnInit {
 
-    static _pageDef: PageDef = ProduitModifPages.prix;
-    pageDef: PageDef = ProduitModifPages.prix;
+    static _pageDef: PageDef = ProduitPages.prix;
+    pageDef: PageDef = ProduitPages.prix;
 
     get titre(): string {
         return this.pageDef.titre;
     }
 
     get action(): string {
-        return ProduitModifPages.ajoute.urlSegment;
+        return ProduitPages.ajoute.urlSegment;
     }
 
     site: Site;
 
-    urlPageIndex: string;
+    dataPages = ProduitPages;
+    dataRoutes = ProduitRoutes;
 
     private _produitPrix: ProduitPrix;
     private _anciensPrix: KfVueTable<EtatPrix>;
-    private _nouveau: KfNombre;
+    private _nouveau: KfInputNombre;
 
     constructor(
         protected router: Router,
@@ -54,20 +56,20 @@ export class ProduitPrixComponent extends DataKeyALESComponent<ProduitPrix> impl
     créeEdition = (): KfGroupe => {
         const edition = new KfGroupe('edition');
         edition.créeGereValeur();
-        const nomCategorie = new KfTexte('nomCategorie', 'Catégorie');
+        const nomCategorie = new KfInputTexte('nomCategorie', 'Catégorie');
         nomCategorie.lectureSeule = true;
         nomCategorie.valeur = this._produitPrix.nomCategorie;
         edition.ajoute(nomCategorie);
-        const nomProduit = new KfTexte('nomProduit', 'Produit');
+        const nomProduit = new KfInputTexte('nomProduit', 'Produit');
         nomProduit.valeur = this._produitPrix.nomProduit;
         nomProduit.lectureSeule = true;
         edition.ajoute(nomProduit);
-        this._anciensPrix = new KfVueTable<EtatPrix>('', {
-            enTetes: [{ texte: 'Historique' }],
+        this._anciensPrix = Fabrique.vueTable<EtatPrix>('', {
+            enTetesDef: [{ texte: 'Historique' }],
             cellules: (ligne: EtatPrix) => [this.textePrix(ligne)]
         });
         edition.ajoute(this._anciensPrix);
-        const nouveau = new KfNombre('nouveau', 'Nouveau prix');
+        const nouveau = new KfInputNombre('nouveau', 'Nouveau prix');
         nouveau.min = 0;
         nouveau.max = 999.99;
         nouveau.pas = 0.10;
@@ -92,7 +94,6 @@ export class ProduitPrixComponent extends DataKeyALESComponent<ProduitPrix> impl
 
     ngOnInit() {
         this.site = this.service.navigation.siteEnCours;
-        this.urlPageIndex = ProduitModifRoutes.url(this.site.nomSite, [ProduitModifPages.index.urlSegment]);
         this.subscriptions.push(this.route.data.subscribe(
             (data: Data) => {
                 this._produitPrix = data.valeur;

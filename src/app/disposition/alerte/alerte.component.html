@@ -1,0 +1,7 @@
+<div class="alertes-div">
+    <P *ngFor="let alerte of alertes" class="alertes-p">
+        <ngb-alert [dismissible]="alerte.fermable" [class]="alerte.classe" (close)="ferme(alerte)">
+            <app-kf-composant [composant]="alerte.contenu"></app-kf-composant>
+        </ngb-alert>
+    </P>
+</div>

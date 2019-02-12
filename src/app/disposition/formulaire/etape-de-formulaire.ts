@@ -3,7 +3,7 @@ import { KfComposant } from '../../commun/kf-composants/kf-composant/kf-composan
 import { KfEtiquette } from '../../commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
 import { FormulaireAEtapesComponent } from './formulaire-a-etapes.component';
 import { PageDef } from 'src/app/commun/page-def';
-import { KfTypeDeBaliseDEtiquette } from 'src/app/commun/kf-composants/kf-composants-types';
+import { KfTypeDeBaliseHTML } from 'src/app/commun/kf-composants/kf-composants-types';
 
 export interface EtapeDeFormulaireEditeur {
     créeContenus(): KfComposant[];
@@ -36,7 +36,7 @@ export class EtapeDeFormulaire {
         this.groupeEditeur = new KfGroupe(this.nom);
         this.groupeEditeur.ajouteClasseDef('tab-pane');
         const titre = new KfEtiquette(this.nom + '-titre', this.pageDef.titre);
-        titre.baliseHTML = KfTypeDeBaliseDEtiquette.h5;
+        titre.baliseHtml = KfTypeDeBaliseHTML.h5;
         this.groupeEditeur.ajoute(titre);
         let avecValeur: boolean;
         this.éditeur.créeContenus().forEach(contenu => {

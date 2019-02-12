@@ -2,19 +2,19 @@ import { Component, OnInit } from '@angular/core';
 import { KeyUidRnoNoIndexComponent } from 'src/app/commun/data-par-key/key-uid-rno-no/key-uid-rno-no-index.component';
 import { Categorie } from 'src/app/modeles/categorie';
 import { PageDef } from 'src/app/commun/page-def';
-import { CategoriePages } from './categorie-pages';
+import { CategoriePages, CategorieRoutes } from './categorie-pages';
 import { Site } from 'src/app/modeles/site';
 import { Identifiant } from 'src/app/securite/identifiant';
-import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CategorieService } from 'src/app/modeles/categorie.service';
 import { KfLien } from 'src/app/commun/kf-composants/kf-elements/kf-lien/kf-lien';
 import { KfAfficheResultat } from 'src/app/commun/kf-composants/kf-elements/kf-affiche-resultat/kf-affiche-resultat';
 import { KfResultatAffichable } from 'src/app/commun/kf-composants/kf-elements/kf-affiche-resultat/kf-resultat-affichable';
 import { KfTypeResultatAffichable } from 'src/app/commun/kf-composants/kf-elements/kf-affiche-resultat/kf-type-resultat-affichable';
-import { FournisseurRoutes, FournisseurPages } from '../../fournisseur-pages';
-import { ProduitModifRoutes } from '../produit-pages';
-import { KfVueCelluleDef, KfVueTableDef } from 'src/app/commun/kf-composants/kf-vue-table/kf-vue-table';
+import { FournisseurPages } from '../../fournisseur-pages';
+import { ProduitRoutes, ProduitPages } from '../produit-pages';
+import { KfVueTableDef } from 'src/app/commun/kf-composants/kf-vue-table/kf-vue-table';
+import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 
 @Component({
     templateUrl: '../../../disposition/page-base/page-base.html',
@@ -30,11 +30,12 @@ export class CategorieIndexComponent extends KeyUidRnoNoIndexComponent<Categorie
     }
 
     dataPages = CategoriePages;
+    dataRoutes = CategorieRoutes;
 
     site: Site;
     identifiant: Identifiant;
     vueTableDef: KfVueTableDef<Categorie> = {
-        enTetes: [{ texte: 'Nom' }, { texte: 'Produits' }],
+        enTetesDef: [{ texte: 'Nom' }, { texte: 'Produits' }],
         cellules: (item: Categorie) => [item.nom, item.nbProduits.toString()],
         commandes: (item: Categorie) => [this.créeLienEdite(item)]
     };
@@ -52,8 +53,8 @@ export class CategorieIndexComponent extends KeyUidRnoNoIndexComponent<Categorie
     }
 
     private get lienRetourAuxProduits(): KfLien {
-        const lien = new KfLien('produits',
-            ProduitModifRoutes.url(this.site.nomSite, [FournisseurPages.produits.urlSegment]), 'Retour aux produits');
+        const lien = Fabrique.lienBouton(ProduitPages.index, ProduitRoutes, this.site.nomSite);
+        lien.fixeTexte('Retour aux produits');
         return lien;
     }
 

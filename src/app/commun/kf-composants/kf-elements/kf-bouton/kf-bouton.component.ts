@@ -4,7 +4,7 @@ import {
 import { KfBouton } from './kf-bouton';
 import { KfComposantComponent } from '../../kf-composant/kf-composant.component';
 import { FormGroup } from '@angular/forms';
-import { KfTexteImage } from '../../kf-partages/kf-texte-image/kf-texte-image';
+import { KfContenuPhrase } from '../../kf-partages/kf-contenu-phrase/kf-contenu-phrase';
 import { KfTypeDeBouton } from '../../kf-composants-types';
 
 @Component({
@@ -23,7 +23,6 @@ export class KfBoutonComponent extends KfComposantComponent implements OnInit, A
     ngAfterViewInit() {
         this.composant.gereHtml.htmlElement = this.htmlElementRef.nativeElement;
         this.initialiseHtml();
-        console.log(this.composant.nom, 'ngAfterViewInit');
     }
 
     get button(): HTMLButtonElement {
@@ -34,12 +33,6 @@ export class KfBoutonComponent extends KfComposantComponent implements OnInit, A
         return this.composant as KfBouton;
     }
 
-    get form(): FormGroup {
-        return (this.composant.formulaireParent)
-            ? this.composant.formulaireParent.formGroup
-            : null;
-    }
-
     get buttonType(): string {
         return 'button';
     }
@@ -47,15 +40,16 @@ export class KfBoutonComponent extends KfComposantComponent implements OnInit, A
         return this.bouton.nom;
     }
     get inactif(): boolean {
+        const form = this.composant.formulaireParent;
         switch (this.bouton.typeDeBouton) {
             case KfTypeDeBouton.bouton:
                 return this.bouton.inactif;
             case KfTypeDeBouton.annuler:
                 return false;
             case KfTypeDeBouton.retablir:
-                return (this.form) ? this.form.pristine : false;
+                return form ? form.formGroup.pristine : false;
             case KfTypeDeBouton.soumettre:
-                const inactif = (this.form) ? this.form.pristine || !this.form.valid
+                const inactif = form ? (form.neSoumetPasSiPristine && form.formGroup.pristine) || !form.formGroup.valid
  //                   || (this.bouton.patience && this.bouton.patience.enCours)
                      : false;
                 return inactif;
@@ -64,8 +58,8 @@ export class KfBoutonComponent extends KfComposantComponent implements OnInit, A
         }
     }
 
-    get texteImage(): KfTexteImage {
-        return this.bouton.texteImage;
+    get contenuPhrase(): KfContenuPhrase {
+        return this.bouton.contenuPhrase;
     }
 
 }
