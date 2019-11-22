@@ -1,35 +1,52 @@
 import { KfComposant } from '../commun/kf-composants/kf-composant/kf-composant';
-import { KfInputTexte } from '../commun/kf-composants/kf-elements/kf-input/kf-input-texte';
 import { KfValidateurs } from '../commun/kf-composants/kf-partages/kf-validateur';
 import { KeyUidRno } from '../commun/data-par-key/key-uid-rno/key-uid-rno';
+import { Fabrique } from '../disposition/fabrique/fabrique';
+import { IdEtatSite } from './etat-site';
 
-export interface EtatSite {
-    etat: string;
-    dateEtat: Date;
-}
-export class Site extends KeyUidRno implements EtatSite {
+export class Site extends KeyUidRno {
     nomSite: string;
     titre: string;
-    etat: string;
-    dateEtat: Date;
+    nbProduits?: number;
+    nbClients?: number;
+    etat: IdEtatSite;
 
-    static testOuvert(etatSite: EtatSite): boolean {
-        return etatSite.etat === 'A' && etatSite.dateEtat.valueOf() <= Date.now();
+    constructor(site?: Site) {
+        super();
+        if (site) {
+            this.copie(site);
+        }
     }
 
     static créeChamps(): KfComposant[] {
         const champs: KfComposant[] = [];
-        const nomSite = new KfInputTexte('nomSite');
+        const nomSite = Fabrique.input.texte('nomSite');
         nomSite.ajouteValidateur(KfValidateurs.required);
         champs.push(nomSite);
-        const titre = new KfInputTexte('titre');
+        const titre = Fabrique.input.texte('titre');
         titre.ajouteValidateur(KfValidateurs.required);
         champs.push(titre);
         return champs;
     }
 
+    static compare(site1: Site, site2: Site): boolean {
+        if (!site1) {
+            return !site2;
+        }
+        if (!site2) {
+            return false;
+        }
+        return site1.uid === site2.uid
+        && site1.rno === site2.rno
+        && site1.nomSite === site2.nomSite
+        && site1.titre === site2.titre
+        && site1.nbProduits === site2.nbProduits
+        && site1.nbClients === site2.nbClients
+        && site1.etat === site2.etat;
+    }
+
     get ouvert(): boolean {
-        return Site.testOuvert(this);
+        return this.etat === IdEtatSite.ouvert;
     }
 
     copie(site: Site) {
@@ -37,7 +54,16 @@ export class Site extends KeyUidRno implements EtatSite {
         this.rno = site.rno;
         this.nomSite = site.nomSite;
         this.titre = site.titre;
+        this.nbProduits = site.nbProduits;
+        this.nbClients = site.nbClients;
         this.etat = site.etat;
-        this.dateEtat = new Date(site.dateEtat);
+    }
+    copieEtat(site: Site) {
+        this.etat = site.etat;
+    }
+
+    copieNbs(site: Site) {
+        this.nbProduits = site.nbProduits;
+        this.nbClients = site.nbClients;
     }
 }

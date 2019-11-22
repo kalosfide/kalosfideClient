@@ -1,13 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { PageMessageComponent } from '../disposition/page-message/page-message.component';
-import { ActivatedRouteSnapshot, ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { PageDef } from 'src/app/commun/page-def';
 import { AppPages } from 'src/app/app-pages';
 
 @Component({
     templateUrl: '../disposition/page-message/page-message.component.html',
-    styles: []
+    styleUrls: ['../commun/commun.scss']
 })
 export class PageErreurComponent extends PageMessageComponent implements OnInit, OnDestroy {
 

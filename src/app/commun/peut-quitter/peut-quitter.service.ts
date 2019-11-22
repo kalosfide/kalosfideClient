@@ -21,10 +21,11 @@ export class PeutQuitterService {
      * @param message si défini, précise la question
      * @param actionSiConfirmé si définie, la fonction est éxécutée avant de retourner l'observable
      */
-    confirme(titre: string): Observable<boolean> {
+    confirme(titre: string, message?: string): Observable<boolean> {
         const peutQuitterRef = this.modalService.open(PeutQuitterComponent);
         const peutQuitter = peutQuitterRef.componentInstance as PeutQuitterComponent;
         peutQuitter.titre = titre;
+        peutQuitter.message = message ? message : 'Si vous quittez cette page, les données saisies seront perdues.';
         return from(peutQuitterRef.result).pipe(
             map(result => true),
             catchError(err => of(false))

@@ -1,50 +1,58 @@
-import { PageDef } from './commun/page-def';
-import { isArray } from 'util';
+import { PageDef, BaseRoutes } from './commun/page-def';
 
-export const keySéparateur = '/';
-
-export const AppPages = {
-    appSite: {
+export class AppPages {
+    static appSite: PageDef = {
         urlSegment: 'a',
-    },
-    site: {
+    };
+    static site: PageDef = {
         urlSegment: 's',
-    },
-    compte: {
+    };
+    static compte: PageDef = {
         urlSegment: 'compte',
-    },
-    introuvable: {
+    };
+    static introuvable: PageDef = {
         urlSegment: 'introuvable',
         title: 'Introuvable',
         titre: 'Ressources introuvables'
-    },
-    interdit: {
+    };
+    static interdit: PageDef = {
         urlSegment: 'interdit',
         title: 'Interdit',
         titre: 'Accès refusé'
-    },
-    conflit: {
+    };
+    static conflit: PageDef = {
         urlSegment: 'conflit',
         title: 'Verrouillé',
         titre: 'Ressources verrouillées'
-    },
-    apiErreur: {
+    };
+    static apiErreur: PageDef = {
         urlSegment: 'apiErreur',
         title: 'Erreur',
         titre: 'Erreur du serveur'
-    },
-    pasOuvert: {
+    };
+    static pasOuvert: PageDef = {
         urlSegment: 'pasOuvert',
         lien: '',
         title: 'Fermé',
         titre: 'Site fermé'
-    },
-    administrateur: 'administrateur',
-};
+    };
+    static administrateur: PageDef = {
+        urlSegment: 'administrateur',
+    };
+    static pageDefs: PageDef[] = [
+        AppPages.appSite,
+        AppPages.site,
+        AppPages.compte,
+        AppPages.introuvable,
+        AppPages.interdit,
+        AppPages.conflit,
+        AppPages.apiErreur,
+        AppPages.pasOuvert,
+        AppPages.administrateur,
+    ];
+}
 
-class AppRoutesClass {
-    séparateur = '/';
-
+class AppRoutesClass extends BaseRoutes {
     private _images = '/assets';
 
     urlIntrouvable = AppPages.appSite.urlSegment + this.séparateur + AppPages.introuvable.urlSegment;

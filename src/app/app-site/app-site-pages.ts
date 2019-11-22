@@ -5,6 +5,7 @@ export const AppSitePages = {
     index: {
         urlSegment: AppSite.urlSegment,
         lien: AppSite.texte,
+        titre: AppSite.titre,
         title: AppSite.titre,
     },
     sites: {

@@ -3,12 +3,11 @@ import { ComptePages, CompteRoutes } from '../compte-pages';
 import { PageDef } from 'src/app/commun/page-def';
 import { SiteRoutes } from 'src/app/site/site-pages';
 import { AppSiteRoutes } from 'src/app/app-site/app-site-pages';
-import { ItemDeMenu } from 'src/app/disposition/menus/item-de-menu';
-import { TypeItemDeMenu } from 'src/app/disposition/menus/type-item-de-menu';
+import { NavItemLien } from 'src/app/disposition/navbars/nav-item-lien';
 
-export class ItemConnection extends ItemDeMenu {
+export class ItemConnection extends NavItemLien {
     constructor(parent: ItemCompte) {
-        super(ComptePages.connection.urlSegment, parent, TypeItemDeMenu.dropdownItem);
+        super(ComptePages.connection.urlSegment, parent);
         this.rafraichit = () => {
             const pageDef: PageDef = this.identifiant ? ComptePages.deconnection : ComptePages.connection;
             this.texte = pageDef.lien;

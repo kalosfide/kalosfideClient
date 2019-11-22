@@ -20,7 +20,7 @@ export class PeutQuitterGarde implements CanDeactivate<ComponentAAutoriserAQuitt
         currentState: RouterStateSnapshot,
         nextState?: RouterStateSnapshot
     ): boolean | Observable<boolean> | Promise<boolean> {
-        return (nextState && nextState.url === this.routeur.url([AppPages.compte.urlSegment, ComptePages.deconnection.urlSegment]))
+        return (nextState && nextState.url === this.routeur.urlDansSite([AppPages.compte.urlSegment, ComptePages.deconnection.urlSegment]))
             || (component.peutQuitter ? component.peutQuitter(nextState) : true);
     }
 }

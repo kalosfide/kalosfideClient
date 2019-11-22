@@ -7,6 +7,7 @@ import { KfBalise } from '../../kf-partages/kf-balise/kf-balise';
 @Component({
     selector: 'app-kf-etiquette',
     templateUrl: './kf-etiquette.component.html',
+    styleUrls: ['../../kf-composants.scss']
 })
 export class KfEtiquetteComponent extends KfComposantComponent implements OnInit {
 
@@ -37,15 +38,13 @@ export class KfEtiquetteComponent extends KfComposantComponent implements OnInit
             this._balise = new KfBalise();
             this._balise.baliseHTML = this.etiquette.baliseHtml;
             this._balise.contenuPhrase = this.etiquette.contenuPhrase;
-            if (this.etiquette.avecClassesOuStyle) {
-                this._balise.classeDefs = this.etiquette.classeDefs;
-                this._balise.style = this.etiquette.style;
-            }
+            this._balise.suitLaVisiblité(this.etiquette);
+            this._balise.suitClassesEtStyle(this.etiquette);
             this._balise.afterViewInit = (htmlElement: HTMLElement) => {
                 if (htmlElement) {
                     this.composant.gereHtml.htmlElement = htmlElement;
                 }
-                this.initialiseHtml();
+                this.composant.gereHtml.initialiseHtml(this.output);
             };
         }
     }

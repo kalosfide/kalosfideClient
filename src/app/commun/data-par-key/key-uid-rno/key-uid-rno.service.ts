@@ -7,12 +7,20 @@ import { IKeyUidRno } from './i-key-uid-rno';
 
 export abstract class KeyUidRnoService<T extends IKeyUidRno> extends DataKeyService<T> {
 
+    urlSegmentDeKey = (t: T): string => {
+        return '' + t.rno;
+    }
+
     get keyDeAjoute(): DataKey {
         const key = new KeyUidRno();
         const enCours = this.keyIdentifiant;
         key.uid = enCours.uid;
         key.rno = -1;
         return key;
+    }
+
+    fixeKeyDeAjoute(envoyé: T, reçu: T) {
+        envoyé.rno = reçu.rno;
     }
 
     créeParams(objet: DataKey): { [param: string]: string } {

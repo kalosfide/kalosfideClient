@@ -4,7 +4,7 @@ import { KfTexteDef, ValeurTexteDef } from '../../kf-partages/kf-texte-def';
 import { KfTypeBaliseConteneur } from '../../kf-partages/kf-balises-html';
 
 export class KfTexte extends KfElement {
-    texteDef: KfTexteDef;
+    private _texteDef: KfTexteDef;
 
     /**
      * balises Html à ajouter dans le template autour de la partie rendant le composant
@@ -14,16 +14,16 @@ export class KfTexte extends KfElement {
 
     constructor(nom: string, texteDef: KfTexteDef) {
         super(nom, KfTypeDeComposant.texte);
-        this.texteDef = texteDef;
+        this._texteDef = texteDef;
     }
 
     get texte(): string {
-        if (this.texteDef) {
-            return ValeurTexteDef(this.texteDef);
+        if (this._texteDef !== undefined) {
+            return ValeurTexteDef(this._texteDef);
         }
     }
     fixeTexte(texte: KfTexteDef) {
-        this.texteDef = texte;
+        this._texteDef = texte;
     }
 
     get balisesAAjouter(): KfTypeDeBaliseHTML[] {

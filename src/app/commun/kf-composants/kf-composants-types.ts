@@ -26,7 +26,6 @@ export enum KfTypeDeComposant {
     fichier = 'fichier',
     fichierCharge = 'fichier-charge',
 
-    afficheResultat = 'affiche-resultat',
     /**
      * avec valeur
      */
@@ -39,15 +38,17 @@ export enum KfTypeDeComposant {
      * conteneurs
      */
     groupe = 'groupe',
+    vuetable = 'vuetable',
+    ul = 'ul',
+    b_btn_group = 'b_btn_group',
+    b_btn_toolbar = 'b_btn_toolbar',
+
     liste = 'liste',
     listeEditeur = 'listeEditeur',
-    nav = 'nav',
+    navbar = 'navbar',
     menu = 'menu',
     sousmenu = 'sousmenu',
     dialogue = 'dialogue',
-    vuetable = 'vuetable',
-    ul = 'ul',
-    li = 'li',
 }
 
 /**

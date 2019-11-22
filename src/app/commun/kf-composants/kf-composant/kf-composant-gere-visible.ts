@@ -1,11 +1,9 @@
 import { KfComposant } from './kf-composant';
+import { Observable } from 'rxjs';
 
 export class KfComposantGereVisible {
 
     composant: KfComposant;
-
-    private _visibilité: boolean;
-    private _visibilitéFnc: () => boolean;
 
     private _contenus: () => KfComposant[];
     aucunContenuVisible: () => boolean;
@@ -13,17 +11,6 @@ export class KfComposantGereVisible {
 
     constructor(composant: KfComposant) {
         this.composant = composant;
-        this._visibilité = true;
-    }
-
-    /**
-     *  méthodes pour fixer la façon de déterminer la visibilité
-     */
-    set visibilite(visibilite: boolean) {
-        this._visibilité = visibilite;
-    }
-    set visibiliteFnc(visibiliteFnc: () => boolean) {
-        this._visibilitéFnc = visibiliteFnc;
     }
 
     /**
@@ -46,15 +33,11 @@ export class KfComposantGereVisible {
         return this._contenus();
     }
 
-    FixeIndexSeulVisible(noSeulContenuVisible: number) {
-        this._indexSeulVisible = noSeulContenuVisible;
-    }
-
     /**
      * retourne true si avec un seul contenu visible qui n'est pas celui passé en paramètre
      * @param contenu est dans contenus
      */
-    cacheContenu(contenu: KfComposant): boolean {
+    private cacheContenu(contenu: KfComposant): boolean {
         if (this.aucunContenuVisible && this.aucunContenuVisible()) {
             return true;
         }
@@ -77,7 +60,7 @@ export class KfComposantGereVisible {
      * estCachéParParent(): boolean
      *  le conteneur parent peut avoir une propriété seulContenuVisible
      */
-    get estCachéParParent(): boolean {
+    private get estCachéParParent(): boolean {
         let gereVisible: KfComposantGereVisible;
         if (this.composant.parent) {
             gereVisible = this.composant.parent.gereVisible;
@@ -87,14 +70,6 @@ export class KfComposantGereVisible {
             }
         }
         return gereVisible && gereVisible.cacheContenu(this.composant);
-    }
-
-    /**
-     * visible: boolean
-     *  utilisé par l'Angular component parent pour affecter ou non la classe css kf-invisible au template du composant
-     */
-    get visible(): boolean {
-        return ((this._visibilitéFnc) ? this._visibilitéFnc() : this._visibilité) && !this.estCachéParParent;
     }
 
 }

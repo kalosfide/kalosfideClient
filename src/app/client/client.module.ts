@@ -17,11 +17,13 @@ import { CProduitsComponent } from './c-produits.component';
         ModelesModule,
         DispositionModule,
         MessagesModule,
-        ClientRoutingModule
+        ClientRoutingModule,
     ],
     declarations: [
         CAccueilComponent,
         CProduitsComponent,
+    ],
+    providers: [
     ]
 })
 export class ClientModule { }

@@ -1,12 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
 import { CompteService } from '../compte.service';
-import { AttenteAsyncService } from '../../services/attenteAsync.service';
+import { AttenteService } from '../../services/attente.service';
 import { Subscription } from 'rxjs';
-import { AppRoutes } from 'src/app/app-pages';
-import { NavigationService } from 'src/app/services/navigation.service';
-import { SiteRoutes } from 'src/app/site/site-pages';
 import { RouteurService } from 'src/app/services/routeur.service';
+import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 
 @Component({
     selector: 'app-deconnection',
@@ -16,22 +13,22 @@ import { RouteurService } from 'src/app/services/routeur.service';
 export class DeconnectionComponent implements OnInit, OnDestroy {
 
     subscription: Subscription;
+    attente: number;
 
     constructor(
-        private routeur: RouteurService,
         private service: CompteService,
-        private attenteAsync: AttenteAsyncService,
+        private attenteService: AttenteService,
     ) { }
 
     ngOnInit() {
-        this.attenteAsync.commence();
+        this.attente = this.attenteService.commence('déconnecte');
         this.subscription = this.service.déconnecte().subscribe(
             () => {
-                this.attenteAsync.finit();
-                this.routeur.navigue();
+                this.attenteService.finit(this.attente);
+                this.service.routeur.navigue();
             },
             () => {
-                this.attenteAsync.finit();
+                this.attenteService.finit(this.attente);
             }
         );
     }

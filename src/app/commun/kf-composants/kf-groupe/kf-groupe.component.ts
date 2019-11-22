@@ -2,8 +2,6 @@ import { Component, OnInit, ViewChild, AfterViewInit, ElementRef } from '@angula
 import { KfTypeDeComposant, KfTypeDeValeur } from '../kf-composants-types';
 import { KfComposantComponent } from '../kf-composant/kf-composant.component';
 import { KfGroupe } from './kf-groupe';
-import { KfTypeDHTMLEvents } from '../kf-partages/kf-evenements';
-import { KfSuperGroupe } from './kf-super-groupe';
 import { FormGroup } from '@angular/forms';
 
 @Component({
@@ -14,7 +12,7 @@ import { FormGroup } from '@angular/forms';
 export class KfGroupeComponent extends KfComposantComponent implements OnInit, AfterViewInit {
     @ViewChild('htmlElement') domElementRef: ElementRef;
 
-    typeDeComposant = KfTypeDeComposant;
+    type = KfTypeDeComposant;
     typeDeValeur = KfTypeDeValeur;
 
     constructor() {
@@ -30,7 +28,7 @@ export class KfGroupeComponent extends KfComposantComponent implements OnInit, A
 
     ngAfterViewInit() {
         this.composant.gereHtml.htmlElement = this.domElementRef.nativeElement;
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
     }
 
 }

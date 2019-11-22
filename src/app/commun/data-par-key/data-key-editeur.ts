@@ -3,10 +3,19 @@ import { DataKey } from './data-key';
 import { KfTraitementDEvenement, KfTypeDEvenement } from '../kf-composants/kf-partages/kf-evenements';
 import { ApiAction } from '../api-route';
 import { KfComposant } from '../kf-composants/kf-composant/kf-composant';
+import { DataKeyALESComponent } from './data-key-ales.component';
+import { DataKeyService } from './data-key.service';
+import { DataKeyUtile } from './data-key-utile';
+import { KfSuperGroupe } from '../kf-composants/kf-groupe/kf-super-groupe';
 
 export abstract class DataKeyEditeur<T extends DataKey> {
+    private _utile: DataKeyUtile<T>;
+
     champsKeys: KfComposant[];
-    keyAuto: boolean; /* vrai si la clé est générée par la base de données */
+    /**
+     * vrai si la clé est générée par la base de données
+     */
+    keyAuto: boolean;
 
     private autresChamps: KfComposant[];
 
@@ -14,9 +23,13 @@ export abstract class DataKeyEditeur<T extends DataKey> {
 
     traiteursDEvenement: { type: KfTypeDEvenement, traitement: KfTraitementDEvenement }[];
 
-    protected abstract créeChampsKeys();
-    abstract fixeChampsKeys(key: DataKey);
-    protected abstract créeAutresChamps(action: string);
+    get utile(): DataKeyUtile<T> {
+        return this._utile;
+    }
+
+    protected abstract créeChampsKeys(): void;
+    abstract fixeChampsKeys(key: DataKey): void;
+    protected abstract créeAutresChamps(component: DataKeyALESComponent<T>): void;
 
     protected ajoute(...composants: KfComposant[]) {
         composants.forEach(composant => {
@@ -24,19 +37,19 @@ export abstract class DataKeyEditeur<T extends DataKey> {
             });
     }
 
-    créeEdition(action: string) {
-        this.edition = new KfGroupe(action);
+    créeEdition(component: DataKeyALESComponent<T>) {
+        this.edition = new KfGroupe(component.action.nom);
         this.edition.créeGereValeur();
-        const sansKey = action === ApiAction.data.ajoute && this.keyAuto;
+        const sansKey = component.action.nom === ApiAction.data.ajoute && this.keyAuto;
         if (!sansKey) {
-            this.créeChampsKeys();
+            this.champsKeys = this.utile.edite.champsKey();
             this.champsKeys.forEach(composant => {
-                composant.visibilite = false;
+                composant.visible = false;
                 this.edition.ajoute(composant);
             });
         }
         this.autresChamps = [];
-        this.créeAutresChamps(action);
+        this.créeAutresChamps(component);
         this.autresChamps.forEach(composant => {
             this.edition.ajoute(composant);
         });
@@ -47,17 +60,34 @@ export abstract class DataKeyEditeur<T extends DataKey> {
         }
     }
 
-    get valeur(): any {
-        return this.edition.formGroup.value;
-    }
-    set valeur(valeur: any) {
-        console.log(valeur, this.edition.valeur, this.edition.formGroup);
-        this.edition.contenus.forEach(c => {
-            if (c.abstractControl) {
-                c.abstractControl.setValue(valeur[c.nom]);
-            }
+    créeSupergroupe(): KfSuperGroupe {
+        const superGroupe = new KfSuperGroupe('');
+        superGroupe.créeGereValeur();
+        const champsKeys = this.utile.edite.champsKey();
+        champsKeys.forEach(composant => {
+                composant.visible = false;
+                superGroupe.ajoute(composant);
+            });
+
+        this.autresChamps = [];
+        this.créeAutresChamps(component);
+        this.autresChamps.forEach(composant => {
+            this.edition.ajoute(composant);
         });
+        // évènements
+        if (this.traiteursDEvenement) {
+            this.traiteursDEvenement.forEach(
+                traiteur => this.edition.gereHtml.ajouteTraiteur(traiteur.type, traiteur.traitement));
+        }
+    }
+
+    get valeur(): T {
+        return this.edition.valeur;
+    }
+    fixeValeur(valeur: T) {
+        console.log(this.edition);
         console.log(valeur, this.edition.valeur, this.edition.formGroup);
+        this.edition.fixeValeur(valeur);
         /*
         */
     }

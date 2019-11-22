@@ -59,7 +59,7 @@ export class AutorisationInterceptor implements HttpInterceptor {
                         const jwtIdentifiantSérialisé = response.headers.get('jwtbearer');
                         if (jwtIdentifiantSérialisé) {
                             const identifiant: Identifiant = response.body as Identifiant;
-                            this.identification.fixeIdentifiant(jwtIdentifiantSérialisé, identifiant);
+                            this.identification.fixeIdentifiants(jwtIdentifiantSérialisé, identifiant);
                         }
                     }
                 })

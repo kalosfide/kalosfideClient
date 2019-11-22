@@ -12,6 +12,7 @@ import { KfEvenement, KfTypeDEvenement, KfStatutDEvenement } from '../../kf-part
             <app-kf-contenu-phrase  [contenuPhrase]="composant.contenuPhrase"></app-kf-contenu-phrase>
         </a>
 `,
+    styleUrls: ['../../kf-composants.scss']
 })
 export class KfFichierSauveComponent extends KfComposantComponent implements OnInit, AfterViewInit {
     @ViewChild('baliseElement') baliseElementRef: ElementRef;
@@ -25,7 +26,7 @@ export class KfFichierSauveComponent extends KfComposantComponent implements OnI
 
     ngAfterViewInit() {
         this.composant.gereHtml.htmlElement = this.baliseElementRef.nativeElement;
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
     }
 
     get dataUrl(): SafeUrl {
@@ -33,12 +34,7 @@ export class KfFichierSauveComponent extends KfComposantComponent implements OnI
     }
 
     quandClic() {
-        const evenement: KfEvenement = {
-            type: KfTypeDEvenement.fichierSauve,
-            emetteur: this.composant,
-            parametres: null,
-            statut: KfStatutDEvenement.enCours
-        };
+        const evenement = new KfEvenement(this.composant, KfTypeDEvenement.fichierSauve);
         this.traiteOuTransmet(evenement);
     }
 

@@ -13,7 +13,7 @@
         </ng-template>
 
         <ng-template #phraseTemplate>
-        <app-kf-contenu-phrase [contenuPhrase]="balise.contenuPhrase"></app-kf-contenu-phrase>   
+        <app-kf-contenu-phrase *ngIf="balise.contenuPhrase" [contenuPhrase]="balise.contenuPhrase"></app-kf-contenu-phrase>   
         </ng-template>
     </ng-template>
     

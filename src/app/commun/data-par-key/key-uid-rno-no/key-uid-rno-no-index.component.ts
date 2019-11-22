@@ -7,10 +7,13 @@ import { KeyUidRnoNo } from './key-uid-rno-no';
 export abstract class KeyUidRnoNoIndexComponent<T extends KeyUidRnoNo> extends DataKeyIndexComponent<T>  {
 
     constructor(
-        protected router: Router,
         protected route: ActivatedRoute,
         protected service: KeyUidRnoNoService<T>,
     ) {
-        super(router, route, service);
+        super(route, service);
+    }
+
+    urlSegmentDeKey = (t: T): string => {
+        return '' + t.no;
     }
 }

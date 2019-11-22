@@ -1,14 +1,13 @@
 import { Component } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { SiteALESComponent } from './site-ales.component';
 import { SiteService } from 'src/app/modeles/site.service';
-import { AttenteAsyncService } from 'src/app/services/attenteAsync.service';
 import { PageDef } from 'src/app/commun/page-def';
 import { FSitePages } from './f-site-pages';
 
 @Component({
-    templateUrl: '../disposition/page-base/page-base.html',
-    styles: []
+    templateUrl: '../../disposition/page-base/page-base.html',
+    styleUrls: ['../../commun/commun.scss']
 })
 export class SiteEditeComponent extends SiteALESComponent {
 
@@ -16,15 +15,15 @@ export class SiteEditeComponent extends SiteALESComponent {
     pageDef: PageDef = FSitePages.edite;
 
     constructor(
-        protected router: Router,
         protected route: ActivatedRoute,
-        protected service: SiteService,
-        protected attenteAsyncService: AttenteAsyncService,
+        protected _service: SiteService,
     ) {
-        super(router, route, service, attenteAsyncService);
+        super(route, _service);
 
         this.pageDef.titre = 'Editer le site';
         this.titreRésultatErreur = 'Mise à jour impossible';
+
+        this.action = this.actionEdite();
     }
 
 }

@@ -24,7 +24,7 @@ export class SitesResolverService extends DataResolverService implements Resolve
     }
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<never> | Observable<Site[]> {
-        return this.objet<Site[]>(this._service.liste());
+        return this.service.objet<Site[]>(this._service.liste());
     }
 
 }

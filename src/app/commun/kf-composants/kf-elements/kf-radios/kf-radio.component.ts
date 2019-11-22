@@ -6,6 +6,7 @@ import { KfRadio } from './kf-radio';
 @Component({
     selector: 'app-kf-radio',
     templateUrl: './kf-radio.component.html',
+    styleUrls: ['../../kf-composants.scss']
 })
 export class KfRadioComponent extends KfComposantComponent implements OnInit, AfterViewInit {
     @ViewChild('inputElement') inputElement: ElementRef;
@@ -38,7 +39,7 @@ export class KfRadioComponent extends KfComposantComponent implements OnInit, Af
             inputElement: this.inputElement.nativeElement,
             labelElement: this.labelElement.nativeElement,
         };
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
 /*
         let i = 0;
         (this.composant as KfRadios).enfants.forEach(

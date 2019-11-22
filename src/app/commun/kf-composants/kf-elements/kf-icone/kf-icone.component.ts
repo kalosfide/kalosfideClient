@@ -5,6 +5,7 @@ import { KfIcone } from './kf-icone';
 @Component({
     selector: 'app-kf-icone',
     templateUrl: './kf-icone.component.html',
+    styleUrls: ['../../kf-composants.scss']
 })
 export class KfIconeComponent extends KfComposantComponent implements OnInit, AfterViewInit {
     @ViewChild('htmlElement') htmlElement: ElementRef;
@@ -15,7 +16,7 @@ export class KfIconeComponent extends KfComposantComponent implements OnInit, Af
     ngAfterViewInit() {
         if (this.htmlElement) {
             this.composant.gereHtml.htmlElement = this.htmlElement.nativeElement;
-            this.initialiseHtml();
+            this.composant.gereHtml.initialiseHtml(this.output);
         }
     }
     clic() {

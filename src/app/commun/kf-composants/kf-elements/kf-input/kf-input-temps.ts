@@ -1,6 +1,5 @@
 import { KfTexteDef } from '../../kf-partages/kf-texte-def';
 import { KfInput, KfTypeDInput } from './kf-input';
-import { DateFr } from 'src/app/commun/outils/date-fr';
 import { Dateur } from 'src/app/commun/outils/dateur';
 
 export class KfInputTemps extends KfInput {
@@ -9,7 +8,6 @@ export class KfInputTemps extends KfInput {
     constructor(nom: string, texte?: KfTexteDef) {
         super(nom, texte);
         this.typeDInput = KfTypeDInput.temps;
-        this._valeur = null;
     }
 
     get valeur(): string {

@@ -49,7 +49,7 @@ export class KfListeEditeurComponent extends KfComposantComponent implements OnI
 
     ngAfterViewInit() {
         this.composant.gereHtml.htmlElement = this.htmlElement.nativeElement;
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
     }
 
     traiteOkAnnuler(evenement: KfEvenement) {

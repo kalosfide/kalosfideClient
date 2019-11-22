@@ -235,8 +235,8 @@ export class KfListeEditions {
                     || (this.typeDeMiseAJour === KfListeMiseAJour.immédiateSaufPourAjout && this.ajoutEnCours)
                     || (this.typeDeMiseAJour === KfListeMiseAJour.parEditeurSéparé && this.editeur.editionEnCours);
             };
-            this.boutonOk.visibiliteFnc = visibiliteFnc;
-            this.boutonAnnuler.visibiliteFnc = visibiliteFnc;
+            this.boutonOk.visibilitéFnc = visibiliteFnc;
+            this.boutonAnnuler.visibilitéFnc = visibiliteFnc;
         }
         if (this.typeDeMiseAJour === KfListeMiseAJour.parEditeurSéparé) {
             this.editeur = new KfListeEditeur(this);
@@ -292,8 +292,8 @@ export class KfListeEditions {
     initialise() {
         /* cache les boutons */
         if (this.boutonAnnuler) {
-            this.boutonOk.visibilite = false;
-            this.boutonAnnuler.visibilite = false;
+            this.boutonOk.visible = false;
+            this.boutonAnnuler.visible = false;
         }
         this.itemAvantNouveau = null;
         this.itemNouveau = null;
@@ -301,8 +301,8 @@ export class KfListeEditions {
 
     initialiseAjout() {
         if (this.boutonAnnuler) {
-            this.boutonOk.visibilite = false;
-            this.boutonAnnuler.visibilite = false;
+            this.boutonOk.visible = false;
+            this.boutonAnnuler.visible = false;
         }
         this.itemAvantNouveau = null;
         this.itemNouveau = null;
@@ -313,8 +313,8 @@ export class KfListeEditions {
             this.itemAvantNouveau = this.liste.itemChoisi;
             this.itemNouveau = this.liste.creeItems.creeItem();
             this.liste.fixeChoisi(null);
-            this.boutonOk.visibilite = true;
-            this.boutonAnnuler.visibilite = true;
+            this.boutonOk.visible = true;
+            this.boutonAnnuler.visible = true;
             if (this.editeur) {
                 this.editeur.activeEdition();
             }
@@ -327,7 +327,7 @@ export class KfListeEditions {
      */
     préparePourAjout(item: object) {
         const composant = this.liste.creeItems.composant(item);
-        if (this.dansTable && composant.typeDeComposant === KfTypeDeComposant.groupe) {
+        if (this.dansTable && composant.type === KfTypeDeComposant.groupe) {
             const g = composant as KfGroupe;
             g.ajouteClasseDef('kf-row');
             g.contenus.forEach(c => c.ajouteClasseDef('kf-cell'));

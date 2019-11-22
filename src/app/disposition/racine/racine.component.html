@@ -1,7 +1,8 @@
 <div class="container body-content">
-    <app-menu [menu]="menu"></app-menu>
+    <app-navbar [navBar]="menu"></app-navbar>
     <app-alerte></app-alerte>
+    <app-retour-en-haut></app-retour-en-haut>
     <router-outlet></router-outlet>
-<app-pied></app-pied>
+    <app-pied></app-pied>
+    <app-kf-groupe [composant]="animeAttente"></app-kf-groupe>
 </div>
-<app-anime-attente [animeAttente]="animeAttente"></app-anime-attente>

@@ -1,0 +1,24 @@
+<div #htmlElement role="toolbar" [attr.aria-label]="ariaLabel" class="btn-toolbar" [ngClass]="composant.classe"
+    [ngStyle]="composant.style">
+    <ng-container *ngFor="let contenu of composant.contenus">
+        <ng-container *ngIf="!contenu.nePasAfficher">
+            <ng-container *ngIf="composant.estBtnGroup(contenu); else inputTemplate">
+                <app-kf-b-btn-group [composant]="contenu" (output)="transmet($event)"></app-kf-b-btn-group>
+            </ng-container>
+            <ng-template #inputTemplate>
+                <ng-container *ngIf="composant.estInput(contenu); else listeTemplate">
+                    <app-kf-input [composant]="contenu" (output)="transmet($event)"></app-kf-input>
+                </ng-container>
+                <ng-template #listeTemplate>
+                    <ng-container *ngIf="composant.estListederoulante(contenu); else erreurTemplate">
+                        <app-kf-liste-deroulante [composant]="contenu" (output)="transmet($event)"></app-kf-liste-deroulante>
+                    </ng-container>
+                    <ng-template #erreurTemplate>
+                        !!! ERREUR !!!
+                    </ng-template>
+                    
+                </ng-template>
+            </ng-template>
+        </ng-container>
+    </ng-container>
+</div>

@@ -58,7 +58,7 @@ export class KfListeComponent extends KfComposantComponent implements OnInit, Af
 
     ngAfterViewInit() {
         this.composant.gereHtml.htmlElement = this.htmlElement.nativeElement;
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
     }
 
     traiteCommande(evenement: KfEvenement) {

@@ -1,9 +1,8 @@
-<div ngbDropdown #dropdown class="dropdown" [placement]="composant.placement">
-    <button [id]="composant.nom" ngbDropdownToggle #htmlElement [disabled]="inactif" [ngClass]="composant.bouton.classe"
-        class="dropdown-toggle">
+<div ngbDropdown #dropdown [ngClass]="composant.classe" [attr.placement]="composant.placement">
+    <button [id]="composant.nom" ngbDropdownToggle #htmlElement [disabled]="inactif" [ngClass]="composant.bouton.classe">
         <app-kf-contenu-phrase *ngIf="composant.bouton.contenuPhrase" [contenuPhrase]="composant.bouton.contenuPhrase"></app-kf-contenu-phrase>
     </button>
-    <div ngbDropdownMenu [attr.aria-labelledby]="composant.nom" class="dropdown-menu">
+    <div ngbDropdownMenu [attr.aria-labelledby]="composant.nom" [ngClass]="composant.classeMenu">
         <ng-container *ngFor="let contenu of composant.contenus">
             <ng-container *ngIf="estGroupe(contenu); then groupeTemplate; else itemTemplate"></ng-container>
             <ng-template #groupeTemplate>

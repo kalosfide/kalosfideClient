@@ -4,7 +4,8 @@ import { AppSite } from 'src/app/app-site/app-site';
 @Component({
   selector: 'app-pied',
   templateUrl: './pied.component.html',
-  styleUrls: []
+  styleUrls: ['../../commun/commun.scss']
+
 })
 export class PiedComponent implements OnInit {
     AppSite: any;

@@ -9,5 +9,6 @@ export class ApiResult201Created extends ApiResult {
     constructor(
     ) {
         super(201);
+        this.ok = true;
     }
 }

@@ -1,6 +1,0 @@
-<ng-container *ngIf="composant.contenus.length > 0">
-    <div class="dropdown-divider"></div>
-    <li *ngFor="let contenu of composant.contenus" role="menuitem">
-        <app-kf-composant [composant]="contenu"  (output)="transmet($event)"></app-kf-composant>
-    </li>
-</ng-container>

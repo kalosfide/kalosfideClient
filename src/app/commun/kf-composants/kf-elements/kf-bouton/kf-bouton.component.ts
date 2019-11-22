@@ -10,6 +10,7 @@ import { KfTypeDeBouton } from '../../kf-composants-types';
 @Component({
     selector: 'app-kf-bouton',
     templateUrl: './kf-bouton.component.html',
+    styleUrls: ['../../kf-composants.scss']
 })
 export class KfBoutonComponent extends KfComposantComponent implements OnInit, AfterViewInit {
     @ViewChild('htmlElement') htmlElementRef: ElementRef;
@@ -22,7 +23,7 @@ export class KfBoutonComponent extends KfComposantComponent implements OnInit, A
 
     ngAfterViewInit() {
         this.composant.gereHtml.htmlElement = this.htmlElementRef.nativeElement;
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
     }
 
     get button(): HTMLButtonElement {
@@ -36,9 +37,7 @@ export class KfBoutonComponent extends KfComposantComponent implements OnInit, A
     get buttonType(): string {
         return 'button';
     }
-    get nomBouton(): string {
-        return this.bouton.nom;
-    }
+
     get inactif(): boolean {
         const form = this.composant.formulaireParent;
         switch (this.bouton.typeDeBouton) {
@@ -49,10 +48,7 @@ export class KfBoutonComponent extends KfComposantComponent implements OnInit, A
             case KfTypeDeBouton.retablir:
                 return form ? form.formGroup.pristine : false;
             case KfTypeDeBouton.soumettre:
-                const inactif = form ? (form.neSoumetPasSiPristine && form.formGroup.pristine) || !form.formGroup.valid
- //                   || (this.bouton.patience && this.bouton.patience.enCours)
-                     : false;
-                return inactif;
+                return !form || !form.peutSoumettre();
             default:
                 break;
         }

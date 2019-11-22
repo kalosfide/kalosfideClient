@@ -2,6 +2,8 @@ import { ValidatorFn, AsyncValidatorFn, ValidationErrors, AbstractControl, Valid
 import { KfComposant } from '../kf-composant/kf-composant';
 import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { KfGroupe } from '../kf-groupe/kf-groupe';
+import { KfInputNombre } from '../kf-elements/kf-input/kf-input-nombre';
 
 export class KfValidateur {
     nom: string;
@@ -11,6 +13,7 @@ export class KfValidateur {
 
     marqueErreur: (a: AbstractControl) => void;
 }
+
 class KfValidateurDoublon extends KfValidateur {
     doublon: any;
 
@@ -21,10 +24,10 @@ class KfValidateurDoublon extends KfValidateur {
         this.marqueErreur = (a: AbstractControl) => {
             this.doublon = a.value;
         };
-        message = message;
+        this.message = message;
     }
 
-    _validatorFn(a: AbstractControl): ValidationErrors {
+    private _validatorFn(a: AbstractControl): ValidationErrors {
         const errors: ValidationErrors = {};
         if (a.value === this.doublon) {
             errors[this.nom] = {
@@ -36,11 +39,13 @@ class KfValidateurDoublon extends KfValidateur {
     }
 }
 
-class KfValidateursFabrique {
-    chiffres = '0123456789';
-    minuscules = 'abcdefghijklmnopqrstuvwxyz';
+export class KfValidateurs {
 
-    contientUnDans(texte: string, liste: string): boolean {
+    static chiffres = '0123456789';
+
+    static minuscules = 'abcdefghijklmnopqrstuvwxyz';
+
+    static contientUnDans(texte: string, liste: string): boolean {
         for (let i = 0; i < liste.length; i++) {
             if (texte.includes(liste[i])) {
                 return true;
@@ -49,7 +54,7 @@ class KfValidateursFabrique {
         return false;
     }
 
-    contientUnHorsDe(texte: string, liste: string): boolean {
+    static contientUnHorsDe(texte: string, liste: string): boolean {
         if (!texte) {
             return false;
         }
@@ -61,28 +66,32 @@ class KfValidateursFabrique {
         return false;
     }
 
-    validateurDeFn(nom: string, invalideFn: (value: any) => boolean, message: string): KfValidateur {
+    static validateurDeFn(nom: string, invalideFn: (value: any) => boolean, message: string | (() => string)): KfValidateur {
         const validateur = new KfValidateur();
         validateur.nom = nom;
         validateur.validatorFn = (a: AbstractControl): ValidationErrors => {
             const errors: ValidationErrors = {};
             if (invalideFn(a.value)) {
                 errors[nom] = {
-                    value: a.value
+                    value: message
                 };
                 return errors;
             }
             return null;
         };
-        validateur.message = message;
+        if (typeof(message) === 'string') {
+            validateur.message = message;
+        } else {
+            validateur.message = message();
+        }
         return validateur;
     }
 
-    validateurDoublon(nom: string, message: string): KfValidateur {
+    static validateurDoublon(nom: string, message: string): KfValidateur {
         return new KfValidateurDoublon(nom, message);
     }
 
-    validateur(nom: string, validatorFn: ValidatorFn, message: string): KfValidateur {
+    static validateur(nom: string, validatorFn: ValidatorFn, message: string): KfValidateur {
         const validateur = new KfValidateur();
         validateur.nom = nom;
         validateur.validatorFn = validatorFn;
@@ -90,7 +99,7 @@ class KfValidateursFabrique {
         return validateur;
     }
 
-    validateurAsync(nom: string, invalideFn: (value: any) => Observable<boolean>, message: string): KfValidateur {
+    static validateurAsync(nom: string, invalideFn: (value: any) => Observable<boolean>, message: string): KfValidateur {
         const validateur = new KfValidateur();
         validateur.nom = nom;
         validateur.asyncValidatorFn = (a: AbstractControl): Observable<ValidationErrors> => {
@@ -110,95 +119,280 @@ class KfValidateursFabrique {
         return validateur;
     }
 
-    get required(): KfValidateur {
-        return this.validateur('required', Validators.required, 'Ce champ est requis.');
+    static get required(): KfValidateur {
+        return KfValidateurs.validateur('required', Validators.required, 'Ce champ est requis.');
     }
-    get requiredTrue(): KfValidateur {
-        return this.validateur('requiredTrue', Validators.requiredTrue, 'Ce champ doit être coché.');
+
+    static get requiredTrue(): KfValidateur {
+        return KfValidateurs.validateur('requiredTrue', Validators.requiredTrue, 'Ce champ doit être coché.');
     }
-    min(valeur: number): KfValidateur {
-        return this.validateur(
+
+    static min(valeur: number): KfValidateur {
+        return KfValidateurs.validateur(
             'min',
             Validators.min(valeur),
             `Le nombre doit être supérieur ou égal à ${valeur}`
         );
     }
-    max(valeur: number): KfValidateur {
-        return this.validateur(
+
+    static max(valeur: number): KfValidateur {
+        return KfValidateurs.validateur(
             'max',
             Validators.max(valeur),
             `Le nombre doit être inférieur ou égal à ${valeur}`
         );
     }
-    longueurMin(valeur: number): KfValidateur {
-        return this.validateur(
+
+    static longueurMin(valeur: number): KfValidateur {
+        return KfValidateurs.validateur(
             'minLength',
             Validators.minLength(valeur),
             `Il doit y avoir au moins ${valeur} caractères`
         );
     }
-    longueurMax(valeur: number): KfValidateur {
-        return this.validateur(
-            '',
+
+    static longueurMax(valeur: number): KfValidateur {
+        return KfValidateurs.validateur(
+            'maxLength',
             Validators.maxLength(valeur),
             `Il doit y avoir au plus ${valeur} caractères`
         );
     }
 
-    get email(): KfValidateur {
-        return this.validateur('email', Validators.email, `L'adresse mail est invalide.`);
+    static get email(): KfValidateur {
+        return KfValidateurs.validateur('email', Validators.email, `L'adresse mail est invalide.`);
     }
 
-    get noSpaces(): KfValidateur {
-        return this.validateurDeFn(
+    static get noSpaces(): KfValidateur {
+        return KfValidateurs.validateurDeFn(
             'NoSpaces',
             (texte: string) => {
                 return !!texte && texte.includes(' ');
             },
             `Il ne doit pas y avoir d'espaces`);
     }
-    requiredLength(valeur: number): KfValidateur {
-        return this.validateurDeFn(
+
+    static requiredLength(valeur: number): KfValidateur {
+        return KfValidateurs.validateurDeFn(
             'requiredLength',
             (texte: string) => {
                 return !!texte && texte.length < valeur;
             },
             `Il doit y avoir au moins ${valeur} caractères`);
     }
-    get requireDigit(): KfValidateur {
-        return this.validateurDeFn(
+
+    static get requireDigit(): KfValidateur {
+        return KfValidateurs.validateurDeFn(
             'requireDigit',
-            (texte: string) => !!texte && !this.contientUnDans(texte, this.chiffres),
+            (texte: string) => !!texte && !KfValidateurs.contientUnDans(texte, KfValidateurs.chiffres),
             'Il doit y avoir au moins un chiffre.');
     }
-    get requireLowercase(): KfValidateur {
-        return this.validateurDeFn(
+
+    static get requireLowercase(): KfValidateur {
+        return KfValidateurs.validateurDeFn(
             'requireLowercase',
-            (texte: string) => !!texte && !this.contientUnDans(texte, this.minuscules),
+            (texte: string) => !!texte && !KfValidateurs.contientUnDans(texte, KfValidateurs.minuscules),
             'Il doit y avoir au moins une lettre minuscule.');
     }
-    get requireUppercase(): KfValidateur {
-        return this.validateurDeFn(
+
+    static get requireUppercase(): KfValidateur {
+        return KfValidateurs.validateurDeFn(
             'requireUppercase',
-            (texte: string) => !!texte && !this.contientUnDans(texte, this.minuscules.toUpperCase()),
+            (texte: string) => !!texte && !KfValidateurs.contientUnDans(texte, KfValidateurs.minuscules.toUpperCase()),
             'Il doit y avoir au moins une lettre majuscule.');
     }
-    get requireNonAlphanumeric(): KfValidateur {
-        return this.validateurDeFn(
+
+    static get requireNonAlphanumeric(): KfValidateur {
+        const valides = KfValidateurs.chiffres.concat(KfValidateurs.minuscules, KfValidateurs.minuscules.toUpperCase());
+        return KfValidateurs.validateurDeFn(
             'requireNonAlphanumeric',
             (texte: string) =>
-                !!texte && !this.contientUnHorsDe(texte, this.chiffres.concat(this.minuscules, this.minuscules.toUpperCase())),
+                !!texte && !KfValidateurs.contientUnHorsDe(texte, valides),
             'Il doit y avoir au moins un caractère non alphanumèrique.');
     }
 
-    aLaValeurDe(composant: KfComposant): KfValidateur {
-        return this.validateurDeFn(
+    static aLaValeurDe(valeur: any): KfValidateur {
+        return KfValidateurs.validateurDeFn(
             'aLaValeurDe',
+            (value: any) => {
+                return value !== valeur;
+            },
+            `La valeur n'est pas celle de ${valeur.toString()}`);
+    }
+
+    static nAPasLaValeurDe(valeur: any): KfValidateur {
+        return KfValidateurs.validateurDeFn(
+            'nAPasLaValeurDe',
+            (value: any) => {
+                return value === valeur;
+            },
+            `La valeur doit être différente de ${valeur.toString()}`);
+    }
+
+    static aLaValeurDeComposant(composant: KfComposant): KfValidateur {
+        return KfValidateurs.validateurDeFn(
+            'aLaValeurDeComposant',
             (value: any) => {
                 return value !== composant.abstractControl.value;
             },
             `La valeur n'est pas celle de ${composant.texte}`);
     }
-}
 
-export const KfValidateurs = new KfValidateursFabrique();
+    static contenuDans(liste: any[]): KfValidateur {
+        return KfValidateurs.validateurDeFn(
+            'contenuDans',
+            (value: any) => {
+                return liste.find(a => a === value) === undefined;
+            },
+            `La valeur n'est pas contenue dans ${liste.toString()}`);
+    }
+
+    static nonContenuDans(liste: any[]): KfValidateur {
+        return KfValidateurs.validateurDeFn(
+            'contenuDans',
+            (value: any) => {
+                return liste.find(a => a === value) !== undefined;
+            },
+            `La valeur doit être dans la liste ${liste.toString()}`);
+    }
+
+    static get nombreNonNul(): KfValidateur {
+        return KfValidateurs.validateurDeFn('nonNul', valeur => {
+            return valeur === '0';
+        }, 'Le nombre ne peut pas être nul.');
+    }
+
+    static auMoinsUnRequis(...champs: { nom: string, texte: string }[]) {
+        const invalideFn = (value: any) => {
+            const champ = champs.find(c => {
+                const v = value[c.nom];
+                return v !== null && v !== undefined && v !== '';
+            });
+            return champ === undefined;
+        };
+        const liste = champs.map(c => c.texte).join(', ');
+        return KfValidateurs.validateurDeFn('auMoinsUnRequis', invalideFn, `L'un au moins de ces champs est requis: ${liste}`);
+    }
+
+    static minMax(input: KfInputNombre): KfValidateur {
+        return KfValidateurs.validateurDeFn('minMax', (valeur: any) => {
+            return valeur < input.min || valeur > input.max;
+        }, `Le nombre doit être compris entre ${input.min} et ${input.max}`);
+    }
+
+    static fixeMessage(validateurs: KfValidateur[], errorKey: string, errorValue?: any): string {
+        let validateur: KfValidateur;
+        if (validateurs) {
+            const nom = errorKey.toLowerCase();
+            const requireds: KfValidateur[] = [KfValidateurs.required, KfValidateurs.requiredTrue];
+            if (nom === KfValidateurs.required.nom.toLowerCase()) {
+                validateur = validateurs.find(v => v.nom === KfValidateurs.requiredTrue.nom);
+                if (!validateur) {
+                    validateur = validateurs.find(v => v.nom === KfValidateurs.required.nom);
+                }
+            } else {
+                validateur = validateurs.find(v => v.nom.toLowerCase() === nom);
+            }
+        }
+        const message = validateur ? validateur.message : `Erreur ${errorKey}: ${errorValue}`;
+        return message;
+    }
+
+    static nombreVirgule(
+        nbChiffresAvantFnc: number | (() => number), nbChiffresAprèsFnc: number | (() => number),
+        avecSigne?: '<' | '<=' | '>' | '>='): KfValidateur {
+        const invalideFn = (valeur: any): boolean => {
+            let nbChiffresAvant: number;
+            if (typeof(nbChiffresAvantFnc) === 'number') {
+                nbChiffresAvant = nbChiffresAvantFnc;
+            } else {
+                nbChiffresAvant = nbChiffresAvantFnc();
+            }
+            let nbChiffresAprès: number;
+            if (typeof(nbChiffresAprèsFnc) === 'number') {
+                nbChiffresAprèsFnc = nbChiffresAprèsFnc;
+            } else {
+                nbChiffresAprès = nbChiffresAprèsFnc();
+            }
+            const nombre = KfValidateurs.vérifieEtFormateNombre(valeur, nbChiffresAvant, nbChiffresAprès, avecSigne);
+            return Number.isNaN(nombre);
+        };
+        const messageFn = (): string => {
+            let nbChiffresAvant: number;
+            if (typeof(nbChiffresAvantFnc) === 'number') {
+                nbChiffresAvant = nbChiffresAvantFnc;
+            } else {
+                nbChiffresAvant = nbChiffresAvantFnc();
+            }
+            let nbChiffresAprès: number;
+            if (typeof(nbChiffresAprèsFnc) === 'number') {
+                nbChiffresAprèsFnc = nbChiffresAprèsFnc;
+            } else {
+                nbChiffresAprès = nbChiffresAprèsFnc();
+            }
+            let message = 'Le nombre ';
+            if (avecSigne) {
+                message = message + `doit être ${avecSigne === '<'
+                    ? 'strictement négatif'
+                    : avecSigne === '<='
+                        ? 'négatif ou null'
+                        : avecSigne === '>'
+                            ? 'strictement positif'
+                            : 'positif'
+                    } et `;
+            }
+            message = message + `doit avoir au plus ${nbChiffresAvant} chiffres avant la virgule et ${nbChiffresAprès === 0
+                ? 'aucun chiffre'
+                : 'au plus ' + (nbChiffresAprès === 1
+                    ? 'un chiffre'
+                    : '' + nbChiffresAprès + ' chiffres')} après la virgule.`;
+            return message;
+        };
+        return KfValidateurs.validateurDeFn('virgule', invalideFn, messageFn);
+    }
+    static vérifieEtFormateNombre(valeur: any,
+        nbChiffresAvant: number, nbChiffresAprès: number, avecSigne?: '<' | '<=' | '>' | '>='
+    ): number {
+        if (valeur === undefined || valeur === null) {
+            return valeur;
+        }
+        const nombre = parseFloat(valeur);
+        if (Number.isNaN(nombre)) {
+            return NaN;
+        }
+        if (nombre === 0) {
+            return avecSigne === '<' || avecSigne === '>' ? NaN : 0;
+        }
+        let texte1 = nombre.toString();
+        let négatif: boolean;
+        if (texte1.charAt(0) === '-') {
+            négatif = true;
+            texte1 = texte1.slice(1);
+        }
+        const textes = texte1.split('.');
+        if (négatif) {
+            if (avecSigne === '>' || avecSigne === '>=') {
+                return NaN;
+            }
+        } else {
+            if (avecSigne === '<' || avecSigne === '<=') {
+                return NaN;
+            }
+        }
+        const entière = textes[0].length;
+        if (entière > nbChiffresAvant) {
+            return NaN;
+        }
+        if (textes.length === 1) {
+            return nombre;
+        }
+        // il y a des chiffres après
+        if (nbChiffresAprès === 0) {
+            return NaN;
+        }
+        if (textes[1].length > nbChiffresAprès) {
+            return NaN;
+        }
+        return nombre;
+    }
+}

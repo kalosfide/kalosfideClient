@@ -6,7 +6,6 @@ import { DispositionModule } from 'src/app/disposition/disposition.module';
 
 import { ModelesModule } from 'src/app/modeles/modeles.module';
 import { SiteEditeComponent } from './site-edite.component';
-import { SiteIndexComponent } from './site-index.component';
 
 @NgModule({
     imports: [
@@ -17,7 +16,6 @@ import { SiteIndexComponent } from './site-index.component';
     ],
     declarations: [
         SiteEditeComponent,
-        SiteIndexComponent,
     ],
     providers: [
     ],

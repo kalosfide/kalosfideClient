@@ -40,7 +40,7 @@ export class KfListeEditeur extends KfSuperGroupe {
 
     constructor(editions: KfListeEditions) {
         super(editions.liste.nom);
-        this.typeDeComposant = KfTypeDeComposant.listeEditeur;
+        this.type = KfTypeDeComposant.listeEditeur;
         this.créeGereValeur();
         this.editions = editions;
         this.itemEdité = editions.liste.creeItems.creeItem();

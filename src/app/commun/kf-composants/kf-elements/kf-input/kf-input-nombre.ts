@@ -10,11 +10,20 @@ export class KfInputNombre extends KfInput {
     constructor(nom: string, texte?: KfTexteDef) {
         super(nom, texte);
         this.typeDInput = KfTypeDInput.nombre;
-        this._valeur = null;
     }
 
     get valeur(): number {
-        return this.litValeur() as number;
+        const v = this.litValeur();
+        let valeur: number;
+        if (typeof (v) === 'number') {
+            valeur = v;
+        }
+        if (typeof (v) === 'string') {
+            valeur = Number.parseFloat(v);
+        }
+        if (!Number.isNaN(valeur)) {
+            return valeur;
+        }
     }
     set valeur(valeur: number) {
         this.fixeValeur(valeur);

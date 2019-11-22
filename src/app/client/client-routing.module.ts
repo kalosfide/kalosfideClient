@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { ClientRacineComponent } from '../site/client-racine-component';
 import { ClientPages } from './client-pages';
 import { CAccueilComponent } from './c-accueil.component';
 import { AppPages } from '../app-pages';
@@ -10,9 +9,8 @@ import { PageConflitComponent } from '../messages/page-conflit.component';
 import { PageErreurComponent } from '../messages/page-erreur.component';
 import { PageIntrouvableComponent } from '../messages/page-introuvable.component';
 import { CProduitsComponent } from './c-produits.component';
-import { SiteOuvertGarde } from '../securite/site-ouvert-garde';
-import { SiteProduitsResolverService } from '../modeles/site-produits-resolver.service';
-import { SiteCategoriesResolverService } from '../modeles/site-categories-resolver.service';
+import { SiteOuvertGarde, EtatSiteChangeGarde } from '../securite/site-ouvert-garde';
+import { CatalogueResolverService } from 'src/app/modeles/catalogue/catalogue-resolver.service';
 
 const routes: Routes = [
     {
@@ -23,23 +21,27 @@ const routes: Routes = [
     {
         path: ClientPages.accueil.urlSegment,
         component: CAccueilComponent,
+        canActivate: [
+            EtatSiteChangeGarde,
+        ],
     },
     {
         path: ClientPages.produits.urlSegment,
         component: CProduitsComponent,
+        canActivate: [
+            SiteOuvertGarde,
+        ],
         resolve: {
-            liste: SiteProduitsResolverService,
-            categories: SiteCategoriesResolverService,
+            catalogue: CatalogueResolverService,
         },
-        canActivate: [SiteOuvertGarde]
     },
     {
         path: ClientPages.commandes.urlSegment,
-        loadChildren: './commandes/commande.module#CommandeModule'
+        loadChildren: () => import('./commandes/commander.module').then(mod => mod.CommanderModule),
     },
     {
         path: AppPages.compte.urlSegment,
-        loadChildren: '../compte/compte.module#CompteModule'
+        loadChildren: () => import('../compte/compte.module').then(mod => mod.CompteModule)
     },
     // pages d'erreur
     {

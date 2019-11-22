@@ -4,7 +4,7 @@ import { RouteurService } from '../services/routeur.service';
 import { Observable, of, EMPTY } from 'rxjs';
 import { Site } from '../modeles/site';
 import { AppPages } from '../app-pages';
-import { take, mergeMap } from 'rxjs/operators';
+import { take, mergeMap, tap } from 'rxjs/operators';
 import { ApiResult200Ok } from '../commun/api-results/api-result-200-ok';
 import { SiteService } from '../modeles/site.service';
 import { NavigationService } from '../services/navigation.service';
@@ -25,22 +25,9 @@ export class SiteResolverService implements Resolve<Site> {
         if (!nomSite) {
             return EMPTY;
         }
-        return this._siteService.trouveParNom(nomSite)
-            .pipe(
-                take(1),
-                mergeMap(
-                apiResult => {
-                    if (apiResult.statusCode === ApiResult200Ok.code) {
-                        const site = (apiResult as ApiResult200Ok<Site>).lecture;
-                        if (site) {
-                            this._navigation.siteEnCours = site;
-                            return of(site);
-                        }
-                    }
-                    this._routeur.navigue([AppPages.introuvable.urlSegment]);
-                    return EMPTY;
-                }
-            ));
+        return this._siteService.trouveParNom(nomSite).pipe(
+            tap(site => this._navigation.fixeSiteEnCours(site))
+        );
     }
 
 }

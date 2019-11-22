@@ -9,7 +9,6 @@ export class KfInputDate extends KfInput {
     constructor(nom: string, texte?: KfTexteDef) {
         super(nom, texte);
         this.typeDInput = KfTypeDInput.date;
-        this._valeur = null;
     }
 
     get valeur(): string {

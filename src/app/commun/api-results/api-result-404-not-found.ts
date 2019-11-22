@@ -6,6 +6,7 @@ export class ApiResult404NotFound extends ApiResult {
 
     constructor(
     ) {
-        super(404, [AppPages.introuvable.urlSegment]);
+        super(404);
+        this.routeErreur = [AppPages.introuvable.urlSegment];
     }
 }

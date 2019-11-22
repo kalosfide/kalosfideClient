@@ -128,6 +128,6 @@
     <ng-container *ngIf="selecteurs || commandes; then avecCommandes_; else editions_"></ng-container>
 </ng-template>  
 
-<div #htmlElement [class]="liste.classe">
+<div #htmlElement [ngClass]="liste.classe">
     <ng-container *ngIf="editions.dansTable; then dansTable; else sansTable"></ng-container>
 </div>

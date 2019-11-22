@@ -7,7 +7,7 @@ import { EtapeDeFormulaire } from './etape-de-formulaire';
 
 @Component({
     templateUrl: './etape-de-formulaire.component.html',
-    styles: []
+    styleUrls: ['../../commun/commun.scss']
 })
 export class EtapeDeFormulaireComponent implements OnInit, OnDestroy {
     etape: EtapeDeFormulaire;

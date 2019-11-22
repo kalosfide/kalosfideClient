@@ -5,7 +5,7 @@ import { AppPages } from 'src/app/app-pages';
 
 @Component({
     templateUrl: '../disposition/page-message/page-message.component.html',
-    styles: []
+    styleUrls: ['../commun/commun.scss']
 })
 export class PageConflitComponent extends PageMessageComponent {
 

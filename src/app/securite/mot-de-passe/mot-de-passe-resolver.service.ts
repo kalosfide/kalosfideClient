@@ -24,7 +24,7 @@ export class MotDePasseResolverService extends DataResolverService implements Re
     }
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<never> | Observable<ReglesDeMotDePasse> {
-        return this.objet<ReglesDeMotDePasse>(this._service.chargeRègles());
+        return this._service.chargeRègles();
     }
 
 }

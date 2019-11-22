@@ -8,12 +8,12 @@ import { ProduitRoutingModule } from './produit-routing.module';
 import { ProduitIndexComponent } from './produit-index.component';
 import { ProduitEditeComponent } from './produit-edite.component';
 import { ProduitAjouteComponent } from './produit-ajoute.component';
-import { ProduitResolverService } from './produit-resolver.service';
+import { ProduitResolverService } from '../../modeles/catalogue/produit-resolver.service';
 import { ProduitPrixComponent } from './produit-prix.component';
-import { ProduitPrixResolverService } from './produit-prix-resolver.service';
 import { ModelesModule } from 'src/app/modeles/modeles.module';
-import { FProduitsComponent } from './F-produits.component';
-import { ProduitAccueilComponent } from './produit-accueil.component';
+import { ProduitSiteCatalogueGarde } from './produit-site-catalogue-garde';
+import { ProduitSitePasCatalogueGarde } from './produit-site-pas-catalogue-garde';
+import { CatalogueComponent } from './catalogue.component';
 
 @NgModule({
     imports: [
@@ -24,16 +24,16 @@ import { ProduitAccueilComponent } from './produit-accueil.component';
         ProduitRoutingModule,
     ],
     declarations: [
-        ProduitAccueilComponent,
+        CatalogueComponent,
         ProduitAjouteComponent,
         ProduitEditeComponent,
         ProduitIndexComponent,
         ProduitPrixComponent,
-        FProduitsComponent,
     ],
     providers: [
         ProduitResolverService,
-        ProduitPrixResolverService,
+        ProduitSiteCatalogueGarde,
+        ProduitSitePasCatalogueGarde,
     ],
 })
 export class ProduitModule { }

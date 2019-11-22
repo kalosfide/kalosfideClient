@@ -1,3 +1,5 @@
+const PAS_INPUT_A_LA_PIECE = 1;
+const PAS_INPUT_DECIMAL = 0.001;
 
 export enum IdTypeCommande {
     ALUnité = '1',
@@ -6,46 +8,39 @@ export enum IdTypeCommande {
 }
 
 export class TypeCommande {
-    private id: string;
-    // texte select Vente
-    public pourListe: string;
-    // pour avoir: 10,50€ le kilo
-    private pourExemple: string;
-    constructor(id: string, pourListe: string, pourExemple: string) {
-        this.id = id;
-        this.pourListe = pourListe;
-        this.pourExemple = pourExemple;
-    }
-    get valeur(): string {
-        return this.id;
-    }
-    texteExemple(): string {
-        return this.pourExemple ? ' (ex: ' + this.pourExemple + ')' : '';
-    }
-    texteListe() {
-        return this.pourListe + this.texteExemple();
-    }
-}
-
-const ALUnité = new TypeCommande(IdTypeCommande.ALUnité, 'à l\'unité', '2 produits');
-const EnVrac = new TypeCommande(IdTypeCommande.EnVrac, 'en vrac', '2,5 kg de produit');
-const ALUnitéOuEnVrac = new TypeCommande(IdTypeCommande.ALUnitéOuEnVrac, 'à l\'unité ou en vrac', null);
-
-export const TypesCommandes = {
-    ALUnité: ALUnité,
-    EnVrac: EnVrac,
-    ALUnitéOuEnVrac: ALUnitéOuEnVrac,
-    Commandes: [ALUnité, EnVrac, ALUnitéOuEnVrac],
-    ParId: (id: string): TypeCommande => {
+    static commandes: IdTypeCommande[] = [IdTypeCommande.ALUnité, IdTypeCommande.EnVrac, IdTypeCommande.ALUnitéOuEnVrac];
+    static pourListe(id: string): string {
         switch (id) {
             case IdTypeCommande.ALUnité:
-                return ALUnité;
+                return 'à l\'unité';
             case IdTypeCommande.EnVrac:
-                return EnVrac;
+                return 'en vrac';
             case IdTypeCommande.ALUnitéOuEnVrac:
-                return ALUnitéOuEnVrac;
+                return 'à l\'unité ou en vrac';
+            default:
+                throw new Error(`TypeCommande: la valeur ${id} n'appartient pas au type`);
+        }
+    }
+    static pourExemple(id: string): string {
+        switch (id) {
+            case IdTypeCommande.ALUnité:
+                return '2 produits';
+            case IdTypeCommande.EnVrac:
+                return '2,5 kg de produit';
+            case IdTypeCommande.ALUnitéOuEnVrac:
+                break;
+            default:
+                throw new Error(`TypeCommande: la valeur ${id} n'appartient pas au type`);
+        }
+    }
+    static pasInputNombre(id: string): number {
+        switch (id) {
+            case IdTypeCommande.ALUnité:
+                return PAS_INPUT_A_LA_PIECE;
+            case IdTypeCommande.EnVrac:
+                return PAS_INPUT_DECIMAL;
             default:
                 break;
         }
     }
-};
+}

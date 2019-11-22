@@ -1,52 +1,59 @@
-<ng-container *ngIf="composant.avecClic; then avecClicTemplate; else baseTemplate"></ng-container>
+<ng-container [ngSwitch]="composant.positionTexte">
+    <ng-container *ngSwitchCase="'droite'">
+        <ng-container *ngTemplateOutlet="iconeTemplate"></ng-container>&nbsp;<ng-container
+            *ngTemplateOutlet="texteTemplate"></ng-container>
+    </ng-container>
+    <ng-container *ngSwitchCase="'haut'">
+        <span [ngClass]="composant.classeFond" [ngStyle]="composant.styleFond">
+            <ng-container *ngTemplateOutlet="texteAvecCss"></ng-container>
+            <ng-container *ngTemplateOutlet="iconeTemplate"></ng-container>
+        </span>
+    </ng-container>
+    <ng-container *ngSwitchCase="'gauche'">
+        <ng-container *ngTemplateOutlet="texteTemplate"></ng-container>&nbsp;<ng-container
+            *ngTemplateOutlet="iconeTemplate"></ng-container>
+    </ng-container>
+    <ng-container *ngSwitchCase="'bas'">
+        <span [ngClass]="composant.classeFond" [ngStyle]="composant.styleFond">
+            <ng-container *ngTemplateOutlet="iconeTemplate"></ng-container>
+            <ng-container *ngTemplateOutlet="texteAvecCss"></ng-container>
+        </span>
+    </ng-container>
+    <ng-container *ngSwitchDefault>
+        <ng-container *ngIf="composant.classeFond; else sansFondTemplate">
+            <span [ngClass]="composant.classeFond" [ngStyle]="composant.styleFond">
+                <ng-container *ngTemplateOutlet="iconeTemplate"></ng-container>
+            </span>
+        </ng-container>
+        <ng-template #sansFondTemplate>
+            <ng-container *ngTemplateOutlet="iconeTemplate"></ng-container>
+        </ng-template>
+    </ng-container>
+</ng-container>
 
-<ng-template #avecClicTemplate>
-    <span #htmlElement [ngClass]="composant.classe" [ngStyle]="composant.style">
-        <ng-container *ngTemplateOutlet="baseTemplate"></ng-container>
+<ng-template #texteTemplate>
+    <ng-container *ngIf="!composant.texteAvecCss; else texteAvecCss">
+        {{ composant.texte }}
+    </ng-container>
+</ng-template>
+
+<ng-template #texteAvecCss>
+    <span [ngClass]="composant.classeTexte" [ngStyle]="composant.styleTexte">{{ composant.texte }}</span>
+</ng-template>
+
+<ng-template #iconeTemplate>
+    <span>
+
+        <ng-container *ngIf="!composant.couches; else couchesTemplate">
+            <i #htmlElement [class]="composant.faClasse" [ngClass]="composant.classe" [ngStyle]="composant.style"></i>
+        </ng-container>
+        <ng-template #couchesTemplate>
+            <span #htmlElement [class]="composant.faClassePile" [ngClass]="composant.classeFond" [ngStyle]="composant.styleFond">
+                <ng-container *ngFor="let icone of composant.couches">
+                    <i [class]="icone.faClasse" [ngClass]="icone.classe" [ngStyle]="icone.style"></i>
+                </ng-container>
+            </span>
+        </ng-template>
+
     </span>
-</ng-template>
-
-<ng-template #baseTemplate>
-    <ng-container *ngIf="composant.couches; then couchesTemplate; else seulTemplate"></ng-container>
-
-    <ng-template #couchesTemplate>
-        <fa-layers [fixedWidth]="true">
-            <fa-icon [icon]="composant.fa_icon" [fixedWidth]="composant.largeurFixe" [transform]="composant.transform"
-                [flip]="composant.flip" [ngStyle]="composant.style"></fa-icon>
-            <fa-icon [icon]="item.fa_icon" [fixedWidth]="item.largeurFixe" [transform]="item.transform" [flip]="item.flip"
-                [ngStyle]="item.style"></fa-icon>
-<!--
-
-                <ng-container *ngTemplateOutlet="iconTemplate; context: { composant1: composant }"></ng-container>
-
-            <ng-container *ngFor="let item of composant.couches"> {{item.nom}}
-                <ng-container *ngIf="item.texte; then texteTemplate; else pasTexteTemplate"></ng-container>
-
-                <ng-template #texteTemplate>
-                    <fa-layers-text [content]="item.texte" [transform]="item.transform"></fa-layers-text>
-                </ng-template>
-
-                <ng-template #pasTexteTemplate>
-                    <ng-container *ngIf="item.nombre; then nombreTemplate; else autreTemplatee"></ng-container>
-
-                    <ng-template #nombreTemplate>
-                        <fa-layers-counter [content]="item.nombre"></fa-layers-counter>
-                    </ng-template>
-
-                    <ng-template #autreTemplatee>
-                    </ng-template>
-                </ng-template>
-            </ng-container>
--->
-        </fa-layers>
-    </ng-template>
-
-    <ng-template #seulTemplate>
-        <ng-container *ngTemplateOutlet="iconTemplate; context: { composant1: composant }"></ng-container>
-    </ng-template>
-</ng-template>
-
-<ng-template #iconTemplate let-composant2="composant1">
-    <fa-icon [icon]="composant2.fa_icon" [fixedWidth]="composant2.largeurFixe" [transform]="composant2.transform"
-        [ngStyle]="composant2.style" [flip]="composant2.flip"></fa-icon>
 </ng-template>

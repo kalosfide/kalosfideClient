@@ -1,5 +1,10 @@
 import { PageDef } from '../page-def';
 
+export interface IDataPage {
+    nom: string;
+    pageDef: PageDef;
+    action: string;
+}
 export interface IDataPages {
     index?: PageDef;
     ajoute?: PageDef;

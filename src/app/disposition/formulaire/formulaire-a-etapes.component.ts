@@ -4,26 +4,25 @@ import { OnDestroy } from '@angular/core';
 import { KfSuperGroupe } from '../../commun/kf-composants/kf-groupe/kf-super-groupe';
 import { KfEvenement, KfTypeDEvenement } from '../../commun/kf-composants/kf-partages/kf-evenements';
 import { KfBouton } from '../../commun/kf-composants/kf-elements/kf-bouton/kf-bouton';
-import { KfTypeResultatAffichable } from '../../commun/kf-composants/kf-elements/kf-affiche-resultat/kf-type-resultat-affichable';
+import { TypeResultatAffichable } from '../affiche-resultat/type-resultat-affichable';
 import { KfGroupe } from '../../commun/kf-composants/kf-groupe/kf-groupe';
 
-
 import { DataService } from '../../services/data.service';
-import { AttenteAsyncService } from '../../services/attenteAsync.service';
 
 import { FormulaireBaseComponent } from './formulaire-base.component';
 import { EtapeDeFormulaire, EtapeDeFormulaireEditeur } from './etape-de-formulaire';
 import { KfComposant } from '../../commun/kf-composants/kf-composant/kf-composant';
-import { FormulaireFabrique } from './formulaire-fabrique';
-import { KfResultatAffichable } from 'src/app/commun/kf-composants/kf-elements/kf-affiche-resultat/kf-resultat-affichable';
+import { ResultatAction } from 'src/app/disposition/affiche-resultat/resultat-affichable';
 import { FormulaireAEtapeService } from './formulaire-a-etapes.service';
-import { Router, NavigationEnd } from '@angular/router';
+import { NavigationEnd } from '@angular/router';
 import { PageDef } from 'src/app/commun/page-def';
 import { filter } from 'rxjs/operators';
 import { AppRoutes } from 'src/app/app-pages';
 import { Observable } from 'rxjs';
-import { RouteurService } from 'src/app/services/routeur.service';
 import { PeutQuitterService } from 'src/app/commun/peut-quitter/peut-quitter.service';
+import { Fabrique } from '../fabrique/fabrique';
+import { IBoutonDef } from '../fabrique/fabrique-bouton';
+import { GroupeBoutonsMessages } from '../fabrique/fabrique-formulaire';
 
 export interface IFormulaireAEtapes {
     etapes: EtapeDeFormulaire[];
@@ -47,13 +46,11 @@ export abstract class FormulaireAEtapesComponent extends FormulaireBaseComponent
     abstract construitUrl(routeEtape: string): string;
 
     constructor(
-        protected routeur: RouteurService,
-        protected service: DataService,
-        protected attenteAsyncService: AttenteAsyncService,
+        protected _service: DataService,
         protected etapesService: FormulaireAEtapeService,
         protected peutQuitterService: PeutQuitterService
-        ) {
-        super(service, attenteAsyncService);
+    ) {
+        super(_service);
     }
 
     peutQuitter = (): boolean | Observable<boolean> | Promise<boolean> => {
@@ -106,17 +103,22 @@ export abstract class FormulaireAEtapesComponent extends FormulaireBaseComponent
     }
 
     créeBoutonPrécédent(index: number): KfBouton {
-        const bouton = FormulaireFabrique.CréeBouton(this.nomPrecedent + index, this.textePrecedent);
-        bouton.gereHtml.ajouteTraiteur(KfTypeDEvenement.clic, (evenement: KfEvenement) => evenement.parametres = index - 1);
+        const def: IBoutonDef = {
+            nom: this.nomPrecedent + index,
+            contenu: { texte: this.textePrecedent },
+            action: (evenement: KfEvenement) => evenement.parametres = index - 1
+        };
+        const bouton = Fabrique.bouton.bouton(def);
         return bouton;
     }
 
     créeBoutonSuivant(index: number): KfBouton {
-        const bouton = FormulaireFabrique.CréeBouton(this.nomSuivant + index, this.texteSuivant);
-        const url = this.url(this.etapes[index + 1]);
-        bouton.gereHtml.ajouteTraiteur(KfTypeDEvenement.clic, () => {
-            this.routeur.navigate([url]);
-        });
+        const def: IBoutonDef = {
+            nom: this.nomSuivant + index,
+            contenu: { texte: this.texteSuivant },
+            action: () => this.routeur.navigate([this.url(this.etapes[index + 1])])
+        };
+        const bouton = Fabrique.bouton.bouton(def);
         return bouton;
     }
 
@@ -127,7 +129,7 @@ export abstract class FormulaireAEtapesComponent extends FormulaireBaseComponent
         if (index < this.etapes.length - 1) {
             return [this.créeBoutonPrécédent(index), this.créeBoutonSuivant(index)];
         }
-        this.boutonSoumettre = FormulaireFabrique.CréeBoutonSoumettre(this.formulaire, this.texteSoumettre);
+        this.boutonSoumettre = Fabrique.bouton.boutonSoumettre(this.formulaire, this.texteSoumettre);
         return [this.créeBoutonPrécédent(index), this.boutonSoumettre];
     }
 
@@ -140,15 +142,19 @@ export abstract class FormulaireAEtapesComponent extends FormulaireBaseComponent
         this.formulaire.créeGereValeur();
 
         this.edition = new KfGroupe(this.nom);
+        this.edition.créeGereValeur();
         for (let i = 0; i < this.etapes.length; i++) {
             const etape = this.etapes[i];
             etape.créeEdition();
+            const btn_msg = new GroupeBoutonsMessages(etape.nom);
+            etape.groupeEditeur.ajoute(btn_msg.groupe);
             if (i < this.etapes.length - 1) {
-                etape.groupeEditeur.ajouteBoutonsDeFormulaire([this.créeBoutonSuivant(i)]);
+                btn_msg.créeBoutons([this.créeBoutonSuivant(i)]);
             } else {
-                this.boutonSoumettre = FormulaireFabrique.CréeBoutonSoumettre(this.formulaire, this.texteSoumettre);
-                etape.groupeEditeur.ajouteBoutonsDeFormulaire([this.boutonSoumettre]);
-                this.afficheResultat = FormulaireFabrique.AjouteAfficheResultat(this.formulaire, etape.groupeEditeur);
+                this.boutonSoumettre = Fabrique.bouton.boutonSoumettre(this.formulaire, this.texteSoumettre);
+                btn_msg.créeBoutons([this.boutonSoumettre]);
+                this.afficheResultat = Fabrique.formulaire.ajouteResultat(this.formulaire);
+                etape.groupeEditeur.ajoute(this.afficheResultat.groupe);
             }
             this.edition.ajoute(etape.groupeEditeur);
         }
@@ -187,8 +193,8 @@ export abstract class FormulaireAEtapesComponent extends FormulaireBaseComponent
         this.ngOnDestroy_Subscriptions();
     }
 
-    actionSiErreur = (resultat: KfResultatAffichable) => {
-        if (resultat.type === KfTypeResultatAffichable.Echec) {
+    actionSiErreur = (resultat: ResultatAction) => {
+        if (!resultat.ok) {
             if (!this.formulaire.formGroup.valid) {
                 // TODO
                 // marquer les erreurs de validation a posteriori dans les étapes

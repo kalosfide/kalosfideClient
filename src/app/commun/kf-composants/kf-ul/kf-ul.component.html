@@ -1,0 +1,8 @@
+<ul #htmlElement [ngClass]="composant.classe" [ngStyle]="composant.style">
+    <ng-container *ngFor="let contenu of composant.contenusAAfficher">
+        <li [ngClass]="composant.classeLi" [ngStyle]="composant.styleLi">
+            <app-kf-composant [attr.nom]="contenu.nom" [composant]="contenu" (output)="transmet($event)">
+            </app-kf-composant>
+        </li>
+    </ng-container>
+</ul>

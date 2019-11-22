@@ -32,7 +32,7 @@ export class KfFichierSauve extends KfElement {
 
     get nomFichier(): string {
         let nomFichier = this._nomFichier();
-        if (!nomFichier || nomFichier === '') {
+        if (nomFichier === undefined || nomFichier === '') {
             nomFichier = KfParametres.fichierParDefaut.nom + KfParametres.fichierParDefaut.extension;
         }
         return nomFichier;

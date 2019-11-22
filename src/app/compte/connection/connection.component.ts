@@ -1,36 +1,28 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { KfInputTexte } from '../../commun/kf-composants/kf-elements/kf-input/kf-input-texte';
-import { KfCaseACocher } from '../../commun/kf-composants/kf-elements/kf-case-a-cocher/kf-case-a-cocher';
-import { KfLien } from '../../commun/kf-composants/kf-elements/kf-lien/kf-lien';
-
 import { CompteService } from '../compte.service';
-import { IdentificationService } from '../../securite/identification.service';
-import { AttenteAsyncService } from '../../services/attenteAsync.service';
 
 import { ApiResult } from '../../commun/api-results/api-result';
 import { ComptePages } from '../compte-pages';
 
-
 import { FormulaireComponent } from '../../disposition/formulaire/formulaire.component';
 import { KfGroupe } from '../../commun/kf-composants/kf-groupe/kf-groupe';
-import { NavigationService } from 'src/app/services/navigation.service';
 import { PageDef } from 'src/app/commun/page-def';
 import { SiteRoutes, SitePages } from 'src/app/site/site-pages';
 import { KfTypeDInput } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-input';
 import { KfValidateurs } from 'src/app/commun/kf-composants/kf-partages/kf-validateur';
 import { Identifiant } from 'src/app/securite/identifiant';
 import { VisiteurPages, VisiteurRoutes } from 'src/app/visiteur/visiteur-pages';
-import { AppSiteRoutes, AppSitePages } from 'src/app/app-site/app-site-pages';
-import { RouteurService } from 'src/app/services/routeur.service';
-import { AppPages } from 'src/app/app-pages';
+import { AppSitePages } from 'src/app/app-site/app-site-pages';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
+import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-groupe';
+import { ILienDef } from 'src/app/disposition/fabrique/fabrique-lien';
 
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',
-    styles: []
+    styleUrls: ['../../commun/commun.scss']
 })
 export class ConnectionComponent extends FormulaireComponent {
 
@@ -39,11 +31,13 @@ export class ConnectionComponent extends FormulaireComponent {
 
     identifiant: Identifiant;
 
-    créeBoutonsDeFormulaire = () => [this.créeBoutonSoumettre('Se connecter')];
+    créeBoutonsDeFormulaire = (formulaire: KfSuperGroupe) => {
+        return [Fabrique.bouton.boutonSoumettre(formulaire, 'Se connecter')];
+    }
 
-    soumission = (): Observable<ApiResult> => {
+    apiDemande = (): Observable<ApiResult> => {
         this.identifiant = this.identification.litIdentifiant();
-        return this.service.connecte(this.valeur);
+        return this._service.connecte(this.valeur);
     }
 
     actionSiOk = (): void => {
@@ -54,44 +48,64 @@ export class ConnectionComponent extends FormulaireComponent {
             nomSite = SiteRoutes.nomSite(urlPrécédente);
         }
         // s'il n'y a pas de site en cours ou si l'identifiant est visiteur du site en cours
-        if (!nomSite || !identifiant.estUsagerDeNomSite(nomSite)) {
+        if (nomSite === undefined || !identifiant.estUsagerDeNomSite(nomSite)) {
             nomSite = identifiant.nomSiteParDéfaut;
         }
-        this.routeur.naviguePageDef(SitePages.accueil, this.routeur.routesSite(nomSite, identifiant), nomSite);
+        if (nomSite !== undefined) {
+            this.routeur.naviguePageDef(SitePages.accueil, this.routeur.routesSite(nomSite, identifiant), nomSite);
+        } else {
+            this.routeur.navigate([urlPrécédente]);
+        }
     }
 
     constructor(
-        private routeur: RouteurService,
-        private identification: IdentificationService,
-        private navigation: NavigationService,
-        protected service: CompteService,
-        protected attenteAsyncService: AttenteAsyncService,
+        protected _service: CompteService,
     ) {
-        super(service, attenteAsyncService);
+        super(_service);
 
         this.titreRésultatErreur = 'Connection impossible';
     }
 
     créeEdition = (): KfGroupe => {
-        const groupe = new KfGroupe('donnees');
-        groupe.créeGereValeur();
-        const nom = new KfInputTexte('userName', 'Nom');
-        nom.ajouteValidateur(KfValidateurs.required);
+        const identifiant = this._service.identification.litIdentifiant();
+        const groupe = Fabrique.formulaire.groupeEdition('donnees');
+        const nom = Fabrique.input.texte('userName', 'Nom');
         groupe.ajoute(nom);
-        const password = new KfInputTexte('password', 'Mot de passe');
+        const password = Fabrique.input.texte('password', 'Mot de passe');
         password.typeDInput = KfTypeDInput.password;
-        password.ajouteValidateur(KfValidateurs.required);
         groupe.ajoute(password);
-        const persistant = new KfCaseACocher('persistant', 'Rester connecté');
+        const persistant = Fabrique.caseACocher('persistant', 'Rester connecté');
         persistant.valeur = false;
         groupe.ajoute(persistant);
-        const site = this.navigation.siteEnCours;
-        if (site) {
-            this.lienRetour = Fabrique.lien(VisiteurPages.devenirClient, VisiteurRoutes, site.nomSite);
-            this.lienRetour.fixeTexte('Pas de compte ? Devenez client de ' + site.titre);
+        if (identifiant) {
+            groupe.inactivité = true;
         } else {
-            this.lienRetour = Fabrique.lien(AppSitePages.devenirFournisseur);
-            this.lienRetour.fixeTexte('Pas de compte ? Devenez fournisseur.');
+            nom.ajouteValidateur(KfValidateurs.required);
+            password.ajouteValidateur(KfValidateurs.required);
+            const site = this.navigation.litSiteEnCours();
+            let lienDef: ILienDef;
+            if (site) {
+                lienDef = {
+                    url: {
+                        pageDef: VisiteurPages.devenirClient,
+                        routes: VisiteurRoutes,
+                        nomSite: site.nomSite
+                    },
+                    contenu: {
+                        texte: 'Pas de compte ? Devenez client de ' + site.titre
+                    }
+                };
+            } else {
+                lienDef = {
+                    url: {
+                        pageDef: AppSitePages.devenirFournisseur
+                    },
+                    contenu: {
+                        texte: 'Pas de compte ? Devenez fournisseur.'
+                    }
+                };
+            }
+            this.aprèsBoutons = () => [Fabrique.lien.groupeDeLiens(lienDef)];
         }
 
         return groupe;

@@ -4,9 +4,10 @@ import { CategorieRoutingModule } from './categorie-routing.module';
 import { CategorieIndexComponent } from './categorie-index.component';
 import { CategorieEditeComponent } from './categorie-edite.component';
 import { CategorieAjouteComponent } from './categorie-ajoute.component';
-import { CategorieResolverService } from './categorie-resolver.service';
+import { CategorieResolverService } from '../../../modeles/catalogue/categorie-resolver.service';
 import { CommunModule } from 'src/app/commun/commun.module';
 import { DispositionModule } from 'src/app/disposition/disposition.module';
+import { CategorieSitePasCatalogueGarde } from './categorie-site-pas-catalogue-garde';
 
 @NgModule({
     imports: [
@@ -22,6 +23,7 @@ import { DispositionModule } from 'src/app/disposition/disposition.module';
     ],
     providers: [
         CategorieResolverService,
+        CategorieSitePasCatalogueGarde,
     ],
 })
 export class CategorieModule { }

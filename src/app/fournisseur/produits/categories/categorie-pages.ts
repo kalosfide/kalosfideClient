@@ -1,34 +1,36 @@
 import { ProduitPages, ProduitRoutes } from '../produit-pages';
 import { ISiteRoutes } from 'src/app/site/site-pages';
+import { PageDef, BaseRoutes } from 'src/app/commun/page-def';
+import { IDataPages } from 'src/app/commun/data-par-key/data-pages';
 
-export const CategoriePages = {
-    index: {
+export class CategoriePages {
+    static index: PageDef = {
         urlSegment: 'index',
         lien: 'Retour à la liste des catégories',
-        title: 'Catégories de produits',
-        titre: 'Catégories de produits',
-    },
-    ajoute: {
+        title: 'Catégories',
+        titre: 'Catégories',
+    };
+    static ajoute: PageDef = {
         urlSegment: 'ajoute',
         lien: 'Créer une nouvelle catégorie',
-        title: 'Catégories de produits - Créer',
+        title: 'Catégories - Créer',
         titre: 'Créer une nouvelle catégorie',
-    },
-    edite: {
+    };
+    static edite: PageDef = {
         urlSegment: 'edite',
         lien: 'Modifier',
-        title: 'Catégories de produits - Modifier',
+        title: 'Catégories - Modifier',
         titre: 'Modifier une catégorie',
-    },
-    supprime: {
+    };
+    static supprime: PageDef = {
         urlSegment: 'supprime',
         lien: 'Supprimer',
-        title: 'Catégories de produits - Supprimer',
+        title: 'Catégories - Supprimer',
         titre: 'Supprimer un catégorie',
-    },
-};
+    };
+}
 
-class CCategorieRoutes implements ISiteRoutes {
+class CCategorieRoutes extends BaseRoutes implements ISiteRoutes {
     url(nomSite: string, segments?: string[]): string {
         let s: string[] = [];
         s.push(ProduitPages.categories.urlSegment);

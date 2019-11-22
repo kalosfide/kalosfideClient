@@ -7,10 +7,69 @@ import { DataKey } from './data-key';
 import { ApiAction } from '../api-route';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { KeyUidRno } from './key-uid-rno/key-uid-rno';
+import { tap } from 'rxjs/operators';
+import { ApiResult201Created } from '../api-results/api-result-201-created';
+import { IdentificationService } from 'src/app/securite/identification.service';
+import { RouteurService } from 'src/app/services/routeur.service';
+import { DataUtile } from 'src/app/commun/data-par-key/data-utile';
+import { KfInitialObservable } from '../kf-composants/kf-partages/kf-initial-observable';
+import { ModeTable } from './condition-table';
+import { DataKeyUtile } from './data-key-utile';
 
-export abstract class DataKeyService<TObjet extends DataKey> extends DataService {
+export interface IDataKeyService {
+    dataService: DataService;
+    identification: IdentificationService;
+    routeur: RouteurService;
+    navigation: NavigationService;
+    keyIdentifiant: KeyUidRno;
+    keySiteEnCours: KeyUidRno;
+}
 
-    abstract navigation: NavigationService;
+export abstract class DataKeyService<T extends DataKey> extends DataService implements IDataKeyService {
+
+    protected _utile: DataUtile;
+
+    get dataService(): DataService { return this; }
+
+    protected _modeTableIO: KfInitialObservable<ModeTable>;
+
+    abstract urlSegmentDeKey(key: T): string;
+    abstract get keyDeAjoute(): DataKey;
+    abstract fixeKeyDeAjoute(envoyé: T, reçu: T): void;
+
+    protected _créeUtile() {
+        this._utile = new DataUtile(this);
+    }
+
+    créeUtile() {
+        this._modeTableIO = KfInitialObservable.nouveau<ModeTable>(ModeTable.sans);
+        this._créeUtile();
+        this._utile.observeModeTable(this._modeTableIO);
+    }
+
+    initialiseModeTable(modeTable: ModeTable) {
+        this.changeModeTable(modeTable);
+    }
+
+    get utile(): DataKeyUtile<T> {
+        return this._utile as DataKeyUtile<T>;
+    }
+
+    changeModeTable(mode: ModeTable) {
+        this._modeTableIO.changeValeur(mode);
+    }
+
+    get modeTable(): ModeTable {
+        return this._modeTableIO.valeur;
+    }
+
+    get modeTableIO(): KfInitialObservable<ModeTable> {
+        return this._modeTableIO;
+    }
+
+    protected _créeConditionsTable() {
+        this._utile.observeModeTable(this._modeTableIO);
+    }
 
     protected créeParams(key: any): { [param: string]: string } {
         const params: { [param: string]: string } = {};
@@ -24,41 +83,50 @@ export abstract class DataKeyService<TObjet extends DataKey> extends DataService
         return params;
     }
 
-    public get keyIdentifiant(): KeyUidRno {
-        const identifiant = this.identification.litIdentifiant();
-        if (identifiant) {
-            const key = new KeyUidRno();
-            const nomSite = this.navigation.siteEnCours.nomSite;
-            return {
-                uid: identifiant.uid,
-                rno: identifiant.roles.find(r => r.nomSite === nomSite).rno
-            };
-        }
-    }
-
-    abstract get keyDeAjoute(): DataKey;
-
-    ajoute(objet: TObjet): Observable<ApiResult> {
-        return this.post<TObjet>(this.dataUrl, ApiAction.data.ajoute, objet);
+    /**
+     * demande à l'Api d'ajouter un objet à la base de données
+     * @param objet contient la clé (incomplète si numAuto) et tous les autres champs
+     */
+    ajoute(objet: T): Observable<ApiResult> {
+        return this.post<T>(this.controllerUrl, ApiAction.data.ajoute, objet).pipe(
+            tap(apiResult => {
+                if (apiResult.statusCode === ApiResult201Created.code) {
+                    const donnée = (apiResult as ApiResult201Created).entity as T;
+                    this.fixeKeyDeAjoute(objet, donnée);
+                }
+        })
+        );
     }
 
     lit(key: DataKey): Observable<ApiResult> {
         console.log(key);
-        return this.get<TObjet>(this.dataUrl, ApiAction.data.lit, this.créeParams(key));
+        return this.get<T>(this.controllerUrl, ApiAction.data.lit, this.créeParams(key));
+    }
+
+    litGroupe<TGroupe>(key: DataKey, apiAction?: string): Observable<ApiResult> {
+        return this.get<TGroupe>(this.controllerUrl, apiAction ? apiAction : ApiAction.data.liste, this.créeParams(key));
     }
 
     liste(key?: DataKey): Observable<ApiResult> {
         return key
-            ? this.getAll<TObjet>(this.dataUrl, ApiAction.data.liste, this.créeParams(key))
-            : this.getAll<TObjet>(this.dataUrl, ApiAction.data.liste);
+            ? this.getAll<T>(this.controllerUrl, ApiAction.data.liste, this.créeParams(key))
+            : this.getAll<T>(this.controllerUrl, ApiAction.data.liste);
     }
 
-    edite(objet: TObjet): Observable<ApiResult> {
-        return this.put<TObjet>(this.dataUrl, ApiAction.data.edite, objet);
+    /**
+     * demande à l'Api de modifier un objet de la base de données
+     * @param objet contient la clé et les champs à modifier
+     */
+    edite(objet: T): Observable<ApiResult> {
+        return this.put<T>(this.controllerUrl, ApiAction.data.edite, objet);
     }
 
+    /**
+     * demande à l'Api de supprimer un objet de la base de données
+     * @param key clè de l'objet à supprimer
+     */
     supprime(key: DataKey): Observable<ApiResult> {
-        return this.delete(this.dataUrl, ApiAction.data.supprime, this.créeParams(key));
+        return this.delete(this.controllerUrl, ApiAction.data.supprime, this.créeParams(key));
     }
 
 }

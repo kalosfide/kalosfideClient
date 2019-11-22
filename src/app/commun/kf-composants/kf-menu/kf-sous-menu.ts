@@ -61,7 +61,7 @@ export class KfSousMenu extends KfElement {
         }
         this.ajouteClasseDef('kf-sous-menu');
         this.ajouteClasseDef(() => {
-            return this.niveau === 1 ? this.menu.classe : KfMenuDirection.vertical;
+            return this.niveau === 1 ? this.menu.direction : KfMenuDirection.vertical;
         });
         this.ajouteClasseDef(() => {
             return 'kf-niveau-' + this.niveau;

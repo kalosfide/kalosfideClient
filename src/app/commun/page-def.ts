@@ -1,3 +1,5 @@
+import { IDataPages } from './data-par-key/data-pages';
+
 /**
  * contient les informations sur une page atteignable par une route
  * pour figurer dans l'historique, la page doit avoir un:
@@ -20,4 +22,8 @@ export class PageDef {
      * texte à afficher en tête du template
      */
     titre?: string;
+}
+
+export class BaseRoutes {
+    séparateur = '/';
 }

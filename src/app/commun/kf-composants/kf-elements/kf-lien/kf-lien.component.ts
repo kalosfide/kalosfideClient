@@ -4,7 +4,8 @@ import { KfLien } from './kf-lien';
 
 @Component({
     selector: 'app-kf-lien',
-    templateUrl: 'kf-lien.component.html'
+    templateUrl: 'kf-lien.component.html',
+    styleUrls: ['../../kf-composants.scss']
 })
 export class KfLienComponent extends KfComposantComponent implements OnInit, AfterViewInit {
     @ViewChild('baliseElement') baliseElementRef: ElementRef;
@@ -12,11 +13,6 @@ export class KfLienComponent extends KfComposantComponent implements OnInit, Aft
     constructor(
             ) {
         super();
-    }
-
-    get classe(): string {
-        const classe = this.composant.classe;
-        return this.composant.inactif ? classe + ' disabled' : classe;
     }
 
     get lien(): KfLien {
@@ -28,7 +24,7 @@ export class KfLienComponent extends KfComposantComponent implements OnInit, Aft
 
     ngAfterViewInit() {
         this.composant.gereHtml.htmlElement = this.baliseElementRef.nativeElement;
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
     }
 
 }

@@ -1,4 +1,15 @@
-<ng-container *ngFor="let contenu of contenuPhrase.contenus; index as i">
-    <app-kf-composant [attr.nom]="contenu.nom" [ngClass]="{'kf-invisible': !contenu.visible}" [composant]="contenu" (output)="transmet($event)">
-    </app-kf-composant>
+<ng-container *ngFor="let contenu of contenuPhrase.contenus">
+    <ng-container [ngSwitch]="contenu.type">
+        <app-kf-texte *ngSwitchCase="type.texte" [composant]="contenu" [attr.nom]="contenu.nom"
+            (output)="transmet($event)"></app-kf-texte>
+
+        <app-kf-image *ngSwitchCase="type.image" [composant]="contenu" [attr.nom]="contenu.nom"
+            (output)="transmet($event)"></app-kf-image>
+
+        <app-kf-icone *ngSwitchCase="type.icone" [composant]="contenu" [attr.nom]="contenu.nom"
+            (output)="transmet($event)"></app-kf-icone>
+
+            <app-kf-lien *ngSwitchCase="type.lien" [composant]="contenu" [attr.nom]="contenu.nom"
+            (output)="transmet($event)"></app-kf-lien>
+    </ng-container>
 </ng-container>

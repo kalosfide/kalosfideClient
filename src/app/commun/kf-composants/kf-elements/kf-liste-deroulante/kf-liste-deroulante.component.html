@@ -1,21 +1,110 @@
-<div [ngClass]="{'form-group': !composant.estDansVueTable}">
-    <label *ngIf="composant.contenuPhrase" #labelElement [attr.for]="composant.nom">
+<ng-template #labelTemplate>
+    <label #labelElement [attr.for]="composant.nom" [ngClass]="composant.classeLabel">
         <app-kf-contenu-phrase [contenuPhrase]="composant.contenuPhrase"></app-kf-contenu-phrase>
     </label>
-    <select
-        #selectElement
-        [name]="composant.nom"
-        [compareWith]="compareOptions"
-        [formControl]="composant.formControl"
-        [class]="composant.classe" [ngStyle]="composant.style">
-    >
-        <ng-container *ngFor="let option of composant.options">
-            <option #optionElement *ngIf="!option.estObject && !option.valeur">{{ option.texte }}</option>
-            <option #optionElement *ngIf="!option.estObject && option.valeur" [value]="option.valeur">{{ option.texte }}</option>
-            <option #optionElement *ngIf="option.estObject" [ngValue]="option.valeur">{{ option.texte }}</option>
-        </ng-container>
-    </select>
+</ng-template>
+
+<ng-template #infoTemplate>
+    <app-kf-etiquette *ngIf="composant.texteAide" [composant]="composant.texteAide"></app-kf-etiquette>
     <div *ngIf="composant.avecInvalidFeedback" class="invalid-feedback">
         <p *ngFor="let erreur of composant.erreurs">{{erreur}}</p>
     </div>
-</div>
+</ng-template>
+
+<ng-container *ngIf="composant.classeDiv; then avecDivTemplate; else sansDivTemplate"></ng-container>
+
+<ng-template #avecDivTemplate>
+    <div [ngClass]="composant.classeDiv">
+        <ng-container *ngTemplateOutlet="sansDivTemplate"></ng-container>
+    </div>
+</ng-template>
+
+<ng-template #sansDivTemplate>
+    <ng-container *ngIf="composant.avecLabel">
+        <ng-container *ngTemplateOutlet="labelTemplate"></ng-container>
+    </ng-container>
+    <ng-container *ngIf="composant.classeEntree; then entreeAvecDivTemplate; else entreeTemplate"></ng-container>
+    <ng-container *ngTemplateOutlet="infoTemplate"></ng-container>
+
+    <ng-template #entreeAvecDivTemplate>
+        <div [ngClass]="composant.classeEntree">
+            <ng-container *ngTemplateOutlet="entreeTemplate"></ng-container>
+        </div>
+    </ng-template>
+</ng-template>
+
+<ng-template #entreeTemplate>
+
+    <div *ngIf="composant.composantAvant" class="input-group-prepend">
+        <app-kf-composant [composant]="composant.composantAvant"></app-kf-composant>
+    </div>
+    <ng-container *ngIf="composant.valeurObjet; then valeurObjetTemplate; else pasValeurObjetTemplate"></ng-container>
+    <ng-container *ngTemplateOutlet="infoTemplate"></ng-container>
+
+    <!-- utilise ngValue -->
+    <ng-template #valeurObjetTemplate>
+
+        <select #selectElement [name]="composant.nom" [compareWith]="composant.compareOptions"
+            [formControl]="composant.formControl" [ngClass]="composant.classe" [ngStyle]="composant.style">
+
+            <option *ngIf="composant.option0" [ngValue]="undefined" [ngClass]="composant.option0.classe" [ngStyle]="composant.option0.style" selected>
+                <app-kf-contenu-phrase [contenuPhrase]="composant.option0.contenuPhrase"></app-kf-contenu-phrase>
+            </option>
+        
+            <ng-container *ngFor="let option of composant.options">
+                <option #optionElement [ngValue]="option.valeur" [attr.disabled]="option.inactif">
+                    <app-kf-contenu-phrase [contenuPhrase]="option.contenuPhrase"></app-kf-contenu-phrase>
+                </option>
+            </ng-container>
+
+        </select>
+
+    </ng-template>
+
+    <ng-template #pasValeurObjetTemplate>
+
+        <ng-container *ngIf="composant.sansValeur; then sansValeurTemplate; else valeurStringNumberTemplate">
+        </ng-container>
+
+        <ng-template #sansValeurTemplate>
+
+            <select #selectElement [name]="composant.nom" [formControl]="composant.formControl"
+                [ngClass]="composant.classe" [ngStyle]="composant.style">
+
+                <option *ngIf="composant.option0" [ngValue]="undefined" [ngClass]="composant.option0.classe" [ngStyle]="composant.option0.style" selected>
+                    <app-kf-contenu-phrase [contenuPhrase]="composant.option0.contenuPhrase"></app-kf-contenu-phrase>
+                </option>
+            
+                <ng-container *ngFor="let option of composant.options">
+                    <option #optionElement [attr.disabled]="option.inactif">
+                        <app-kf-contenu-phrase [contenuPhrase]="option.contenuPhrase"></app-kf-contenu-phrase>
+                    </option>
+                </ng-container>
+
+            </select>
+
+        </ng-template>
+
+        <!-- utilise value -->
+        <ng-template #valeurStringNumberTemplate>
+
+            <select #selectElement [name]="composant.nom" [formControl]="composant.formControl"
+                [ngClass]="composant.classe" [ngStyle]="composant.style">
+
+                <option *ngIf="composant.option0" [ngValue]="undefined" [ngClass]="composant.option0.classe" selected>
+                    <app-kf-contenu-phrase [contenuPhrase]="composant.option0.contenuPhrase"></app-kf-contenu-phrase>
+                </option>
+            
+                <ng-container *ngFor="let option of composant.options">
+                    <option #optionElement [value]="option.valeur" [attr.disabled]="option.inactif">
+                        <app-kf-contenu-phrase [contenuPhrase]="option.contenuPhrase"></app-kf-contenu-phrase>
+                    </option>
+                </ng-container>
+
+            </select>
+
+        </ng-template>
+
+    </ng-template>
+
+</ng-template>

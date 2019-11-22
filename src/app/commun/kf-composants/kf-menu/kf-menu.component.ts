@@ -11,6 +11,7 @@ import { KfComposantComponent } from '../kf-composant/kf-composant.component';
             [composant]="sousMenu" (output)="traiteOuTransmet($event)"></app-kf-sous-menu>
     </div>
 `,
+    styleUrls: ['../kf-composants.scss']
 })
 export class KfMenuComponent extends KfComposantComponent implements OnInit, AfterViewInit {
     @ViewChild('divElement') divElementRef: ElementRef;
@@ -23,7 +24,7 @@ export class KfMenuComponent extends KfComposantComponent implements OnInit, Aft
 
     ngAfterViewInit() {
         this.composant.gereHtml.htmlElement = this.divElementRef.nativeElement;
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
     }
 
 }

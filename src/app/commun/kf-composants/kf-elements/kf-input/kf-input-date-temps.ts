@@ -17,7 +17,6 @@ export class KfInputDateTemps extends KfInput {
     constructor(nom: string, texte?: KfTexteDef) {
         super(nom, texte);
         this.typeDInput = KfTypeDInput.datetemps;
-        this._valeur = null;
 
         this.inputDate = new KfInputDate('date');
         this.inputDate.estRacineV = true;

@@ -1,36 +1,37 @@
 import { AppPages, AppRoutes } from '../app-pages';
 import { ISiteRoutes, SitePages, SiteRoutes } from '../site/site-pages';
+import { PageDef, BaseRoutes } from '../commun/page-def';
 
-export const VisiteurPages = {
-    accueil: {
+export class VisiteurPages  {
+    static accueil: PageDef = {
         urlSegment: SitePages.accueil.urlSegment,
         lien: '',
         title: 'Accueil',
-    },
-    produits: {
+    };
+    static produits: PageDef = {
         urlSegment: 'produits',
         lien: 'Produits',
         title: 'Produits',
-    },
-    contact: {
+    };
+    static contact: PageDef = {
         urlSegment: 'contact',
         lien: 'Contact',
         title: 'Contact',
-    },
-    apropos: {
+    };
+    static apropos: PageDef = {
         urlSegment: 'apropos',
         lien: 'A propos',
         title: 'A propos',
-    },
-    devenirClient: {
+    };
+    static devenirClient: PageDef = {
         urlSegment: 'devenirClient',
         lien: 'Devenir client',
         title: 'Devenir client',
         titre: 'Enregistrement d\'un nouveau client',
-    },
-};
+    };
+}
 
-class CVisiteurRoutes implements ISiteRoutes {
+class CVisiteurRoutes extends BaseRoutes implements ISiteRoutes {
     url(nomSite: string, segments?: string[]): string {
         return SiteRoutes.urlRole(nomSite, SitePages.visiteur.urlSegment, segments);
     }

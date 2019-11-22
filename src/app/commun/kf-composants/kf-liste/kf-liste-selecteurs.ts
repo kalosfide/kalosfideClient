@@ -24,7 +24,7 @@ export interface KfListeSelecteursInterface {
      * type des composants des sélecteurs, doit être constructible par texte et images et emettre des clics
      * (implémentés: bouton et lien (si avecIds))
      */
-    typeDeComposant?: KfTypeDeComposant;
+    type?: KfTypeDeComposant;
     baseDesTextes?: string;
     texteNouveau?: string;
     /**
@@ -64,7 +64,7 @@ export class KfListeSelecteurs {
     imageApres: (item?: object) => KfImageDef;
 
     // valeur par défaut: TYPE_EN_TETE_PAR_DEFAUT
-    typeDeComposant: KfTypeDeComposant;
+    type: KfTypeDeComposant;
 
     // valeur par défaut: TEXTE_EN_TETE_PAR_DEFAUT
     baseDesTextes: string;
@@ -99,7 +99,7 @@ export class KfListeSelecteurs {
      *      valeur par défaut si imageAvant et imageApres ne sont pas définies: créée à partir de baseDesTextes
      *  @param imageAvant retourne l'imageAvant pour le item passé en paramètre, sans paramètre celle pour la commande nouveau
      *  @param imageApres retourne l'imageApres pour le item passé en paramètre, sans paramètre celle pour la commande nouveau
-     *  @param typeDeComposant type des composants des sélecteurs, doit être constructible par texte et images et emettre des clics
+     *  @param type type des composants des sélecteurs, doit être constructible par texte et images et emettre des clics
      *      valeur par défaut: LISTE_TYPE_EN_TETE_PAR_DEFAUT
      *  @param baseDesTextes texte(item) sera baseDesTextes + ' ' + item.id si items avec ids
      *      valeur par défaut: LISTE_TEXTE_EN_TETE_PAR_DEFAUT
@@ -114,14 +114,15 @@ export class KfListeSelecteurs {
         if (inter.creeSelecteur) {
             this.creeSelecteur = (): KfComposant => {
                 const selecteur = inter.creeSelecteur();
-                selecteur.ajouteClasseDef(
-                    () => selecteur === this.liste.selecteurChoisi ? 'kf-choisi' : null
-                );
+                selecteur.ajouteClasseDef({
+                    nom: 'kf-choisi',
+                    active:  () => selecteur === this.liste.selecteurChoisi
+                });
                 selecteur.inactivitéFnc = this.liste.editions.editionEnCoursFnc;
                 return selecteur;
             };
         } else {
-            this.typeDeComposant = inter.typeDeComposant ? inter.typeDeComposant
+            this.type = inter.type ? inter.type
                 : KfParametres.listeParDefaut.typeSelecteur;
             if (inter.texte) {
                 this.texte = inter.texte;
@@ -150,7 +151,7 @@ export class KfListeSelecteurs {
                 }
                 nom = nom + (id ? id : '_' + this.liste.contenuDeItem(item).nom);
                 let selecteur: KfComposant;
-                switch (this.typeDeComposant) {
+                switch (this.type) {
                     case KfTypeDeComposant.bouton:
                         selecteur = new KfBouton(nom);
                         selecteur.gereHtml.ajouteTraiteur(KfTypeDEvenement.clic,
@@ -176,15 +177,15 @@ export class KfListeSelecteurs {
                     if (this.imageApres) {
                         selecteur.contenuPhrase.ajoute(new KfImage('', this.imageApres(item)));
                     }
-                    selecteur.ajouteClasseDef('kf-liste-selecteur');
-                    selecteur.ajouteClasseDef(
-                        () => selecteur === this.liste.selecteurChoisi ? 'kf-choisi' : null
-                    );
+                    selecteur.ajouteClasseDef('kf-liste-selecteur', {
+                        nom: 'kf-choisi',
+                        active:  () => selecteur === this.liste.selecteurChoisi
+                    });
                     selecteur.inactivitéFnc = this.liste.editions.editionEnCoursFnc;
                 }
                 return selecteur;
             };
-            if (this.typeDeComposant === KfTypeDeComposant.lien) {
+            if (this.type === KfTypeDeComposant.lien) {
                 this.selecteurNouveau = new KfLien(
                     KfParametres.listeParDefaut.nomDeBaseSelecteur + 0,
                     '0',
@@ -197,7 +198,7 @@ export class KfListeSelecteurs {
     }
 
     get avecLiens(): boolean {
-        return this.typeDeComposant === KfTypeDeComposant.lien;
+        return this.type === KfTypeDeComposant.lien;
     }
 
     titre(item: object): string {

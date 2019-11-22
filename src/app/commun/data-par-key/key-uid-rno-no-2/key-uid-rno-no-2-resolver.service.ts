@@ -15,7 +15,7 @@ export abstract class KeyUidRnoNo2ResolverService<T extends KeyUidRnoNo2> extend
             rno2: +route.queryParamMap.get('rno2'),
             no2: +route.queryParamMap.get('no2')
         };
-        return this.objet(this.service.lit(key));
+        return this.service.objet(this.service.lit(key));
     }
 
     résoudUidRNoNo(route: ActivatedRouteSnapshot): Observable<T> {

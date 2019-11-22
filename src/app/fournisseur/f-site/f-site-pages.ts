@@ -1,28 +1,29 @@
 import { FournisseurRoutes, FournisseurPages } from '../fournisseur-pages';
 import { ISiteRoutes } from 'src/app/site/site-pages';
+import { PageDef, BaseRoutes } from 'src/app/commun/page-def';
 
-export const FSitePages = {
-    ouverture: {
+export class FSitePages  {
+    static ouverture: PageDef = {
         urlSegment: 'ouverture',
         lien: '',
         title: 'Ouverture',
         titre: 'Ouverture du site',
-    },
-    index: {
+    };
+    static index: PageDef = {
         urlSegment: 'index',
         lien: 'Retour à la liste des produits',
         title: 'Produits',
         titre: '',
-    },
-    edite: {
+    };
+    static edite: PageDef = {
         urlSegment: 'edite',
         lien: 'Modifier',
         title: 'Produits - Modifier',
         titre: 'Modifier un produit',
-    },
-};
+    };
+}
 
-class CFSiteRoutes implements ISiteRoutes {
+class CFSiteRoutes extends BaseRoutes implements ISiteRoutes {
     url(nomSite: string, segments?: string[]): string {
         let s: string[] = [];
         s.push(FournisseurPages.site.urlSegment);

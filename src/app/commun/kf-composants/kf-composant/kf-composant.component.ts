@@ -2,7 +2,6 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { KfComposant } from './kf-composant';
 import { KfTypeDeComposant, KfTypeDeValeur } from '../kf-composants-types';
 import { KfEvenement, KfTypeDEvenement, KfStatutDEvenement } from '../kf-partages/kf-evenements';
-import { Observable, Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-kf-composant',
@@ -18,17 +17,8 @@ export class KfComposantComponent implements OnInit {
      */
     @Output() output: EventEmitter<KfEvenement> = new EventEmitter();
 
-    /**
-     * si le template d'un KfComposantComponent utilise un template de KfComposantComponent dont le selector est app-kf-xxx
-     * la fonction fncTraitement doit être traiteOuTransmet dans tous les cas sauf pour app-kf-composant où la fonction
-     * fncTraitement doit être transmet car app-kf-composant utilise app-kf-xxx avec le même composant et le traitement éventuel
-     * exécuté par ce composant ne doit avoir lieu qu'une fois
-     */
-
-    typeDeComposant = KfTypeDeComposant;
+    type = KfTypeDeComposant;
     typeDeValeur = KfTypeDeValeur;
-
-    subscription: Subscription;
 
     constructor() {
     }
@@ -39,31 +29,6 @@ export class KfComposantComponent implements OnInit {
         }
         if (this.composant.gereValeur && this.composant.gereHtml.suitLaValeur) {
             this.suitLaValeur();
-        }
-    }
-
-    /**
-     * crée les déclencheurs
-     */
-    initialiseHtml() {
-        const gereHtml = this.composant.gereHtml;
-        gereHtml.initialiseHtml();
-        if (gereHtml.evenementsADéclencher) {
-            gereHtml.evenementsADéclencher.forEach(
-                htmlEventType =>
-                    gereHtml.htmlElement['on' + htmlEventType] =
-                    (event: Event): any => {
-                        const evenement = gereHtml.transformateur(htmlEventType)(event);
-                        this.output.emit(evenement);
-                        switch (evenement.statut) {
-                            case KfStatutDEvenement.fini:
-                                event.stopPropagation();
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-            );
         }
     }
 
@@ -113,13 +78,7 @@ export class KfComposantComponent implements OnInit {
         this.composant.abstractControl.statusChanges.forEach(
             statut => {
                 if (!this.composant.gereHtml.suspendSuitLeStatut) {
-                    const e: KfEvenement = {
-                        emetteur: this.composant,
-                        type: KfTypeDEvenement.statutChange,
-                        parametres: statut,
-                        statut: KfStatutDEvenement.aTraiter
-                    };
-                    this.transmet(e);
+                    this.transmet(new KfEvenement(this.composant, KfTypeDEvenement.statutChange, statut));
                 }
             }
         );
@@ -132,13 +91,7 @@ export class KfComposantComponent implements OnInit {
         this.composant.abstractControl.valueChanges.forEach(
             valeur => {
                 if (!this.composant.gereHtml.suspendSuitLaValeur) {
-                    const e: KfEvenement = {
-                        emetteur: this.composant,
-                        type: KfTypeDEvenement.valeurChange,
-                        parametres: valeur,
-                        statut: KfStatutDEvenement.aTraiter
-                    };
-                    this.traiteOuTransmet(e);
+                    this.traiteOuTransmet(new KfEvenement(this.composant, KfTypeDEvenement.valeurChange, valeur));
                 }
             }
         );

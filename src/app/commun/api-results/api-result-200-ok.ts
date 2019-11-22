@@ -8,6 +8,7 @@ export class ApiResult200Ok<T> extends ApiResult {
     constructor(lecture: T) {
         super(200);
         this._lecture = lecture;
+        this.ok = true;
     }
     get lecture(): T {
         return this._lecture;

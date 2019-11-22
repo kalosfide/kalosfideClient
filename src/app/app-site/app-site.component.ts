@@ -1,28 +1,29 @@
 import { Title } from '@angular/platform-browser';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RacineComponent } from '../disposition/racine/racine.component';
-import { AttenteAsyncService } from '../services/attenteAsync.service';
+import { AttenteService } from '../services/attente.service';
 import { IdentificationService } from '../securite/identification.service';
 import { NavigationService } from '../services/navigation.service';
 import { AppSiteMenu } from './app-site-menu';
-import { Menu } from '../disposition/menus/menu';
+import { Menu } from '../disposition/menu/menu';
 import { AlerteService } from '../disposition/alerte/alerte-service';
 
 @Component({
     templateUrl: '../disposition/racine/racine.component.html',
+    styleUrls: ['../commun/commun.scss']
 })
 export class AppSiteComponent extends RacineComponent implements OnInit, OnDestroy {
 
     constructor(
         protected titleService: Title,
-        protected attenteAsyncService: AttenteAsyncService,
+        protected attenteService: AttenteService,
         protected identification: IdentificationService,
         protected navigation: NavigationService,
         protected alerteService: AlerteService,
     ) {
         super(
             titleService,
-            attenteAsyncService,
+            attenteService,
             identification,
             navigation,
             alerteService,
@@ -37,7 +38,7 @@ export class AppSiteComponent extends RacineComponent implements OnInit, OnDestr
         this._ngOnInit();
         this.menu.créeItems();
         this.menu.rafraichit();
-        this.subscriptions.push(this.identification.changementDIdentifiant().subscribe(() => this.identifiantChange()));
+        this.subscriptions.push(this.identification.changementDUtilisateur().subscribe(() => this.utilisateurChange()));
     }
 
 }

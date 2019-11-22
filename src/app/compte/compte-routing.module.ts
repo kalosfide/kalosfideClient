@@ -19,7 +19,7 @@ const routes: Routes = [
             },
             {
                 path: ComptePages.gestion.urlSegment,
-                loadChildren: './gestion/gestion.module#GestionModule'
+                loadChildren: () => import('./gestion/gestion.module').then(mod => mod.GestionModule)
             },
         ]
     },

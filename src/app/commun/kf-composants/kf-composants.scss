@@ -1,13 +1,30 @@
-.ng-valid[required], .ng-valid.required  {
-    border-left: 5px solid #42A948; /* green */
-}
 
-.ng-invalid:not(form)  {
-    border-left: 5px solid #a94442; /* red */
+.kf-input-efface-bouton {
+    z-index: 999;
+    background-color: transparent;
+    border: none;
+    position: absolute;
+    right: .1rem;
+    vertical-align: middle;
+}
+.kf-input-vide .kf-input-efface-bouton {
+    display: none;
 }
 
 .kf-invisible {
     display: none;
+}
+
+.kf-texte-dans-icone-fond {
+    display: inline-block;
+    text-align: center;
+}
+
+.kf-texte-dans-icone {
+    display: block;
+    font-size: 0.66em;
+    position: relative;
+    top: -0.25em;
 }
 
 .kf-legende {

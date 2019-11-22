@@ -6,6 +6,7 @@ import { KfBalise } from '../../kf-partages/kf-balise/kf-balise';
 @Component({
     selector: 'app-kf-texte',
     templateUrl: './kf-texte.component.html',
+    styleUrls: ['../../kf-composants.scss']
 })
 export class KfTexteComponent extends KfComposantComponent implements OnInit {
 
@@ -16,15 +17,15 @@ export class KfTexteComponent extends KfComposantComponent implements OnInit {
             let b: KfBalise = new KfBalise();
             b.baliseHTML = this.texte.balisesAAjouter[0];
             b.contenuTexte = this.texte.texte;
+            b.suitLaVisiblité(this.texte);
             if (this.texte.avecClassesOuStyle) {
-                b.classeDefs = this.texte.classeDefs;
-                b.style = this.texte.style;
+                b.copieClassesEtStyle(this.texte);
             }
             b.afterViewInit = (htmlElement: HTMLElement) => {
                 if (htmlElement) {
                     this.composant.gereHtml.htmlElement = htmlElement;
                 }
-                this.initialiseHtml();
+                this.composant.gereHtml.initialiseHtml(this.output);
             };
             for (let index = 1; index < this.texte.balisesAAjouter.length; index++) {
                 const b1 = new KfBalise();

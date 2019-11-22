@@ -1,7 +1,0 @@
-<li #htmlElement [ngClass]="composant.classe" [ngStyle]="composant.style">
-    <ng-container *ngFor="let contenu of composant.contenus; index as i">
-        <app-kf-composant [attr.nom]="contenu.nom" [ngClass]="{'kf-invisible': !contenu.visible}" [composant]="contenu"
-            (output)="transmet($event)">
-        </app-kf-composant>
-    </ng-container>
-</li>

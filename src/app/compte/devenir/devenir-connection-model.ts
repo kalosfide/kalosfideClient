@@ -5,6 +5,7 @@ import { KfComposant } from '../../commun/kf-composants/kf-composant/kf-composan
 import { KfTypeDInput } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-input';
 import { DevenirService } from './devenir.service';
 import { EtapeDeFormulaireEditeur } from 'src/app/disposition/formulaire/etape-de-formulaire';
+import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 
 export class DevenirConnectionModel {
     email: string;
@@ -19,7 +20,7 @@ export class DevenirConnectionEditeur implements EtapeDeFormulaireEditeur {
 
     créeContenus(): KfComposant[] {
         const champs: KfComposant[] = [];
-        const email = new KfInputTexte('email', 'Adresse mail');
+        const email = Fabrique.input.texte('email', 'Adresse mail');
         email.typeDInput = KfTypeDInput.email;
         email.ajouteValidateur(KfValidateurs.required);
         email.ajouteValidateur(KfValidateurs.email);
@@ -28,16 +29,16 @@ export class DevenirConnectionEditeur implements EtapeDeFormulaireEditeur {
             null,
             'Il y a déjà un utilisateur enregistré avec cette adresse'
         ));
-        email.texteRemplissage = 'ex: admin@kalosfide.fr';
+        email.placeholder = 'ex: admin@kalosfide.fr';
         champs.push(email);
-        this.kfTexteDuMotDePasse = new KfInputTexte('password', 'Mot de passe');
+        this.kfTexteDuMotDePasse = Fabrique.input.texte('password', 'Mot de passe');
         this.kfTexteDuMotDePasse.typeDInput = KfTypeDInput.password;
         this.kfTexteDuMotDePasse.ajouteValidateur(KfValidateurs.required);
         champs.push(this.kfTexteDuMotDePasse);
-        const confirme = new KfInputTexte('confirme', 'Confirmation du mot de passe');
+        const confirme = Fabrique.input.texte('confirme', 'Confirmation du mot de passe');
         confirme.typeDInput = KfTypeDInput.password;
         confirme.ajouteValidateur(KfValidateurs.required);
-        const validateur = KfValidateurs.aLaValeurDe(this.kfTexteDuMotDePasse);
+        const validateur = KfValidateurs.aLaValeurDeComposant(this.kfTexteDuMotDePasse);
         validateur.message = 'La confirmation ne correspond pas au mot de passe.';
         confirme.ajouteValidateur(validateur);
         champs.push(confirme);

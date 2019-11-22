@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewChild, ViewChildren, QueryList, AfterViewInit, ElementRef } from '@angular/core';
-import { KfListeDeroulante, OptionDeListe } from './kf-liste-deroulante';
 import { KfComposantComponent } from '../../kf-composant/kf-composant.component';
 
 @Component({
     selector: 'app-kf-liste-deroulante',
     templateUrl: './kf-liste-deroulante.component.html',
+    styleUrls: ['../../kf-composants.scss']
 })
 export class KfListeDeroulanteComponent extends KfComposantComponent implements OnInit, AfterViewInit {
     @ViewChild('selectElement') selectElementRef: ElementRef;
@@ -13,8 +13,6 @@ export class KfListeDeroulanteComponent extends KfComposantComponent implements 
     constructor() {
         super();
     }
-    ngOnInit() {
-    }
 
     get test(): any {
         const test: any = {};
@@ -22,15 +20,8 @@ export class KfListeDeroulanteComponent extends KfComposantComponent implements 
         return 'test';
     }
 
-    get listeDeroulante(): KfListeDeroulante {
-        return this.composant as KfListeDeroulante;
-    }
     get selectElement(): HTMLSelectElement {
         return this.selectElementRef.nativeElement as HTMLSelectElement;
-    }
-
-    compareOptions(o1: OptionDeListe, o2: OptionDeListe): boolean {
-        return o1 && o2 ? o1.valeur === o2.valeur : o1 === o2;
     }
 
     ngAfterViewInit() {
@@ -38,8 +29,7 @@ export class KfListeDeroulanteComponent extends KfComposantComponent implements 
         this.composant.gereHtml.enfantsDeVue = {
             selectElement: this.selectElement,
         };
-        this.selectElement.multiple = this.listeDeroulante.multiple;
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
     }
 
 }

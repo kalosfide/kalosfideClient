@@ -37,6 +37,7 @@ export class AlerteService {
     }
 
     private _ajoute(alerte: Alerte) {
+        this._alertes = this._alertes.filter(a => alerte.id !== a.id);
         this._alertes.push(alerte);
         if (alerte.fermetureAuto) {
             setTimeout(() => {

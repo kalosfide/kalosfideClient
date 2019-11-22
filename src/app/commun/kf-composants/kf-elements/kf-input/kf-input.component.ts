@@ -9,25 +9,24 @@ import { KfComposant } from '../../kf-composant/kf-composant';
 @Component({
     selector: 'app-kf-input',
     templateUrl: './kf-input.component.html',
+    styleUrls: ['../../kf-composants.scss']
 })
-export class KfInputComponent extends KfComposantComponent implements OnInit , AfterViewInit {
+export class KfInputComponent extends KfComposantComponent implements OnInit, AfterViewInit {
     @ViewChild('inputElement') inputElement: ElementRef;
     @ViewChild('labelElement') labelElement: ElementRef;
 
     constructor() {
         super();
     }
-    ngOnInit() {
-    }
-
-    classe(composant: KfComposant): string {
-        return 'form-control' + (composant.erreurs.length > 0 ? ' is-invalid' : '') + composant.classe;
-    }
 
     get input(): KfInput {
         return this.composant as KfInput;
     }
 
+    get avecInvalidFeedbak(): boolean {
+        console.log(this.composant);
+        return this.composant.avecInvalidFeedback;
+    }
     get nombre(): KfInputNombre {
         if (this.input.typeDInput === KfTypeDInput.nombre) {
             return this.composant as KfInputNombre;
@@ -47,15 +46,15 @@ export class KfInputComponent extends KfComposantComponent implements OnInit , A
 
     ngAfterViewInit() {
         if (this.inputElement) {
-        this.composant.gereHtml.htmlElement = this.inputElement.nativeElement;
-        this.composant.gereHtml.enfantsDeVue = this.labelElement
-            ? {
-            inputElement: this.inputElement.nativeElement,
-            labelElement: this.labelElement.nativeElement,
-            } : {
-            inputElement: this.inputElement.nativeElement,
-            };
-        this.initialiseHtml();
+            this.composant.gereHtml.htmlElement = this.inputElement.nativeElement;
+            this.composant.gereHtml.enfantsDeVue = this.labelElement
+                ? {
+                    inputElement: this.inputElement.nativeElement,
+                    labelElement: this.labelElement.nativeElement,
+                } : {
+                    inputElement: this.inputElement.nativeElement,
+                };
+            this.composant.gereHtml.initialiseHtml(this.output);
         }
     }
 

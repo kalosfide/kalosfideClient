@@ -46,7 +46,7 @@ export class EtapeDeFormulaire {
             }
         });
         if (avecValeur) {
-            this.groupeEditeur.créeGereValeur();
+//            this.groupeEditeur.créeGereValeur();
         }
         return this.groupeEditeur;
     }

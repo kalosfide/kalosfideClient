@@ -1,57 +1,96 @@
 import { KfTypeDeComposant } from '../../kf-composants-types';
 import { Liste, TypeDEvenementDeListe, EvenementDeListe, DétailAjoute, DétailSupprime, DétailDéplace } from '../../../outils/liste';
 import { KfEntrée } from '../../kf-composant/kf-entree';
-import { KfTexteDef } from '../../kf-partages/kf-texte-def';
+import { KfTexteDef, ValeurTexteDef } from '../../kf-partages/kf-texte-def';
 import { KfContenuPhrase } from '../../kf-partages/kf-contenu-phrase/kf-contenu-phrase';
+import { KfTexte } from '../kf-texte/kf-texte';
 
-export interface OptionDeListe { texte: string; valeur: string | number; estObject: boolean; }
+export class KfOptionDeListe extends KfContenuPhrase {
+    kfTexte: KfTexte;
+    private _valeurDef: KfTexteDef | number;
+    estObject: boolean;
+    inactif?: boolean;
 
-export class KfListeDeroulante extends KfEntrée {
-    // données
-    private liste: Liste;
-    /** pour afficher l'item */
-    creeTexte: (item: any) => string;
-    /** pour la valeur HTML de l'item */
-    creeValeur: (item: any) => string | number;
-
-    private _options: OptionDeListe[];
-    multiple: boolean;
-
-    estLiée: boolean;
-    nullImpossible: boolean;
-
-    constructor(nom: string, texte?: KfTexteDef) {
-        super(nom, KfTypeDeComposant.listederoulante);
-        this.liste = new Liste();
-        this._valeur = null;
-        this._options = [];
-        this.estLiée = false;
-        if (texte) {
-            this.contenuPhrase = new KfContenuPhrase(this, texte);
+    constructor(texteDef?: KfTexteDef, valeurDef?: KfTexteDef | number) {
+        super();
+        if (texteDef) {
+            this.kfTexte = new KfTexte('', texteDef);
+            this.ajoute(this.kfTexte);
         }
+        this._valeurDef = valeurDef;
     }
 
-    lieAListe(liste: Liste, creeTexte?: (item: any) => string, creeValeur?: (item: any) => string | number) {
-        this.liste = liste;
-        this.prendAbonnements();
-        this.creeTexte = creeTexte ? creeTexte : this._creeTexte;
-        this.creeValeur = creeValeur;
-        this.estLiée = true;
-    }
-
-    _creeTexte(item: any): string {
-        if (typeof (item) === 'string') {
-            return item;
-        } else {
-            if (typeof (item) === 'number') {
-                return item.toString();
+    get valeur(): string {
+        if (this._valeurDef) {
+            if (typeof (this._valeurDef) === 'number') {
+                return '' + this._valeurDef;
+            } else {
+                return ValeurTexteDef(this._valeurDef);
             }
         }
     }
+}
 
-    ajouteOption(objet: string | number, valeur?: string | number) {
-        const texte = this._creeTexte(objet);
-        this.liste.Ajoute({ texte: texte, valeur: valeur ? valeur : texte, estObject: false });
+export interface IKfListeLiante {
+    liste: Liste;
+    créeTexte: (item: any) => KfTexteDef;
+    créeValeur: (item: any) => string;
+}
+
+export class KfListeDeroulanteVieux extends KfEntrée {
+    // liste d'objets any
+    // données
+    private liste: Liste;
+
+    /** pour afficher l'item */
+    private _créeTexte: (item: any) => KfTexteDef;
+    /** pour la valeur HTML de l'item */
+    private _créeValeur: (item: any) => string | number;
+
+    private _options: KfOptionDeListe[];
+    multiple: boolean;
+
+    nullImpossible: boolean;
+
+    private _option0: KfOptionDeListe;
+
+    constructor(nom: string, texte?: KfTexteDef) {
+        super(nom, KfTypeDeComposant.listederoulante);
+        this._options = [];
+        this.contenuPhrase = new KfContenuPhrase(this, texte);
+
+        this.ajouteClasseDef(
+            'form-control',
+            { nom: 'position-static', active: () => !this.contenuPhrase }
+        );
+        const estDansVueTable = () => this.estDansVueTable;
+        this.gèreClasseLabel.ajouteClasseDef(
+            { nom: 'kf-invisible', active: estDansVueTable }
+        );
+    }
+
+    ajouteOption(texte: KfTexteDef, valeur?: KfTexteDef | number): KfOptionDeListe {
+        const option = new KfOptionDeListe(texte, valeur);
+        this._options.push(option);
+        return option;
+    }
+
+    optionNulle(): KfOptionDeListe {
+        return null;
+    }
+
+    créeOption0(): KfContenuPhrase {
+        this._option0 = new KfOptionDeListe();
+        this.valeur = '';
+        return this._option0;
+    }
+
+    get option0(): KfOptionDeListe {
+        return this._option0;
+    }
+
+    get options(): KfOptionDeListe[] {
+        return this._options;
     }
 
     get selectElement(): HTMLSelectElement {
@@ -69,74 +108,7 @@ export class KfListeDeroulante extends KfEntrée {
         }
     }
 
-    valeurOption(index: number): any {
-        if (index >= 0 && index < this.liste.Nb) {
-            if (this._options) {
-                return this._options[index].valeur;
-            } else {
-                const item = this.liste.Objet(index);
-                if (this.estLiée) {
-                    return (item as OptionDeListe).valeur;
-                }
-                if (this.creeValeur) {
-                    return this.creeValeur(item);
-                } else {
-                    if (item.valeur) {
-                        return item.valeur;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    get valeurInitiale(): any {
-        return this._valeur ? this._valeur : this.valeurOption(0);
-    }
-
-    optionNulle(): OptionDeListe {
-        return {
-            texte: '',
-            valeur: null,
-            estObject: false
-        };
-    }
-    option(item: any): OptionDeListe {
-        const option = { texte: null, valeur: null, estObject: false };
-        option.texte = this.creeTexte(item);
-        if (this.creeValeur) {
-            option.estObject = true;
-            option.valeur = this.creeValeur(item);
-        } else {
-            option.valeur = item;
-        }
-        if (!option.texte) {
-            option.texte = 'option ' + (this.liste.IndexDe(item) + 1);
-        }
-        return option;
-    }
-
-    créeOptions(): OptionDeListe[] {
-        if (this.estLiée) {
-            this._options = this.liste.Objets.map(o => this.option(o));
-        } else {
-            this._options = this.liste.Objets.map(o => o as OptionDeListe);
-        }
-        if (!this.nullImpossible) {
-            this._options.unshift(this.optionNulle());
-        }
-        return this._options;
-    }
-
-    get options(): OptionDeListe[] {
-        return this.liste ? this.créeOptions() : this._options;
-    }
-
     // DONNEES
-
-    _ajouteAValeurParent(valeurParent: any) {
-        valeurParent[this.nom] = this._valeur;
-    }
 
     /**
      * valeur: any
@@ -146,62 +118,67 @@ export class KfListeDeroulante extends KfEntrée {
     }
     set valeur(valeur: any) {
         this.fixeValeur(valeur);
-        this.liste.ObjetEnCours = valeur;
     }
 
-    depuisForm() {
-        this._valeur = this.formControl.value;
-    }
-    versForm() {
-        this.formControl.setValue(this.valeur);
-    }
+    // LISTE LIEE
 
-    // EVENEMENTS DE LISTE
-    prendAbonnements() {
+    lieAListe(liste: Liste, creeTexte?: (item: any) => string, creeValeur?: (item: any) => string | number) {
+        this.liste = liste;
+
         this.liste.Abonne(this, TypeDEvenementDeListe.ajoute,
             (e: EvenementDeListe) => {
                 const d = e.data as DétailAjoute;
-                this.quandAjout(d.Objet, d.Index);
+                this._quandAjout(d.Objet, d.Index);
             }
         );
         this.liste.Abonne(this, TypeDEvenementDeListe.supprime,
             (e: EvenementDeListe) => {
                 const d = e.data as DétailSupprime;
-                this.quandSupprime(d.objet, d.Index);
+                this._quandSupprime(d.objet, d.Index);
             }
         );
         this.liste.Abonne(this, TypeDEvenementDeListe.deplace,
             (e: EvenementDeListe) => {
                 const d = e.data as DétailDéplace;
-                this.quandDeplace(d.IndexAvant, d.IndexAprès);
+                this._quandDeplace(d.IndexAvant, d.IndexAprès);
             }
         );
-        this.liste.Abonne(this, TypeDEvenementDeListe.vide, () => this.quandVide());
-        this.liste.Abonne(this, TypeDEvenementDeListe.remplit, () => this.quandRemplit());
+        this.liste.Abonne(this, TypeDEvenementDeListe.vide, () => this._quandVide());
+        this.liste.Abonne(this, TypeDEvenementDeListe.remplit, () => this._quandRemplit());
+
+        this._créeTexte = creeTexte;
+        this._créeValeur = creeValeur;
     }
 
-    quandAjout(objet: any, index: number) {
-        this.options.splice(index, 0, this.option(objet));
+    private _créeOption(item: any): KfOptionDeListe {
+        const option = new KfOptionDeListe(
+            this._créeTexte ? this._créeTexte(item) : 'option ' + (this.liste.IndexDe(item) + 1),
+            this._créeValeur ? this._créeValeur(item) : '');
+        return option;
     }
 
-    quandSupprime(objet: any, index: number) {
-        const valeur = this.creeValeur ? this.creeValeur(objet) : objet;
+    private _quandAjout(objet: any, index: number) {
+        this.options.splice(index, 0, this._créeOption(objet));
+    }
+
+    private _quandSupprime(objet: any, index: number) {
+        const valeur = this._créeValeur ? this._créeValeur(objet) : objet;
         if (this.formControl && this.formControl.value === valeur) {
             this.formControl.setValue(null);
         }
         this._options.splice(index, 1);
     }
 
-    quandDeplace(indexAvant: number, indexApres: number) {
+    private _quandDeplace(indexAvant: number, indexApres: number) {
         const option = this._options.splice(indexAvant, 1)[0];
         this._options.splice(indexApres, 0, option);
     }
 
-    quandRemplit() {
-        this.créeOptions();
+    private _quandRemplit() {
+        this._options = this.liste.Objets.map(o => this._créeOption(o));
     }
 
-    quandVide() {
+    private _quandVide() {
         this._options = [];
     }
 

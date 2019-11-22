@@ -1,23 +1,12 @@
-<ng-container *ngIf="composant.inactif; then inactif; else actif"></ng-container>
-
-<ng-template #inactif>
-    <a #baliseElement [ngClass]="classe">
-        <app-kf-contenu-phrase  [contenuPhrase]="composant.contenuPhrase"></app-kf-contenu-phrase>
+<ng-container *ngIf="composant.routerLinkActive; else elseTemplate">
+    <a #baliseElement [routerLink]="composant.route" routerLinkActive="active" [queryParams]="composant.queryParams"
+        [fragment]="composant.fragment" [ngClass]="composant.classe" [ngStyle]="composant.style">
+        <app-kf-contenu-phrase [contenuPhrase]="composant.contenuPhrase"></app-kf-contenu-phrase>
     </a>
-</ng-template>
-
-<ng-template #actif>
-    <ng-container *ngIf="composant.avecConfirme; then avecConfirme; else sansConfirme"></ng-container>
-
-    <ng-template #avecConfirme>
-        <a #baliseElement (click)="confirme()" [ngClass]="classe" [ngStyle]="composant.style">
-            <app-kf-contenu-phrase  [contenuPhrase]="composant.contenuPhrase"></app-kf-contenu-phrase>
-        </a>
-    </ng-template>
-
-    <ng-template #sansConfirme>
-        <a #baliseElement [routerLink]="composant.route" [queryParams]="composant.queryParams" routerLinkActive="active" [ngClass]="classe" [ngStyle]="composant.style">
-            <app-kf-contenu-phrase  [contenuPhrase]="composant.contenuPhrase"></app-kf-contenu-phrase>
-        </a>
-    </ng-template>
+</ng-container>
+<ng-template #elseTemplate>
+    <a #baliseElement [routerLink]="composant.route" [queryParams]="composant.queryParams"
+        [fragment]="composant.fragment" [ngClass]="composant.classe" [ngStyle]="composant.style">
+        <app-kf-contenu-phrase [contenuPhrase]="composant.contenuPhrase"></app-kf-contenu-phrase>
+    </a>
 </ng-template>

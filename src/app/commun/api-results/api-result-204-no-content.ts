@@ -6,5 +6,6 @@ export class ApiResult204NoContent extends ApiResult {
     constructor(
     ) {
         super(204);
+        this.ok = true;
     }
 }

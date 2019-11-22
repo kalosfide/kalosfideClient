@@ -1,113 +1,182 @@
-import { KfVueTableDef, KfVueTable } from 'src/app/commun/kf-composants/kf-vue-table/kf-vue-table';
-import { PageDef } from 'src/app/commun/page-def';
-import { ISiteRoutes } from 'src/app/site/site-pages';
-import { KfLien } from 'src/app/commun/kf-composants/kf-elements/kf-lien/kf-lien';
-import { AppRoutes } from 'src/app/app-pages';
 import { KfEtiquette } from 'src/app/commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
 import { KfGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-groupe';
 import { KfBouton } from 'src/app/commun/kf-composants/kf-elements/kf-bouton/kf-bouton';
-import { KfIcone } from 'src/app/commun/kf-composants/kf-elements/kf-icone/kf-icone';
-import { KfTypeDEvenement, KfEvenement, KfStatutDEvenement } from 'src/app/commun/kf-composants/kf-partages/kf-evenements';
-import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons';
 import { KfTexte } from 'src/app/commun/kf-composants/kf-elements/kf-texte/kf-texte';
 import { KfTypeDeBaliseHTML } from 'src/app/commun/kf-composants/kf-composants-types';
-import { KfTexteDef, ValeurTexteDef } from 'src/app/commun/kf-composants/kf-partages/kf-texte-def';
+import { KfTexteDef } from 'src/app/commun/kf-composants/kf-partages/kf-texte-def';
+import { FabriqueIcone } from './fabrique-icone';
+import { KfInputTexte } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-input-texte';
+import { KfInputNombre } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-input-nombre';
+import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-groupe';
+import { KfCaseACocher } from 'src/app/commun/kf-composants/kf-elements/kf-case-a-cocher/kf-case-a-cocher';
+import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
+import { AfficheResultat } from 'src/app/disposition/affiche-resultat/affiche-resultat';
+import { FabriqueLien } from './fabrique-lien';
+import { FabriqueUrl } from './fabrique-url';
+import { FabriqueContenuPhrase } from './fabrique-contenu-phrase';
+import { FabriqueBouton } from './fabrique-bouton';
+import { BootstrapType, FabriqueBootstrap } from './fabrique-bootstrap';
+import {
+    KfListeDeroulanteTexte, KfListeDeroulanteNombre
+} from 'src/app/commun/kf-composants/kf-elements/kf-liste-deroulante/kf-liste-deroulante-texte';
+import { KfListeDeroulanteObjet } from 'src/app/commun/kf-composants/kf-elements/kf-liste-deroulante/kf-liste-deroulante-objet';
+import { KfEntrée } from 'src/app/commun/kf-composants/kf-composant/kf-entree';
+import { FabriqueVueTable } from './fabrique-vue-table';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { FabriqueCouleur } from './fabrique-couleurs';
+import { KfLien } from 'src/app/commun/kf-composants/kf-elements/kf-lien/kf-lien';
+import { FabriqueBarreTitre } from './fabrique-barre-titre/fabrique-barre-titre';
+import { FabriqueTexte } from './fabrique-texte';
+import { FabriqueEtatSite } from './fabrique-etat-site';
+import { FabriqueFormulaire } from './fabrique-formulaire';
+import { FabriqueInput, FabriqueListeDéroulante } from './fabrique-input';
+import { KfInput } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-input';
+import { ApiRequêteAction } from 'src/app/services/api-requete-action';
+import { DataService } from 'src/app/services/data.service';
+import { ResultatAction } from '../affiche-resultat/resultat-affichable';
 
-const ICONE_OUVERT = faAngleDown;
-const ICONE_FERME = faAngleUp;
+export interface IFormulaireGroupeDesBoutons {
+    avantBoutons?: KfComposant[];
+    boutons: KfBouton[];
+    aprèsBoutons?: KfComposant[];
+    bootstrapType?: BootstrapType;
+    /** défini après création */
+    afficheResultat?: AfficheResultat;
+}
 
 export interface IMessageMasquable {
     groupe: KfGroupe;
     masquable: KfGroupe;
 }
 
-class FabriqueClasse {
+export class FabriqueClasse {
+    private _couleur: FabriqueCouleur;
+    private _icone: FabriqueIcone;
+    private _contenu: FabriqueContenuPhrase;
+    private _url: FabriqueUrl;
+    private _lien: FabriqueLien;
+    private _bouton: FabriqueBouton;
+    private _input: FabriqueInput;
+    private _listeDéroulante: FabriqueListeDéroulante;
+    private _vueTable: FabriqueVueTable;
+    private _formulaire: FabriqueFormulaire;
+    private _barreTitre: FabriqueBarreTitre;
+    private _texte: FabriqueTexte;
+    private _etatSite: FabriqueEtatSite;
 
-    // KfVueTable
-    vueTable<T>(nom: string, vueTableDef: KfVueTableDef<T>): KfVueTable<T> {
-        vueTableDef.classesCellules = (item: T) => ['align-middle'];
-        const vueTable = new KfVueTable(nom + '_table', vueTableDef);
-        vueTable.ajouteClasseDef('table-sm');
-        vueTable.ajouteClasseEntete('thead-light');
-        return vueTable;
+    constructor() {
+        this._couleur = new FabriqueCouleur();
+        this._icone = new FabriqueIcone(this);
+        this._contenu = new FabriqueContenuPhrase(this);
+        this._url = new FabriqueUrl();
+        this._lien = new FabriqueLien(this);
+        this._bouton = new FabriqueBouton(this);
+        this._input = new FabriqueInput(this);
+        this._listeDéroulante = new FabriqueListeDéroulante(this);
+        this._vueTable = new FabriqueVueTable(this);
+        this._formulaire = new FabriqueFormulaire(this);
+        this._barreTitre = new FabriqueBarreTitre(this);
+        this._texte = new FabriqueTexte();
+        this._etatSite = new FabriqueEtatSite(this);
     }
 
-    // liens
-    url(pageDef: PageDef, routes: ISiteRoutes, nomSite?: KfTexteDef): KfTexteDef {
-        return nomSite
-            ? () => routes.url(ValeurTexteDef(nomSite), [pageDef.urlSegment])
-            : () => AppRoutes.url([pageDef.urlSegment]);
-    }
-    lien(pageDef: PageDef, routes?: ISiteRoutes, nomSite?: KfTexteDef): KfLien {
-        const lien = new KfLien(pageDef.urlSegment, this.url(pageDef, routes, nomSite));
-        lien.fixeTexte(pageDef.lien);
-        return lien;
-    }
-    lienEnLigne(pageDef: PageDef, routes?: ISiteRoutes, nomSite?: KfTexteDef): KfLien {
-        const lien = this.lien(pageDef, routes, nomSite);
-        return lien;
-    }
-    lienBouton(pageDef: PageDef, routes?: ISiteRoutes, nomSite?: KfTexteDef): KfLien {
-        const lien = this.lien(pageDef, routes, nomSite);
-        return lien;
-    }
+    get couleur(): FabriqueCouleur { return this._couleur; }
+    get icone(): FabriqueIcone { return this._icone; }
+    get contenu(): FabriqueContenuPhrase { return this._contenu; }
+    get url(): FabriqueUrl { return this._url; }
+    get lien(): FabriqueLien { return this._lien; }
+    get bouton(): FabriqueBouton { return this._bouton; }
+    get input(): FabriqueInput { return this._input; }
+    get listeDéroulante(): FabriqueListeDéroulante { return this._listeDéroulante; }
+    get vueTable(): FabriqueVueTable { return this._vueTable; }
+    get formulaire(): FabriqueFormulaire { return this._formulaire; }
+    get barreTitre(): FabriqueBarreTitre { return this._barreTitre; }
+    get texte(): FabriqueTexte { return this._texte; }
+    get etatSite(): FabriqueEtatSite { return this._etatSite; }
 
-    messageMasquable(nom: string, titre: KfEtiquette): IMessageMasquable {
+    // alertes
+    alerte(nom: string, bootstrapDef: BootstrapType): KfGroupe {
         const groupe = new KfGroupe(nom);
-        const enTete = new KfGroupe(nom + '_enTete');
-        const masquable = new KfGroupe(nom + '_masquable');
-        masquable.masquable(false);
-
-        enTete.ajoute(titre);
-        const bouton = new KfBouton(nom + '_bouton');
-        const icone = new KfIcone(nom + '_icone', () => masquable.masque ? ICONE_OUVERT : ICONE_FERME);
-        bouton.contenuPhrase.ajoute(icone);
-        bouton.ajouteClasseDef('close');
-        bouton.gereHtml.ajouteTraiteur(KfTypeDEvenement.clic,
-            (evenement: KfEvenement) => {
-                masquable.basculeMasque();
-                evenement.statut = KfStatutDEvenement.fini;
-            });
-        enTete.ajoute(bouton);
-
-        groupe.ajoute(enTete);
-        groupe.ajoute(masquable);
-
-        return {
-            groupe: groupe,
-            masquable: masquable
-        };
-
+        FabriqueBootstrap.ajouteClasse(groupe, 'alert', bootstrapDef);
+        return groupe;
     }
 
-    get nomMessageSiteOuvert(): string {
-        return 'messageSiteOuvert';
-    }
-    messageSiteOuvert(): IMessageMasquable {
-        let etiquette = new KfEtiquette(this.nomMessageSiteOuvert + '_titre');
-        let texte = new KfTexte('',
-            `Le site est ouvert.`);
-        texte.balisesAAjouter = [KfTypeDeBaliseHTML.strong];
-        etiquette.contenuPhrase.ajoute(texte);
-
-        const message = this.messageMasquable(this.nomMessageSiteOuvert, etiquette);
-
-        etiquette = new KfEtiquette('');
-        texte = new KfTexte('',
-            `Votre page Produits est accessible aux visiteurs et vos clients peuvent passer commande.`);
-        texte.suiviDeSaut = true;
-        etiquette.contenuPhrase.ajoute(texte);
-        texte = new KfTexte('',
-            `Vous ne pouvez pas modifier vos produits ni fixer les prix.`);
-        etiquette.contenuPhrase.ajoute(texte);
-        etiquette.baliseHtml = KfTypeDeBaliseHTML.p;
-        message.masquable.ajoute(etiquette);
-
-        message.groupe.ajouteClasseDef('alert', 'alert-info');
-        return message;
-
+    // case à cocher
+    caseACocher(nom: string, texte?: KfTexteDef): KfCaseACocher {
+        const caseACocher = new KfCaseACocher(nom, texte);
+        caseACocher.gèreClasseDiv.ajouteClasseDef('form-group row');
+        caseACocher.gèreClasseDivVide.ajouteClasseDef('col-sm-2');
+        caseACocher.gèreClasseEntree.ajouteClasseDef('col-sm-10');
+        return caseACocher;
     }
 
+    // texte aide des formulaires
+    texteAide(nom: string, texte: string): KfEtiquette {
+        const etiquette = new KfEtiquette(nom + '_aide', texte);
+        etiquette.ajouteClasseDef('form-text text-muted');
+        etiquette.baliseHtml = KfTypeDeBaliseHTML.small;
+        return etiquette;
+    }
+
+    animeAttenteGlobal(visibilitéObs: Observable<boolean>): KfGroupe {
+        const groupe = new KfGroupe('animeAttente');
+        groupe.visible = false;
+        groupe.visibilitéObs = visibilitéObs.pipe(
+            tap(visible => {
+                console.log(1, visible);
+            })
+        );
+        groupe.ajouteClasseDef('plein-ecran');
+        groupe.fixeStyleDef('opacity', '.33');
+        groupe.fixeStyleDef('background-color', 'antiquewhite');
+        const icone = this.icone.iconeAttente(4);
+        groupe.ajoute(icone);
+        return groupe;
+    }
+
+    // etiquettes et texte
+
+    /**
+     * retourne une KfEtiquette dans une balise p au texte justifié si classe est défini
+     * et l'ajoute à l'array si composants est défini
+     * @param composants
+     */
+    ajouteEtiquetteP(composants?: KfComposant[], classe?: string): KfEtiquette {
+        const e = new KfEtiquette('');
+        e.baliseHtml = KfTypeDeBaliseHTML.p;
+        e.ajouteClasseDef(classe ? classe : 'text-justify');
+        if (composants) {
+            composants.push(e);
+        }
+        return e;
+    }
+
+    /**
+     * ajoute à une étiquette des KfTexte avec balise Html, retourne l'array des KfTexte créés
+     * @param etiquette où ajouter le texte
+     * @param texte string à ajouter
+     * @param baliseHtml balise Html pour entourer le texte
+     */
+    ajouteTexte(etiquette: KfEtiquette, ...textes: (string | { t: string, b: KfTypeDeBaliseHTML })[]): KfTexte[] {
+        const kfTextes: KfTexte[] = textes.map(t => {
+            let texte: string;
+            let baliseHtml: KfTypeDeBaliseHTML;
+            if (typeof (t) === 'string') {
+                texte = t;
+            } else {
+                texte = t.t;
+                baliseHtml = t.b;
+            }
+            const kfTexte = new KfTexte('', texte);
+            if (baliseHtml) {
+                kfTexte.balisesAAjouter = [baliseHtml];
+            }
+            etiquette.contenuPhrase.ajoute(kfTexte);
+            return kfTexte;
+        });
+        return kfTextes;
+    }
 }
 
 export const Fabrique = new FabriqueClasse();

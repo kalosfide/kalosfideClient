@@ -8,9 +8,13 @@ import { KfContenuPhrase } from '../../kf-partages/kf-contenu-phrase/kf-contenu-
 export class KfLien extends KfElement {
 
     private _url: KfTexteDef;
-    private _params?: any;
+    private _params: any;
+
+    fragment: string;
 
     queryParams?: Params | null;
+
+    routerLinkActive: boolean;
 
     constructor(nom: string,
         url?: KfTexteDef,
@@ -20,18 +24,27 @@ export class KfLien extends KfElement {
         this._url = url;
         this.contenuPhrase = new KfContenuPhrase(this, texte);
         this.gereHtml.ajouteEvenementASuivre(KfTypeDHTMLEvents.keypress);
+
+        this.ajouteClasseDef({ nom: 'disabled', active: () => this.inactif });
     }
 
     get url(): string {
-        return ValeurTexteDef(this._url);
+        if (this._url) {
+            return ValeurTexteDef(this._url);
+        }
     }
 
     get route(): any {
-        const route: any[] = [this.url];
-        if (this._params) {
-            route.push(this._params);
+        if (this._url) {
+            if (typeof(this._url) !== 'string') {
+//                console.log(this.nom, this.texte);
         }
-        return route;
+            const route: any[] = [this.url];
+            if (this._params) {
+                route.push(this._params);
+            }
+            return route;
+        }
     }
 
     fixeRoute(url: KfTexteDef, params?: any) {

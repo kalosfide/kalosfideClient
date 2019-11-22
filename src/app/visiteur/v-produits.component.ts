@@ -1,12 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { PageDef } from '../commun/page-def';
-import { ProduitIndexBaseComponent } from '../produits/produit-index-base.component';
-import { Router, ActivatedRoute } from '@angular/router';
-import { ProduitService } from '../modeles/produit.service';
+import { ProduitIndexBaseComponent } from '../modeles/catalogue/produit-index-base.component';
+import { ActivatedRoute } from '@angular/router';
+import { ProduitService } from 'src/app/modeles/catalogue/produit.service';
 import { VisiteurPages } from './visiteur-pages';
 
 @Component({
-    templateUrl: '../disposition/page-base/page-base.html',
+    templateUrl: '../disposition/page-base/page-base.html', styleUrls: ['../commun/commun.scss']
 })
 export class VProduitsComponent extends ProduitIndexBaseComponent implements OnInit, OnDestroy {
 
@@ -21,11 +21,15 @@ export class VProduitsComponent extends ProduitIndexBaseComponent implements OnI
     dataRoutes = null;
 
     constructor(
-        protected router: Router,
         protected route: ActivatedRoute,
         protected service: ProduitService,
     ) {
-        super(router, route, service);
+        super(route, service);
+    }
+
+    créePageTableDef() {
+        this.pageTableDef = this.créePageTableDefBase();
+        this.pageTableDef.avantChargeData = () => this.avantChargeData();
     }
 
 }

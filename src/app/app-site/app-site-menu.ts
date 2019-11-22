@@ -1,30 +1,34 @@
-import { Menu } from '../disposition/menus/menu';
-import { ItemDeMenu } from '../disposition/menus/item-de-menu';
+import { Menu } from '../disposition/menu/menu';
 import { PageDef } from '../commun/page-def';
 import { AppSiteRoutes, AppSitePages } from './app-site-pages';
 import { AppSite } from './app-site';
 import { AppRoutes } from '../app-pages';
 import { ItemCompte } from '../compte/menu/item-compte';
-import { TypeItemDeMenu } from '../disposition/menus/type-item-de-menu';
+import { NavItemLien } from '../disposition/navbars/nav-item-lien';
+import { NavItemDropdown } from '../disposition/navbars/nav-item-dropdown';
+import { NavItemDropDownGroup } from '../disposition/navbars/nav-item-dropdown-group';
 
 export class AppSiteMenu extends Menu {
+    constructor() {
+        super('app');
+    }
 
-    private créeItemApp(pageDef: PageDef): ItemDeMenu {
-        const item = new ItemDeMenu(pageDef.urlSegment, this, TypeItemDeMenu.item);
+    private créeItemApp(pageDef: PageDef): NavItemLien {
+        const item = new NavItemLien(pageDef.urlSegment, this);
         item.texte = pageDef.lien;
         item.url = AppSiteRoutes.url([pageDef.urlSegment]);
         return item;
     }
 
-    protected créeMarqueTexte(): ItemDeMenu {
-        const i = new ItemDeMenu('texteMarque', this, TypeItemDeMenu.item);
-        i.navBarBrand = true;
+    protected créeMarqueTexte(): NavItemLien {
+        const i = new NavItemLien('texteMarque', this);
+        i.lien.ajouteClasseDef('navbar-brand');
         i.texte = AppSite.texte;
         i.url = AppRoutes.url();
         return i;
     }
 
-    protected créeItemsAction(): ItemDeMenu[] {
+    protected créeItemsAction(): (NavItemLien | NavItemDropdown)[] {
         return [
             this.créeItemApp(AppSitePages.sites),
             this.créeItemApp(AppSitePages.contact),
@@ -32,17 +36,16 @@ export class AppSiteMenu extends Menu {
         ];
     }
 
-    private créeItemDevenirFournisseur(parent: ItemCompte): ItemDeMenu {
-        const itemDevenir = new ItemDeMenu('devenir', parent, TypeItemDeMenu.dropdownGroup);
-        itemDevenir.dropDownDivider = true;
-        const itemFournisseur = new ItemDeMenu(AppSitePages.devenirFournisseur.urlSegment, this, TypeItemDeMenu.dropdownItem);
+    private créeItemDevenirFournisseur(parent: ItemCompte): NavItemDropDownGroup {
+        const itemDevenir = new NavItemDropDownGroup('devenir', parent);
+        const itemFournisseur = new NavItemLien(AppSitePages.devenirFournisseur.urlSegment, this);
         itemFournisseur.url = AppSiteRoutes.url([AppSitePages.devenirFournisseur.urlSegment]);
         itemFournisseur.texte = AppSitePages.devenirFournisseur.lien;
         itemDevenir.ajoute(itemFournisseur);
         return itemDevenir;
     }
 
-    protected créeItemCompte(): ItemDeMenu {
+    protected créeItemCompte(): NavItemDropdown {
         const i = new ItemCompte(this);
         i.ajoute(this.créeItemDevenirFournisseur(i));
         return i;

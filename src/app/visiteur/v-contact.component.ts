@@ -5,7 +5,7 @@ import { VisiteurPages } from './visiteur-pages';
 import { SiteContactComponent } from '../site/site-contact.component';
 
 @Component({
-    templateUrl: '../disposition/page-base/page-base.html',
+    templateUrl: '../disposition/page-base/page-base.html', styleUrls: ['../commun/commun.scss']
 })
 export class VContactComponent extends SiteContactComponent implements OnInit {
 

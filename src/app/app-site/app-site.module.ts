@@ -14,6 +14,8 @@ import { MessagesModule } from '../messages/messages.module';
 import { DevenirFournisseurComponent } from './devenir-fournisseur/devenir-fournisseur.component';
 import { DevenirFournisseurService } from './devenir-fournisseur/devenir-fournisseur.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { PeupleService } from './peuple.service';
+import { PeupleResolverService } from './peuple-resolver.service';
 
 @NgModule({
     imports: [
@@ -36,6 +38,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     providers: [
         SitesResolverService,
         DevenirFournisseurService,
+        PeupleService,
+        PeupleResolverService,
     ],
 })
 export class AppSiteModule { }

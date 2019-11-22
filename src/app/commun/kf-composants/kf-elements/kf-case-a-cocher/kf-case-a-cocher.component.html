@@ -1,13 +1,43 @@
-<div class="form-check" [ngClass]="{'form-group': !composant.estDansVueTable}">
-    <label *ngIf="composant.contenuPhraseAvant" #labelElement [attr.for]="composant.nom" class="form-check-label">
+<ng-template #labelTemplate>
+    <label #labelElement [attr.for]="composant.nom" [ngClass]="composant.classeLabel">
         <app-kf-contenu-phrase [contenuPhrase]="composant.contenuPhrase"></app-kf-contenu-phrase>
     </label>
-    <input type='checkbox' #inputElement [name]="composant.nom" [formControl]="composant.formControl" [ngClass]="ngClass" [attr.disabled]="composant.inactif" />
-    <label *ngIf="composant.contenuPhraseApres" #labelElement [attr.for]="composant.nom" class="form-check-label">
-        <app-kf-contenu-phrase [contenuPhrase]="composant.contenuPhrase"></app-kf-contenu-phrase>
-    </label>
+</ng-template>
+
+<ng-template #infoTemplate>
+    <app-kf-etiquette *ngIf="composant.texteAide" [composant]="composant.texteAide"></app-kf-etiquette>
     <div *ngIf="composant.avecInvalidFeedback" class="invalid-feedback">
         <p *ngFor="let erreur of composant.erreurs">{{erreur}}</p>
     </div>
-</div>
-{{ composant.caseApres | json }}
+</ng-template>
+
+<ng-container *ngIf="composant.classeDiv; then avecDivTemplate; else sansDivTemplate"></ng-container>
+
+<ng-template #avecDivTemplate>
+    <div [ngClass]="composant.classeDiv">
+        <ng-container *ngTemplateOutlet="sansDivTemplate"></ng-container>
+    </div>
+</ng-template>
+
+<ng-template #sansDivTemplate>
+    <div *ngIf="composant.classeDivVide" [ngClass]="composant.classeDivVide"></div>
+    <ng-container *ngIf="composant.classeEntree; then entreeAvecDivTemplate; else entreeTemplate"></ng-container>
+
+    <ng-template #entreeAvecDivTemplate>
+        <div [ngClass]="composant.classeEntree">
+            <ng-container *ngTemplateOutlet="entreeTemplate"></ng-container>
+        </div>
+    </ng-template>
+</ng-template>
+
+<ng-template #entreeTemplate>
+    <ng-container *ngIf="composant.avecLabelAvant">
+        <ng-container *ngTemplateOutlet="labelTemplate"></ng-container>
+    </ng-container>
+    <input type='checkbox' #inputElement [name]="composant.nom" [formControl]="composant.formControl"
+        [ngClass]="composant.classe" [attr.disabled]="composant.inactif" />
+    <ng-container *ngIf="composant.avecLabelApres">
+        <ng-container *ngTemplateOutlet="labelTemplate"></ng-container>
+    </ng-container>
+    <ng-container *ngTemplateOutlet="infoTemplate"></ng-container>
+</ng-template>

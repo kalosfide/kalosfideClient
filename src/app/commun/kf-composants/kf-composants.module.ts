@@ -3,8 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DateValueAccessorModule } from 'angular-date-value-accessor';
 
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-
 import { KfComposantComponent } from './kf-composant/kf-composant.component';
 import { KfBoutonComponent } from './kf-elements/kf-bouton/kf-bouton.component';
 import { KfEtiquetteComponent } from './kf-elements/kf-etiquette/kf-etiquette.component';
@@ -26,11 +24,8 @@ import { KfComposantsRoutingModule } from './kf-composants-routing.module';
 import { OutilsModule } from '../outils/outils.module';
 import { KfDialogueComponent } from './kf-dialogue/kf-dialogue.component';
 import { KfDialogueService } from './kf-dialogue/kf-dialogue.service';
-import { KfAfficheResultatComponent } from './kf-elements/kf-affiche-resultat/kf-affiche-resultat.component';
 import { KfVueTableComponent } from './kf-vue-table/kf-vue-table.component';
 import { KfContenuPhraseComponent } from './kf-partages/kf-contenu-phrase/kf-contenu-phrase.component';
-import { KfUlComponent } from './kf-ul-li/kf-ul.component';
-import { KfLiComponent } from './kf-ul-li/kf-li.component';
 import { KfInputComponent } from './kf-elements/kf-input/kf-input.component';
 import { KfInactifDirective } from './kf-partages/kf-inactif.directive';
 import { KfIconeComponent } from './kf-elements/kf-icone/kf-icone.component';
@@ -39,7 +34,11 @@ import { KfTexteComponent } from './kf-elements/kf-texte/kf-texte.component';
 import { KfNgbDropdownComponent } from './kf-elements/kf-ngb-dropdown/kf-ngb-dropdown.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { KfBaliseComponent } from './kf-partages/kf-balise/kf-balise.component';
-import { KfNavComponent } from './kf-nav/kf-nav.component';
+import { KfNavbarComponent } from './kf-navbar/kf-navbar.component';
+import { KfUlComponent } from './kf-ul/kf-ul.component';
+import { KfDivComponent } from './kf-partages/kf-div/kf-div.component';
+import { KfBBtnGroupComponent } from './kf-b-btn-group/kf-b-btn-group.component';
+import { KfBBtnToolbarComponent } from './kf-b-btn-toolbar/kf-b-btn-toolbar.component';
 
 @NgModule({
   imports: [
@@ -47,7 +46,6 @@ import { KfNavComponent } from './kf-nav/kf-nav.component';
     DateValueAccessorModule,
     FormsModule,
     ReactiveFormsModule,
-    FontAwesomeModule,
     NgbModule,
     OutilsModule,
     KfComposantsRoutingModule,
@@ -78,13 +76,14 @@ import { KfNavComponent } from './kf-nav/kf-nav.component';
       KfRadiosComponent,
       KfVueJsonComponent,
       KfDialogueComponent,
-      KfAfficheResultatComponent,
       KfVueTableComponent,
       KfNgbDropdownComponent,
-      KfNavComponent,
+      KfNavbarComponent,
+      KfDivComponent,
+      KfBBtnGroupComponent,
+      KfBBtnToolbarComponent,
 
       KfUlComponent,
-      KfLiComponent,
       KfInactifDirective,
   ],
   providers: [
@@ -92,6 +91,10 @@ import { KfNavComponent } from './kf-nav/kf-nav.component';
   ],
   exports: [
       KfComposantComponent,
+      KfGroupeComponent,
+      KfBoutonComponent,
+      KfEtiquetteComponent,
+      KfLienComponent,
       KfInactifDirective,
   ]
 })

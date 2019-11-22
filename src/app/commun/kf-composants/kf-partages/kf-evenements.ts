@@ -97,11 +97,31 @@ export enum KfStatutDEvenement {
     fini = 'fini',
 }
 
-export interface KfEvenement {
-    emetteur: KfComposant;
+export class KfEvenement {
+    private _emetteurs: KfComposant[] = [];
     type: KfTypeDEvenement;
     parametres: any;
-    statut: KfStatutDEvenement;
+    private _statut: KfStatutDEvenement;
+
+    constructor(emetteur: KfComposant, type: KfTypeDEvenement, parametres?: any) {
+        this.type = type;
+        this.ajouteEmetteur(emetteur);
+        this.parametres = parametres;
+        this.statut = KfStatutDEvenement.aTraiter;
+    }
+
+    private ajouteEmetteur(emetteur: KfComposant) {
+        this._emetteurs.push(emetteur);
+    }
+
+    public get emetteurInitial(): KfComposant { return this._emetteurs[0]; }
+    public get emetteur(): KfComposant { return this._emetteurs[this._emetteurs.length - 1]; }
+    public set emetteur(emetteur: KfComposant) { this.ajouteEmetteur(emetteur); }
+
+    public get statut(): KfStatutDEvenement { return this._statut; }
+    public set statut(statut: KfStatutDEvenement) {
+        this._statut = statut;
+    }
 }
 
 export type KfTransformateurDEvenement = (event: Event) => KfEvenement;
@@ -109,7 +129,11 @@ export type KfCapteurDEvenement = (element: HTMLElement, event: Event) => any;
 
 export type KfTraitementDEvenement = (evenement: KfEvenement) => void;
 
-export interface KFTraiteurDEvenement { type: KfTypeDEvenement; traitement: KfTraitementDEvenement; info?: any; }
+export interface KFTraiteurDEvenement {
+    type: KfTypeDEvenement;
+    traitement: KfTraitementDEvenement;
+    info?: any;
+}
 
 /*
 Enchassement des templates à traverser

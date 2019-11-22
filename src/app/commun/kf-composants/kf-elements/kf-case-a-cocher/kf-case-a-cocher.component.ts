@@ -5,6 +5,7 @@ import { KfCaseACocher } from './kf-case-a-cocher';
 @Component({
     selector: 'app-kf-caseacocher',
     templateUrl: './kf-case-a-cocher.component.html',
+    styleUrls: ['../../kf-composants.scss']
 })
 export class KfCaseACocherComponent extends KfComposantComponent implements OnInit, AfterViewInit {
     @ViewChild('inputElement') inputElement: ElementRef;
@@ -16,13 +17,6 @@ export class KfCaseACocherComponent extends KfComposantComponent implements OnIn
     ngOnInit() {
     }
 
-    get ngClass(): {[keys: string]: boolean} {
-        return {
-            'form-check-input': true,
-            'position-static': ! this.composant.contenuPhrase,
-            'is-invalid': this.composant.erreurs.length > 0
-        };
-    }
     get case(): KfCaseACocher {
         return this.composant as KfCaseACocher;
     }
@@ -32,10 +26,10 @@ export class KfCaseACocherComponent extends KfComposantComponent implements OnIn
         this.composant.gereHtml.enfantsDeVue = {
             inputElement: this.inputElement.nativeElement,
         };
-        if (this.case.contenuPhraseAvant || this.case.contenuPhraseApres) {
+        if (this.case.avecLabelAvant || this.case.avecLabelApres) {
             this.composant.gereHtml.enfantsDeVue['labelElement'] = this.labelElement.nativeElement;
         }
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
     }
 
 }

@@ -20,7 +20,7 @@ export interface KfCommandesDeListeInterface {
     texte?: (type: KfTypeDActionDeListe) => KfTexteDef;
     imageAvant?: (type: KfTypeDActionDeListe) => KfImageDef;
     imageApres?: (type: KfTypeDActionDeListe) => KfImageDef;
-    typeDeComposant?: KfTypeDeComposant;
+    type?: KfTypeDeComposant;
     position?: number;
 }
 
@@ -59,7 +59,7 @@ export class KfListeCommandes {
      *      valeur par défaut si imageAvant et imageApres ne sont pas définies: créée à partir de baseDesTextes
      *  @param imageAvant retourne l'imageAvant du déclencheur de l'action du type passé en paramètre
      *  @param imageApres retourne l'imageApres du déclencheur de l'action du type passé en paramètre
-     *  @param typeDeComposant type des déclencheurs, doit être constructible par texte et images et emettre des clics
+     *  @param type type des déclencheurs, doit être constructible par texte et images et emettre des clics
      *      valeur par défaut: LISTE_TYPE_DECLENCHEUR_PAR_DEFAUT
      * }
      */

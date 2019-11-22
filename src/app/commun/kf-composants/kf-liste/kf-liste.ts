@@ -46,6 +46,9 @@ export class KfListe extends KfComposant {
      */
     selecteurs: KfListeSelecteurs;
 
+    // QUANDINDEXChANGE
+
+
     // CONSTRUCTEUR
     /**
     * @param nom identifiant unique dans le groupe ou la liste parent
@@ -126,7 +129,7 @@ export class KfListe extends KfComposant {
     }
 
     trouveItem(texteId: string): object {
-        const id = Number.parseInt(texteId);
+        const id = Number.parseInt(texteId, 10);
         if (this.creeItems.avecIds) {
             const item = this.editions.itemNouveau;
             if (item && this.creeItems.id(item) === id) {
@@ -225,7 +228,7 @@ export class KfListe extends KfComposant {
     préparePourAjout(item: object) {
         this.editions.préparePourAjout(item);
         const contenu = this.contenuDeItem(item);
-        contenu.visibiliteFnc = () => contenu === this.contenuChoisi;
+        contenu.visibilitéFnc = () => contenu === this.contenuChoisi;
         contenu.listeParent = this;
     }
     ajoute(item: object) {

@@ -1,15 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { CategorieALESComponent } from './categorie-ales.component';
 import { PageDef } from 'src/app/commun/page-def';
 import { CategoriePages } from './categorie-pages';
-import { CategorieService } from 'src/app/modeles/categorie.service';
-import { AttenteAsyncService } from 'src/app/services/attenteAsync.service';
-import { NavigationService } from 'src/app/services/navigation.service';
+import { CategorieService } from 'src/app/modeles/catalogue/categorie.service';
 
 @Component({
     templateUrl: '../../../disposition/page-base/page-base.html',
-    styles: []
+    styleUrls: ['../../../commun/commun.scss']
 })
 export class CategorieAjouteComponent extends CategorieALESComponent implements OnInit {
 
@@ -17,15 +15,15 @@ export class CategorieAjouteComponent extends CategorieALESComponent implements 
     pageDef: PageDef = CategoriePages.ajoute;
 
     constructor(
-        protected router: Router,
         protected route: ActivatedRoute,
-        protected service: CategorieService,
-        protected attenteAsyncService: AttenteAsyncService,
-        protected navigationService: NavigationService,
+        protected _service: CategorieService,
     ) {
-        super(router, route, service, attenteAsyncService, navigationService);
+        super(route, _service);
 
         this.titreRésultatErreur = 'Mise à jour impossible';
+
+        this.action = this.actionAjoute();
+        this.action.actionSiOk = () => this._service.quandAjoute(this.categorie);
     }
 
 }

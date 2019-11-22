@@ -1,8 +1,5 @@
 import { Site } from '../modeles/site';
 import { KeyUidRno } from '../commun/data-par-key/key-uid-rno/key-uid-rno';
-import { AppRoutes } from '../app-pages';
-import { SiteRoutes } from '../site/site-pages';
-import { TypesRoles } from './type-role';
 
 export class JwtIdentifiant {
     Id: string;
@@ -14,16 +11,13 @@ export class IdentifiantRole {
     etat: string;
     nomSite: string;
 
-    estIdentique(role: IdentifiantRole): boolean {
-        return this.rno === role.rno
-            && this.etat === role.etat
-            && this.nomSite === role.nomSite;
+    constructor(iRole: IdentifiantRole) {
+        this.copie(iRole);
     }
-
-    copie(role: IdentifiantRole) {
-        this.rno = role.rno;
-        this.etat = role.etat;
-        this.nomSite = role.nomSite;
+    copie(iRole: IdentifiantRole) {
+        this.rno = iRole.rno;
+        this.etat = iRole.etat;
+        this.nomSite = iRole.nomSite;
     }
 }
 export class Identifiant {
@@ -33,6 +27,11 @@ export class Identifiant {
     etat: string;
     roles: IdentifiantRole[];
     sites: Site[];
+    noDernierRole: number;
+
+    constructor(identifiant: Identifiant) {
+        this.copie(identifiant);
+    }
 
     static keyEnCours(identifiant: Identifiant, siteEnCours: Site): KeyUidRno {
         return identifiant.estUsager(siteEnCours) ? {
@@ -41,42 +40,20 @@ export class Identifiant {
         } : null;
     }
 
-    private sansRole(identifiant: Identifiant): any {
-        return {
-            userId: this.userId,
-            userName: this.userName,
-            uid: this.uid,
-            etat: this.etat,
-            roles: this.roles
-        };
-    }
-
-    estIdentique(identifiant: Identifiant): boolean {
-        return JSON.stringify(this.sansRole(this)) === JSON.stringify(this.sansRole(identifiant));
-    }
-
     copie(identifiant: Identifiant) {
         this.userId = identifiant.userId;
         this.userName = identifiant.userName;
         this.uid = identifiant.uid;
         this.etat = identifiant.etat;
-        this.roles = identifiant.roles.map(r => {
-            const role = new IdentifiantRole();
-            role.copie(r);
-            return role;
-        });
-        this.sites = identifiant.sites.map(s => {
-            const site = new Site();
-            site.copie(s);
-            return site;
-        });
+        this.roles = identifiant.roles.map(role => new IdentifiantRole(role));
+        this.sites = identifiant.sites.map(site => new Site(site));
+        this.noDernierRole = identifiant.noDernierRole;
     }
 
     get nomSiteParDéfaut(): string {
-        if (this.sites.length > 0) {
-            return this.sites[0].nomSite;
-        } else {
-            return this.roles[0].nomSite;
+        if (this.roles.length > 0) {
+            const role = this.roles.find(r => r.rno === this.noDernierRole);
+            return role ? role.nomSite : this.roles[0].nomSite;
         }
     }
 
@@ -92,11 +69,26 @@ export class Identifiant {
         return this.uid === site.uid;
     }
 
-    roleClient(site: Site): IdentifiantRole {
-        return this.uid !== site.uid ? this.roles.find(role => role.nomSite === site.nomSite) : undefined;
+    roleNo(site: Site): number {
+        if (this.uid === site.uid) {
+            return site.rno;
+        } else {
+            const role = this.roles.find(r => r.nomSite === site.nomSite);
+            if (role) {
+                return role.rno;
+            }
+        }
+    }
+    keyClient(site: Site): KeyUidRno {
+        if (this.uid !== site.uid) {
+            const role = this.roles.find(r => r.nomSite === site.nomSite);
+            if (role) {
+                return { uid: this.uid, rno: role.rno };
+            }
+        }
     }
     estClient(site: Site): boolean {
-        return this.roleClient(site) !== undefined;
+        return this.keyClient(site) !== undefined;
     }
 
     estUsagerDeNomSite(nomSite: string): boolean {

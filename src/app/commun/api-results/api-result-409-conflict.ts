@@ -6,6 +6,7 @@ export class ApiResult409Conflict extends ApiResult {
 
     constructor(
     ) {
-        super(409, [AppRoutes.url([AppPages.conflit.urlSegment])]);
+        super(409);
+        this.routeErreur = [AppPages.conflit.urlSegment];
     }
 }

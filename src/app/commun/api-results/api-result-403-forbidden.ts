@@ -5,6 +5,7 @@ export class ApiResult403Forbidden extends ApiResult {
     static code = 403;
 
     constructor() {
-        super(403, [AppRoutes.url([AppPages.interdit.urlSegment])]);
+        super(403);
+        this.routeErreur = [AppPages.interdit.urlSegment];
     }
 }

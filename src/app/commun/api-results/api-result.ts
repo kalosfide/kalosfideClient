@@ -1,10 +1,13 @@
-export abstract class ApiResult {
+export class ApiResult {
     statusCode: number;
-    routeErreur: any[];
+    ok: boolean;
+    routeErreur: string[];
+    routeErreurAbsolue: boolean;
+    paramRouteErreur: any;
+    traite: () => void;
 
-    constructor(statusCode: number, routeErreur?: any[]) {
+    constructor(statusCode: number) {
         this.statusCode = statusCode;
-        this.routeErreur = routeErreur;
     }
 
 }

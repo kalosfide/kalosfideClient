@@ -6,6 +6,9 @@ import { KfComposant } from './kf-composant';
 import { KfDocumentContexte } from '../kf-constantes';
 import { KfBouton } from '../kf-elements/kf-bouton/kf-bouton';
 import { KfTypeDeBouton, KfTypeDeComposant } from '../kf-composants-types';
+import { KfGroupe } from '../kf-groupe/kf-groupe';
+import { EventEmitter } from '@angular/core';
+import { Observable } from 'rxjs';
 
 enum KfKeyboardKey {
     enter = 'Enter',
@@ -51,6 +54,7 @@ export class KfComposantGereHtml {
     suitLeStatut: boolean;
     /** permet de suspendre le suivi du statut et de la valeur */
     suspendSuitLeStatut: boolean;
+
     /**
      * si suitLaValeur, le component emet un KfEvenenment valeurChange en réponse à un événement valueChanges de l'abstractControl
      */
@@ -59,9 +63,51 @@ export class KfComposantGereHtml {
     suspendSuitLaValeur: boolean;
 
     suitLeFocus: boolean;
+    private _valeurAvantFocus: any;
+    private _valeurQuandPerdFocus: any;
+    private _valeurChangePendantFocus: Observable<boolean>;
+
+    // ATTRIBUTS HTML
+    private _attributs: { nom: string, valeur: string }[];
 
     constructor(composant: KfComposant) {
         this.composant = composant;
+    }
+
+    /**
+     * fixe les évènements concernant la valeur
+     */
+    prépareRacineV() {
+        if (this.composant.type !== KfTypeDeComposant.groupe || !this.composant.estRacineV) {
+            return;
+        }
+        const groupe = this.composant as KfGroupe;
+        if (groupe.sauveQuandChange) {
+            this.suitLaValeur = true;
+            this.ajouteTraiteur(KfTypeDEvenement.valeurChange,
+                (e: KfEvenement) => {
+                    this.suspendSuitLeStatut = true;
+                    this.suspendSuitLaValeur = true;
+                    groupe.gereValeur.depuisControl();
+                    this.suspendSuitLeStatut = false;
+                    this.suspendSuitLaValeur = false;
+                    e.statut = KfStatutDEvenement.fini;
+                }
+            );
+        } else {
+            this.ajouteTraiteur(KfTypeDEvenement.retablit,
+                (e: KfEvenement) => {
+                    groupe.rétablitFormulaire();
+                    e.statut = KfStatutDEvenement.fini;
+                }
+            );
+            this.ajouteTraiteur(KfTypeDEvenement.soumet,
+                (e: KfEvenement) => {
+                    groupe.soumetFormulaire();
+                    e.statut = KfStatutDEvenement.fini;
+                }
+            );
+        }
     }
 
     // DEFINITION
@@ -85,13 +131,22 @@ export class KfComposantGereHtml {
 
     get estFocusable(): boolean {
         return this.doitDéclencherFocusEtBlur || KfDocumentContexte.suitLeFocus || (KfDocumentContexte.suitLeFocusFormEtClic
-                        && (this.composant.estFormulaire || this.composant.estEntree
-                            || this.composant.typeDeComposant === KfTypeDeComposant.radio
-                            || this.déclencheClick));
+            && (this.composant.estFormulaire || this.composant.estEntree
+                || this.composant.type === KfTypeDeComposant.radio
+                || this.déclencheClick));
     }
 
-    // INITIALISATION
-    initialiseHtml() {
+    // INITIALISATION DES HTMLELEMENTS
+    /**
+     * Initialise les attributs, les évènements
+     */
+    initialiseHtml(output: EventEmitter<KfEvenement>) {
+        if (this._attributs) {
+            this._attributs.forEach(a => {
+                this.htmlElement.setAttribute(a.nom, a.valeur);
+            });
+            this._attributs = undefined; // devenu inutile
+        }
         if (this.composant.titleHtml) {
             this.htmlElement.title = this.composant.titleHtml;
         }
@@ -104,6 +159,23 @@ export class KfComposantGereHtml {
         if (this.doitDéclencherFocusEtBlur) {
             this.ajouteEvenementASuivre(KfTypeDHTMLEvents.blur);
             this.ajouteEvenementASuivre(KfTypeDHTMLEvents.focus);
+        }
+        if (this.evenementsADéclencher) {
+            this.evenementsADéclencher.forEach(
+                htmlEventType =>
+                    this.htmlElement['on' + htmlEventType] =
+                    (event: Event): any => {
+                        const evenement = this.transformateur(htmlEventType)(event);
+                        output.emit(evenement);
+                        switch (evenement.statut) {
+                            case KfStatutDEvenement.fini:
+                                event.stopPropagation();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+            );
         }
     }
 
@@ -125,6 +197,38 @@ export class KfComposantGereHtml {
         return false;
     }
 
+    private traiteFocusChange(quandChange: () => Observable<boolean>): KfTraitementDEvenement {
+        return ((evenement: KfEvenement) => {
+            if (evenement.type === KfTypeDEvenement.focusPris) {
+                this._valeurAvantFocus = this.composant.abstractControl.value;
+                    return;
+            }
+            if (evenement.type === KfTypeDEvenement.focusPerdu) {
+                if (this.composant.abstractControl.valid) {
+                    const valeur = this.composant.abstractControl.value;
+                    if ('' + this._valeurAvantFocus !== '' + valeur) {
+                        const subscription = quandChange().subscribe(
+                            ok => {
+                                subscription.unsubscribe();
+                                if (!ok) {
+                                    this.composant.gereValeur.valeur = this._valeurAvantFocus;
+                                }
+                            }
+                        );
+                    }
+                } else {
+                    this.composant.gereValeur.valeur = this._valeurAvantFocus;
+                }
+            }
+        }).bind(this);
+    }
+
+    suitValeurEtFocus(quandChange: () => Observable<boolean>) {
+        this.suitLeFocus = true;
+        this.ajouteTraiteur(KfTypeDEvenement.focusPris, this.traiteFocusChange(quandChange));
+        this.ajouteTraiteur(KfTypeDEvenement.focusPerdu, this.traiteFocusChange(quandChange));
+    }
+
     // DECLENCHEURS
     transformateur(htmlEventType: KfTypeDHTMLEvents): (event: Event) => KfEvenement {
         switch (htmlEventType) {
@@ -142,12 +246,7 @@ export class KfComposantGereHtml {
     }
 
     transforme = (event: Event): KfEvenement => {
-        return {
-            emetteur: this.composant,
-            type: KfTypeDEvenement.html,
-            parametres: event,
-            statut: KfStatutDEvenement.aTraiter
-        };
+        return new KfEvenement(this.composant, KfTypeDEvenement.html, event);
     }
     transformeClick = (): KfEvenement => {
         let type: KfTypeDEvenement;
@@ -164,12 +263,7 @@ export class KfComposantGereHtml {
                 type = KfTypeDEvenement.clic;
                 break;
         }
-        return {
-            emetteur: this.composant,
-            type: type,
-            parametres: null,
-            statut: KfStatutDEvenement.aTraiter
-        };
+        return new KfEvenement(this.composant, type);
     }
     transformeKeyDown = (event: Event): KfEvenement => {
         const keyEvent = event as KeyboardEvent;
@@ -180,30 +274,15 @@ export class KfComposantGereHtml {
                 return this.transformeClick();
             }
         }
-        return {
-            emetteur: this.composant,
-            type: KfTypeDEvenement.toucheBaissee,
-            parametres: event,
-            statut: KfStatutDEvenement.aTraiter
-        };
+        return new KfEvenement(this.composant, KfTypeDEvenement.toucheBaissee, event);
     }
     transformeBlur = (): KfEvenement => {
         KfDocumentContexte.quandPerdFocus(this.composant);
-        return {
-            emetteur: this.composant,
-            type: KfTypeDEvenement.focusPerdu,
-            parametres: null,
-            statut: KfStatutDEvenement.aTraiter
-        };
+        return new KfEvenement(this.composant, KfTypeDEvenement.focusPerdu);
     }
     transformeFocus = (): KfEvenement => {
         KfDocumentContexte.quandPrendFocus(this.composant);
-        return {
-            emetteur: this.composant,
-            type: KfTypeDEvenement.focusPris,
-            parametres: null,
-            statut: KfStatutDEvenement.aTraiter
-        };
+        return new KfEvenement(this.composant, KfTypeDEvenement.focusPris);
     }
 
     // TRAITEMENT
@@ -226,23 +305,56 @@ export class KfComposantGereHtml {
             this.traiteurDEvenements = [t];
         }
     }
+    /**
+     * fixe la procédure de traitement
+     * les traitements précédents de ce type d'évènement sont supprimés
+     * @param typeEvenement à traiter
+     * @param traitement procédure qui traite ou non en fonction de son emetteur
+     * @param info pour distinguer les traitements au déboguage
+     */
+    supprimeTraiteurs(typeEvenement: KfTypeDEvenement) {
+        if (this.traiteurDEvenements) {
+            const traiteur = this.traiteurDEvenements.filter(t1 => t1.type !== typeEvenement);
+            this.traiteurDEvenements = traiteur.length > 0 ? traiteur : undefined;
+        }
+    }
+    /**
+     * fixe la procédure de traitement
+     * les traitements précédents de ce type d'évènement sont supprimés
+     * @param typeEvenement à traiter
+     * @param traitement procédure qui traite ou non en fonction de son emetteur
+     * @param info pour distinguer les traitements au déboguage
+     */
+    fixeTraiteur(typeEvenement: KfTypeDEvenement, traitement?: KfTraitementDEvenement, info?: any) {
+        this.supprimeTraiteurs(typeEvenement);
+        this.ajouteTraiteur(typeEvenement, traitement, info);
+    }
 
     /**
      *  à la sortie, evenement.fini est true si l'évènement a été traité
      */
     traite(evenement: KfEvenement) {
         if (this.traiteurDEvenements) {
-            this.traiteurDEvenements.find(
-                t => {
-                    if (t.type === evenement.type) {
-                        t.traitement(evenement);
-                        if (evenement.statut !== KfStatutDEvenement.aTraiter) {
-                            return true;
-                        }
-                    }
+            const traiteurs = this.traiteurDEvenements.filter(t => t.type === evenement.type);
+            for (let index = 0; index < traiteurs.length; index++) {
+                traiteurs[index].traitement(evenement);
+                if (evenement.statut !== KfStatutDEvenement.aTraiter) {
+                    return true;
                 }
-            );
+            }
         }
     }
 
+    // ATTRIBUTS HTML
+    fixeAttribut(nom: string, valeur?: string) {
+        if (!this._attributs) {
+            this._attributs = [];
+        }
+        const index = this._attributs.findIndex(a => a.nom === nom);
+        if (index === -1) {
+            this._attributs.push({ nom: nom, valeur: valeur });
+        } else {
+            this._attributs[index].valeur = valeur;
+        }
+    }
 }

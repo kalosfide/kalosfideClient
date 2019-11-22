@@ -4,27 +4,12 @@ import { AppSitePages } from './app-site-pages';
 import { PageBaseComponent } from '../disposition/page-base/page-base.component';
 import { AppSite } from './app-site';
 import { KfSuperGroupe } from '../commun/kf-composants/kf-groupe/kf-super-groupe';
-import { KfEtiquette } from '../commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
-import { KfTypeDeBaliseHTML } from '../commun/kf-composants/kf-composants-types';
-import { KfTexte } from '../commun/kf-composants/kf-elements/kf-texte/kf-texte';
-import { KfIcone } from '../commun/kf-composants/kf-elements/kf-icone/kf-icone';
-import { CODE_ACCEPTE, ICONE_ACCEPTER, CODE_REFUSE, ICONE_REFUSER } from '../fournisseur/f-commandes/f-commande';
-import { KfTypeDHTMLEvents, KfTypeDEvenement, KfEvenement, KfStatutDEvenement } from '../commun/kf-composants/kf-partages/kf-evenements';
-import { KfGroupe } from '../commun/kf-composants/kf-groupe/kf-groupe';
-import { KfBouton } from '../commun/kf-composants/kf-elements/kf-bouton/kf-bouton';
-import { KfRadios } from '../commun/kf-composants/kf-elements/kf-radios/kf-radios';
-import { KfRadio } from '../commun/kf-composants/kf-elements/kf-radios/kf-radio';
-import { KfInputTexte } from '../commun/kf-composants/kf-elements/kf-input/kf-input-texte';
 import { KfValidateurs } from '../commun/kf-composants/kf-partages/kf-validateur';
-import { Fabrique } from '../disposition/fabrique/fabrique';
-import { KfLien } from '../commun/kf-composants/kf-elements/kf-lien/kf-lien';
-import { KfInputDate } from '../commun/kf-composants/kf-elements/kf-input/kf-input-date';
-import { KfInputTemps } from '../commun/kf-composants/kf-elements/kf-input/kf-input-temps';
 import { Dateur } from '../commun/outils/dateur';
 import { KfInputDateTemps } from '../commun/kf-composants/kf-elements/kf-input/kf-input-date-temps';
 
 @Component({
-    templateUrl: '../disposition/page-base/page-base.html',
+    templateUrl: '../disposition/page-base/page-base.html', styleUrls: ['../commun/commun.scss']
 })
 export class AppSiteContactComponent extends PageBaseComponent {
 

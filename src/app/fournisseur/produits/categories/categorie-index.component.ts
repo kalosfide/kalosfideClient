@@ -1,24 +1,29 @@
 import { Component, OnInit } from '@angular/core';
 import { KeyUidRnoNoIndexComponent } from 'src/app/commun/data-par-key/key-uid-rno-no/key-uid-rno-no-index.component';
-import { Categorie } from 'src/app/modeles/categorie';
+import { Categorie } from 'src/app/modeles/catalogue/categorie';
 import { PageDef } from 'src/app/commun/page-def';
 import { CategoriePages, CategorieRoutes } from './categorie-pages';
 import { Site } from 'src/app/modeles/site';
 import { Identifiant } from 'src/app/securite/identifiant';
-import { Router, ActivatedRoute } from '@angular/router';
-import { CategorieService } from 'src/app/modeles/categorie.service';
-import { KfLien } from 'src/app/commun/kf-composants/kf-elements/kf-lien/kf-lien';
-import { KfAfficheResultat } from 'src/app/commun/kf-composants/kf-elements/kf-affiche-resultat/kf-affiche-resultat';
-import { KfResultatAffichable } from 'src/app/commun/kf-composants/kf-elements/kf-affiche-resultat/kf-resultat-affichable';
-import { KfTypeResultatAffichable } from 'src/app/commun/kf-composants/kf-elements/kf-affiche-resultat/kf-type-resultat-affichable';
-import { FournisseurPages } from '../../fournisseur-pages';
+import { ActivatedRoute } from '@angular/router';
+import { CategorieService } from 'src/app/modeles/catalogue/categorie.service';
 import { ProduitRoutes, ProduitPages } from '../produit-pages';
-import { KfVueTableDef } from 'src/app/commun/kf-composants/kf-vue-table/kf-vue-table';
+import { IKfVueTableDef } from 'src/app/commun/kf-composants/kf-vue-table/i-kf-vue-table-def';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
+import { IdEtatSite } from 'src/app/modeles/etat-site';
+import { Catalogue } from 'src/app/modeles/catalogue/catalogue';
+import { IGroupeTableDef } from 'src/app/disposition/page-table/groupe-table';
+import { EtatTableType } from 'src/app/disposition/page-table/etat-table';
+import { ModeTable } from 'src/app/commun/data-par-key/condition-table';
+import { IBarreDef } from 'src/app/disposition/fabrique/fabrique-barre-titre/fabrique-barre-titre';
+import { IUrlDef } from 'src/app/disposition/fabrique/fabrique-url';
+import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
+import { KfEtiquette } from 'src/app/commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
+import { KfTypeDeBaliseHTML } from 'src/app/commun/kf-composants/kf-composants-types';
 
 @Component({
     templateUrl: '../../../disposition/page-base/page-base.html',
-    styles: []
+    styleUrls: ['../../../commun/commun.scss']
 })
 export class CategorieIndexComponent extends KeyUidRnoNoIndexComponent<Categorie> implements OnInit {
 
@@ -34,38 +39,92 @@ export class CategorieIndexComponent extends KeyUidRnoNoIndexComponent<Categorie
 
     site: Site;
     identifiant: Identifiant;
-    vueTableDef: KfVueTableDef<Categorie> = {
-        enTetesDef: [{ texte: 'Nom' }, { texte: 'Produits' }],
-        cellules: (item: Categorie) => [item.nom, item.nbProduits.toString()],
-        commandes: (item: Categorie) => [this.créeLienEdite(item)]
-    };
+
+    catalogue: Catalogue;
 
     constructor(
-        protected router: Router,
         protected route: ActivatedRoute,
         protected service: CategorieService,
     ) {
-        super(router, route, service);
+        super(route, service);
     }
 
-    appRouteDeKey = (categorie: Categorie): string => {
-        return '' + categorie.no;
+    protected get barreTitreDef(): IBarreDef {
+        const urlDef: IUrlDef = {
+            pageDef: ProduitPages.index,
+            routes: ProduitRoutes,
+            nomSite: this.site.nomSite
+        };
+        const lien = Fabrique.lien.retour(urlDef);
+        const def = this._barreTitreDef;
+        def.boutonsPourBtnGroup = [[lien]];
+        return def;
     }
 
-    private get lienRetourAuxProduits(): KfLien {
-        const lien = Fabrique.lienBouton(ProduitPages.index, ProduitRoutes, this.site.nomSite);
-        lien.fixeTexte('Retour aux produits');
-        return lien;
+    protected contenuAidePage = (): KfComposant[] => {
+        const infos: KfComposant[] = [];
+
+        let etiquette: KfEtiquette;
+
+        etiquette = Fabrique.ajouteEtiquetteP(infos);
+        Fabrique.ajouteTexte(etiquette,
+            `Ceci est `,
+            { t: 'à faire', b: KfTypeDeBaliseHTML.b},
+            '.'
+        );
+
+        return infos;
     }
 
-    ngOnInit() {
-        this.site = this.service.navigation.siteEnCours;
-        this.avantTable = () => [this.créeLienAjoute()];
-        this.apresTable = [this.lienRetourAuxProduits];
-        const resultatListeVide = new KfAfficheResultat('listevide');
-        resultatListeVide.finit(new KfResultatAffichable(KfTypeResultatAffichable.Avertissement, 'Il n\'a pas de categories de produits.'));
-        this.remplaceListeVide = resultatListeVide;
-        this.ngOnInit_Charge();
+    créeGroupeTableDef(): IGroupeTableDef<Categorie> {
+        const outils = Fabrique.vueTable.outils<Categorie>(this.nom);
+        outils.ajoute(this.service.utile.outils.catégorie());
+        const outilAjoute = this.service.utile.outils.ajoute();
+        outilAjoute.bbtnGroup.afficherSi(this.service.utile.conditionTable.edition);
+        outils.ajoute(outilAjoute);
+
+        const vueTableDef: IKfVueTableDef<Categorie> = {
+            outils: outils,
+            colonnesDef: this.service.utile.colonne.colonnes(),
+            id: (catégorie: Categorie) => '' + catégorie.no,
+        };
+
+        return {
+            vueTableDef: vueTableDef,
+            typeEtat: EtatTableType.remplaceTableSiVide
+        };
+    }
+
+    calculeModeTable(): ModeTable {
+        return this.site.etat === IdEtatSite.catalogue ? ModeTable.edite : ModeTable.aperçu;
+    }
+
+    rafraichit() {
+        this.service.changeModeTable(this.calculeModeTable());
+    }
+
+    aprèsChargeData() {
+        this.subscriptions.push(
+            this.service.navigation.siteObs().subscribe(() => this.rafraichit())
+        );
+    }
+
+    protected chargeGroupe() {
+        this.groupeTable.etat.initialise('Il n\'a pas de categories de produits.', this.lienDefAjoute(), 'warning');
+        this._chargeVueTable(this.liste);
+    }
+
+    avantChargeData() {
+        this.site = this._service.navigation.litSiteEnCours();
+        this.identifiant = this._service.identification.litIdentifiant();
+    }
+
+    créePageTableDef() {
+        this.pageTableDef = this.créePageTableDefBase();
+        this.pageTableDef.avantChargeData = () => this.avantChargeData();
+        this.pageTableDef.initialiseUtile = () => this.service.initialiseModeTable(this.calculeModeTable());
+        this.pageTableDef.chargeGroupe = () => this.chargeGroupe();
+        this.pageTableDef.aprèsChargeData = () => this.aprèsChargeData();
     }
 
 }

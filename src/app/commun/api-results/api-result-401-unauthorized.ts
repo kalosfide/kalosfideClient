@@ -6,6 +6,8 @@ export class ApiResult401Unauthorized extends ApiResult {
     static code = 401;
 
     constructor() {
-        super(401, [AppPages.compte.urlSegment, ComptePages.connection.urlSegment]);
+        super(401);
+        this.routeErreur = [AppPages.compte.urlSegment, ComptePages.connection.urlSegment];
+        this.routeErreurAbsolue = true;
     }
 }

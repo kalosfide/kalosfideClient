@@ -5,6 +5,8 @@ import { SiteResolverService } from './site-resolver.service';
 import { VisiteurRacineComponent } from './visiteur-racine-component';
 import { FournisseurRacineComponent } from './fournisseur-racine-component';
 import { ClientRacineComponent } from './client-racine-component';
+import { FournisseurGarde } from '../securite/fournisseur-garde';
+import { ClientGarde } from '../securite/client-garde';
 
 const routes: Routes = [
     {
@@ -21,17 +23,19 @@ const routes: Routes = [
             {
                 path: SitePages.visiteur.urlSegment,
                 component: VisiteurRacineComponent,
-                loadChildren: '../visiteur/visiteur.module#VisiteurModule'
+                loadChildren: () => import('../visiteur/visiteur.module').then(mod => mod.VisiteurModule)
             },
             {
                 path: SitePages.fournisseur.urlSegment,
                 component: FournisseurRacineComponent,
-                loadChildren: '../fournisseur/fournisseur.module#FournisseurModule'
+                canActivateChild: [FournisseurGarde],
+                loadChildren: () => import('../fournisseur/fournisseur.module').then(mod => mod.FournisseurModule)
             },
             {
                 path: SitePages.client.urlSegment,
                 component: ClientRacineComponent,
-                loadChildren: '../client/client.module#ClientModule'
+                canActivateChild: [ClientGarde],
+                loadChildren: () => import('../client/client.module').then(mod => mod.ClientModule)
             },
 
         ]

@@ -9,6 +9,7 @@ import { KfComposantComponent } from '../../kf-composant/kf-composant.component'
         <pre #preElement>{{ composant.texte }}</pre>
     </div>
   `,
+    styleUrls: ['../../kf-composants.scss']
 })
 export class KfVueJsonComponent extends KfComposantComponent implements AfterViewInit {
     @ViewChild('preElement') preElement: ElementRef;
@@ -22,7 +23,7 @@ export class KfVueJsonComponent extends KfComposantComponent implements AfterVie
         this.composant.gereHtml.enfantsDeVue = {
             preElement: this.preElement.nativeElement,
         };
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
     }
 
 }

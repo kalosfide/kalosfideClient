@@ -20,7 +20,8 @@ import { KfTypeDEvenement, KfStatutDEvenement, KfEvenement } from '../../kf-part
     </label>
     <!--
     -->
-`
+`,
+    styleUrls: ['../../kf-composants.scss']
 })
 export class KfFichierComponent extends KfComposantComponent implements OnInit, AfterViewInit {
     @ViewChild('inputElement') inputElement: ElementRef;
@@ -42,7 +43,7 @@ export class KfFichierComponent extends KfComposantComponent implements OnInit, 
             inputElement: this.inputElement.nativeElement,
             labelElement: this.labelElement.nativeElement,
         };
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
         const inputElement = this.inputElement.nativeElement as HTMLInputElement;
     }
 
@@ -54,12 +55,7 @@ export class KfFichierComponent extends KfComposantComponent implements OnInit, 
         for (let i = 0; i < files.length; i++) {
             this.fichier.files.push(files[i]);
         }
-        const evenement: KfEvenement = {
-            emetteur: this.composant,
-            type: KfTypeDEvenement.fichiersChoisis,
-            parametres: files,
-            statut: KfStatutDEvenement.aTraiter
-        };
+        const evenement = new KfEvenement(this.composant, KfTypeDEvenement.fichiersChoisis, files);
         this.output.emit(evenement);
     }
 

@@ -1,31 +1,38 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { ProduitALESComponent } from './produit-ales.component';
 import { PageDef } from 'src/app/commun/page-def';
 import { ProduitPages } from './produit-pages';
-import { ProduitService } from 'src/app/modeles/produit.service';
-import { AttenteAsyncService } from 'src/app/services/attenteAsync.service';
-import { NavigationService } from 'src/app/services/navigation.service';
+import { ProduitService } from 'src/app/modeles/catalogue/produit.service';
+import { ActionAles } from 'src/app/commun/data-par-key/data-key-ales.component';
+import { IdEtatProduit } from 'src/app/modeles/catalogue/etat-produit';
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',
-    styles: []
+    styleUrls: ['../../commun/commun.scss']
 })
 export class ProduitAjouteComponent extends ProduitALESComponent implements OnInit {
 
     static _pageDef: PageDef = ProduitPages.ajoute;
     pageDef: PageDef = ProduitPages.ajoute;
 
+    action: ActionAles;
+
     constructor(
-        protected router: Router,
         protected route: ActivatedRoute,
-        protected service: ProduitService,
-        protected attenteAsyncService: AttenteAsyncService,
-        protected navigationService: NavigationService,
+        protected _service: ProduitService,
     ) {
-        super(router, route, service, attenteAsyncService, navigationService);
+        super(route, _service);
 
         this.titreRésultatErreur = 'Mise à jour impossible';
+
+        this.action = this.actionAjoute();
+        this.action.actionSiOk = () => {
+            if (this.produit.etat === IdEtatProduit.disponible) {
+                this.metAJourNbProduits(1);
+            }
+            this._service.quandAjoute(this.produit);
+        };
     }
 
 }

@@ -1,8 +1,45 @@
 import { KfComposant } from '../commun/kf-composants/kf-composant/kf-composant';
-import { KfInputTexte } from '../commun/kf-composants/kf-elements/kf-input/kf-input-texte';
 import { KfValidateurs } from '../commun/kf-composants/kf-partages/kf-validateur';
 import { IKeyUidRno } from '../commun/data-par-key/key-uid-rno/i-key-uid-rno';
 import { EtapeDeFormulaireEditeur } from '../disposition/formulaire/etape-de-formulaire';
+import { Fabrique } from '../disposition/fabrique/fabrique';
+
+export class FournisseurProfil {
+    nom: string;
+    adresse: string;
+}
+
+export class FournisseurEditeur implements EtapeDeFormulaireEditeur {
+
+    créeContenus(): KfComposant[] {
+        const champs: KfComposant[] = [];
+        const nom = Fabrique.input.texte('nom', 'Nom');
+        nom.ajouteValidateur(KfValidateurs.required);
+        champs.push(nom);
+        const adresse = Fabrique.input.texte('adresse', 'Adresse');
+        adresse.ajouteValidateur(KfValidateurs.required);
+        champs.push(adresse);
+        return champs;
+    }
+}
+
+export class FournisseurSite implements IKeyUidRno {
+    uid: string;
+    rno: number;
+    nomSite: string;
+    titre: string;
+
+    static créeChamps(): KfComposant[] {
+        const champs: KfComposant[] = [];
+        const nomSite = Fabrique.input.texte('nomSite', 'Nom du site');
+        nomSite.ajouteValidateur(KfValidateurs.required);
+        champs.push(nomSite);
+        const titre = Fabrique.input.texte('titre', 'Titre du site');
+        titre.ajouteValidateur(KfValidateurs.required);
+        champs.push(titre);
+        return champs;
+    }
+}
 
 export class FournisseurModel {
     nom: string;
@@ -51,43 +88,6 @@ export class FournisseurModel {
     set site(site: FournisseurSite) {
         this.nomSite = site.nomSite;
         this.titre = site.titre;
-    }
-}
-
-export class FournisseurProfil {
-    nom: string;
-    adresse: string;
-}
-
-export class FournisseurEditeur implements EtapeDeFormulaireEditeur {
-
-    créeContenus(): KfComposant[] {
-        const champs: KfComposant[] = [];
-        const nom = new KfInputTexte('nom', 'Nom');
-        nom.ajouteValidateur(KfValidateurs.required);
-        champs.push(nom);
-        const adresse = new KfInputTexte('adresse', 'Adresse');
-        adresse.ajouteValidateur(KfValidateurs.required);
-        champs.push(adresse);
-        return champs;
-    }
-}
-
-export class FournisseurSite implements IKeyUidRno {
-    uid: string;
-    rno: number;
-    nomSite: string;
-    titre: string;
-
-    static créeChamps(): KfComposant[] {
-        const champs: KfComposant[] = [];
-        const nomSite = new KfInputTexte('nomSite', 'Nom du site');
-        nomSite.ajouteValidateur(KfValidateurs.required);
-        champs.push(nomSite);
-        const titre = new KfInputTexte('titre', 'Titre du site');
-        titre.ajouteValidateur(KfValidateurs.required);
-        champs.push(titre);
-        return champs;
     }
 }
 

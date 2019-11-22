@@ -10,11 +10,10 @@ export class KfRadios extends KfEntrée {
 
     constructor(nom: string) {
         super(nom, KfTypeDeComposant.radios);
-        this._valeur = null;
     }
 
     ajoute(composant: KfComposant) {
-        if (composant.typeDeComposant === KfTypeDeComposant.radio) {
+        if (composant.type === KfTypeDeComposant.radio) {
             this.noeud.Ajoute(composant.noeud);
             return;
         }

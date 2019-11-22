@@ -21,7 +21,7 @@ export class KfImage extends KfElement {
     }
 
     get avecLargeur(): boolean {
-        return !!this.imageDef.largeurDef;
+        return this.imageDef.largeurDef !== undefined;
     }
 
     get largeur(): number {
@@ -29,7 +29,7 @@ export class KfImage extends KfElement {
     }
 
     get avecHauteur(): boolean {
-        return !!this.imageDef.hauteurDef;
+        return this.imageDef.hauteurDef !== undefined;
     }
 
     get hauteur(): number {

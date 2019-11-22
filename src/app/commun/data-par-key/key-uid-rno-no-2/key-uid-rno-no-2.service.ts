@@ -17,6 +17,10 @@ export abstract class KeyUidRnoNo2Service<T extends IKeyUidRnoNo2> extends DataK
         return key;
     }
 
+    fixeKeyDeAjoute(envoyé: T, reçu: T) {
+        envoyé.no = reçu.no;
+    }
+
     créeParams(objet: DataKey): { [param: string]: string } {
         const key = objet as IKeyUidRnoNo2;
         return key.no ? {

@@ -1,6 +1,9 @@
 import { Component, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 import { KfComposantComponent } from '../kf-composant/kf-composant.component';
-import { IKfVueTable, IKfVueTableLigne } from './kf-vue-table';
+import { IKfVueTable } from './kf-vue-table';
+import { IKfVueTableLigne } from './kf-vue-table-ligne';
+import { KfNgClasse } from '../kf-partages/kf-gere-css-classe';
+import { IKfVueTableOutilVue } from './kf-vue-table-outil';
 
 @Component({
     selector: 'app-kf-vue-table',
@@ -18,18 +21,30 @@ export class KfVueTableComponent extends KfComposantComponent implements AfterVi
         return (this.composant as any) as IKfVueTable;
     }
 
+    get avecOutils(): boolean {
+        return !!this.vueTable.outils && !this.vueTable.outils.nePasAfficher;
+    }
+
+    get classeFiltres(): KfNgClasse {
+        if (this.vueTable.outils) {
+            return this.vueTable.outils.classe;
+        }
+    }
+
+    get ifiltres(): IKfVueTableOutilVue[] {
+        return this.vueTable.outils.outils;
+    }
+
     get lignes(): IKfVueTableLigne[] {
-        return this.vueTable.lignes;
+        return this.vueTable.ilignes;
     }
 
     ngAfterViewInit() {
-        console.log(this.composant);
-        console.log(this.vueTable);
         this.composant.gereHtml.htmlElement = this.tableElement.nativeElement;
         this.composant.gereHtml.enfantsDeVue = {
             tableElement: this.tableElement.nativeElement,
         };
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
     }
 
 }

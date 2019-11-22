@@ -1,12 +1,11 @@
-import { Router, ActivatedRoute } from '@angular/router';
-import { DataKeyALESComponent } from 'src/app/commun/data-par-key/data-key-ales.component';
+import { ActivatedRoute } from '@angular/router';
 import { Site } from 'src/app/modeles/site';
 import { SiteService } from 'src/app/modeles/site.service';
-import { AttenteAsyncService } from 'src/app/services/attenteAsync.service';
 import { SiteEditeur } from './site-editeur';
 import { FSitePages, FSiteRoutes } from './f-site-pages';
+import { KeyUidRnoALESComponent } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno-ales.component';
 
-export abstract class SiteALESComponent extends DataKeyALESComponent<Site> {
+export abstract class SiteALESComponent extends KeyUidRnoALESComponent<Site> {
 
     site: null;
 
@@ -14,12 +13,14 @@ export abstract class SiteALESComponent extends DataKeyALESComponent<Site> {
     dataRoutes = FSiteRoutes;
 
     constructor(
-        protected router: Router,
         protected route: ActivatedRoute,
-        protected service: SiteService,
-        protected attenteAsyncService: AttenteAsyncService,
+        protected _service: SiteService,
     ) {
-        super(router, route, service, attenteAsyncService);
+        super(route, _service);
+    }
+
+    get service(): SiteService {
+        return this._service;
     }
 
     créeDataEditeur()  {

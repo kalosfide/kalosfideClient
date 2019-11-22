@@ -5,6 +5,7 @@ import { KfImage } from './kf-image';
 @Component({
     selector: 'app-kf-image',
     templateUrl: './kf-image.component.html',
+    styleUrls: ['../../kf-composants.scss']
 })
 export class KfImageComponent extends KfComposantComponent implements OnInit, AfterViewInit {
     @ViewChild('imgElement') imgElement: ElementRef;
@@ -17,6 +18,6 @@ export class KfImageComponent extends KfComposantComponent implements OnInit, Af
 
     ngAfterViewInit() {
         this.composant.gereHtml.htmlElement = this.imgElement.nativeElement;
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
     }
 }

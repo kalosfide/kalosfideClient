@@ -1,58 +1,53 @@
 import { ISiteRoutes, SitePages } from 'src/app/site/site-pages';
 import { FournisseurRoutes } from '../fournisseur-pages';
+import { PageDef, BaseRoutes } from 'src/app/commun/page-def';
 
-export const ProduitPages = {
-    accueil: {
+export class ProduitPages {
+    static accueil: PageDef = {
         urlSegment: 'accueil',
         lien: '',
         title: 'Produits',
         titre: 'Produits',
-    },
-    visite: {
-        urlSegment: 'visite',
-        lien: '',
-        title: 'Produits',
-        titre: 'Produits',
-    },
-    index: {
+    };
+    static index: PageDef = {
         urlSegment: 'index',
-        lien: 'Retour à la liste des produits',
+        lien: 'Produits',
         title: 'Produits',
         titre: 'Produits',
-    },
-    ajoute: {
+    };
+    static ajoute: PageDef = {
         urlSegment: 'ajoute',
-        lien: 'Créer un nouveau produit',
+        lien: 'Nouveau produit',
         title: 'Produits - Créer',
         titre: 'Créer un nouveau produit',
-    },
-    edite: {
+    };
+    static edite: PageDef = {
         urlSegment: 'edite',
         lien: 'Modifier',
         title: 'Produits - Modifier',
         titre: 'Modifier un produit',
-    },
-    prix: {
+    };
+    static prix: PageDef = {
         urlSegment: 'prix',
         lien: 'Fixer le prix',
         title: 'Produits - Fixer le prix',
         titre: 'Fixer le prix d\'un produit',
-    },
-    categories: {
+    };
+    static categories: PageDef = {
         urlSegment: 'categories',
-        lien: 'Gérer les catégories de produit',
+        lien: 'Catégories',
         title: 'Produits - Catégories',
-        titre: 'Catégories de produits',
-    },
-    supprime: {
+        titre: 'Catégories',
+    };
+    static supprime: PageDef = {
         urlSegment: 'supprime',
         lien: 'Supprimer',
         title: 'Produits - Supprimer',
         titre: 'Supprimer un produit',
-    },
-};
+    };
+}
 
-class CProduitRoutes implements ISiteRoutes {
+class CProduitRoutes extends BaseRoutes implements ISiteRoutes {
     url(nomSite: string, segments?: string[]): string {
         let s: string[] = [];
         s.push(SitePages.produits.urlSegment);

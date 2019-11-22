@@ -3,6 +3,7 @@ import { KfInputTexte } from '../../kf-composants/kf-elements/kf-input/kf-input-
 import { KfInputNombre } from '../../kf-composants/kf-elements/kf-input/kf-input-nombre';
 import { IKeyUidRnoNoD } from './i-key-uid-rno-no-d';
 import { KfInputDate } from '../../kf-composants/kf-elements/kf-input/kf-input-date';
+import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 
 export abstract class KeyUidRnoNoDEditeur<T extends IKeyUidRnoNoD> extends DataKeyEditeur<T> {
 
@@ -13,18 +14,18 @@ export abstract class KeyUidRnoNoDEditeur<T extends IKeyUidRnoNoD> extends DataK
 
     créeChampsKeys() {
         this.champsKeys = [];
-        this._kfUid =  new KfInputTexte('uid');
+        this._kfUid =  Fabrique.input.texte('uid');
         this.champsKeys.push(this._kfUid);
-        this._kfRno = new KfInputNombre('rno');
+        this._kfRno = Fabrique.input.nombre('rno');
         this.champsKeys.push(this._kfRno);
-        this._kfNo = new KfInputNombre('no');
+        this._kfNo = Fabrique.input.nombre('no');
         this.champsKeys.push(this._kfNo);
         this._kfD = new KfInputDate('date');
         this.champsKeys.push(this._kfD);
     }
     fixeChampsKeys(key: IKeyUidRnoNoD) {
-        this._kfUid.fixeValeur(key.uid);
-        this._kfRno.fixeValeur(key.rno);
-        this._kfNo.fixeValeur(key.no);
+        this._kfUid.valeur = key.uid;
+        this._kfRno.valeur = key.rno;
+        this._kfNo.valeur = key.no;
     }
 }

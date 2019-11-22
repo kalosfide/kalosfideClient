@@ -8,6 +8,7 @@ import { KfTypeDeComposant } from '../../kf-composants-types';
 @Component({
     selector: 'app-kf-ngb-dropdown',
     templateUrl: './kf-ngb-dropdown.component.html',
+    styleUrls: ['../../kf-composants.scss']
 })
 export class KfNgbDropdownComponent extends KfComposantComponent implements OnInit, AfterViewInit {
     @ViewChild('htmlElement') htmlElementRef: ElementRef;
@@ -21,19 +22,11 @@ export class KfNgbDropdownComponent extends KfComposantComponent implements OnIn
 
     ngAfterViewInit() {
         this.composant.gereHtml.htmlElement = this.htmlElementRef.nativeElement;
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
     }
 
     estGroupe(composant: KfComposant): boolean {
-        return composant.typeDeComposant === KfTypeDeComposant.ngbDropdownGroup;
+        return composant.type === KfTypeDeComposant.ngbDropdownGroup;
     }
-
-}
-
-@Component({
-    selector: 'app-kf-ngb-dropdown-group',
-    templateUrl: './kf-ngb-dropdown-group.component.html',
-})
-export class KfNgbDropdownGroupComponent extends KfComposantComponent {
 
 }

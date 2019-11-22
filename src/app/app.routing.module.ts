@@ -2,25 +2,33 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes, PreloadAllModules } from '@angular/router';
 
 import { AppPages, AppRoutes } from './app-pages';
-import { AppSiteRoutes } from './app-site/app-site-pages';
+import { IdentifiantResolverService } from './securite/identifiant-resolver.service';
 
 const routes: Routes = [
     {
         path: '',
-        redirectTo: AppPages.appSite.urlSegment,
-        pathMatch: 'full',
-    },
-    {
-        path: AppPages.appSite.urlSegment,
-        loadChildren: './app-site/app-site.module#AppSiteModule'
-    },
-    {
-        path: AppPages.site.urlSegment,
-        loadChildren: './site/site.module#SiteModule'
-    },
-    {
-        path: '**',
-        redirectTo: AppRoutes.url([AppPages.appSite.urlSegment, AppPages.introuvable.urlSegment]),
+        resolve: {
+            identifiant: IdentifiantResolverService,
+        },
+        children: [
+            {
+                path: '',
+                redirectTo: AppPages.appSite.urlSegment,
+                pathMatch: 'full',
+            },
+            {
+                path: AppPages.appSite.urlSegment,
+                loadChildren: () => import('./app-site/app-site.module').then(mod => mod.AppSiteModule)
+            },
+            {
+                path: AppPages.site.urlSegment,
+                loadChildren: () => import('./site/site.module').then(mod => mod.SiteModule)
+            },
+            {
+                path: '**',
+                redirectTo: AppRoutes.url([AppPages.appSite.urlSegment, AppPages.introuvable.urlSegment]),
+            },
+        ]
     },
 ];
 

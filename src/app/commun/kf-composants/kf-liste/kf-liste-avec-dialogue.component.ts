@@ -12,7 +12,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 @Component({
     selector: 'app-kf-liste-avec-dialogue',
     templateUrl: './kf-liste.component.html',
-    styleUrls: []
+    styleUrls: ['../../kf-composants.scss']
 })
 export class KfListeAvecDialogueComponent extends KfComposantComponent implements OnInit, AfterViewInit {
     @ViewChild('htmlElement') htmlElement: ElementRef;
@@ -58,7 +58,7 @@ export class KfListeAvecDialogueComponent extends KfComposantComponent implement
 
     ngAfterViewInit() {
         this.composant.gereHtml.htmlElement = this.htmlElement.nativeElement;
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
     }
 
     traiteCommande(evenement: KfEvenement) {

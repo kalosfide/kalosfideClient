@@ -1,5 +1,4 @@
-import { TypeCommande, IdTypeCommande, TypesCommandes } from './type-commande';
-import { textePrix } from './produit-prix';
+import { IdTypeCommande, TypeCommande } from './type-commande';
 
 export enum IdTypeMesure {
     ALaPièce = 'U',
@@ -7,94 +6,56 @@ export enum IdTypeMesure {
     AuLitre = 'L',
 }
 
-const exemple = 12.25;
-
 export class TypeMesure {
-    private id: string;
-    // texte select Vente
-    public pourListe: string;
-    // pour avoir: 10,50€ le kilo
-    private pourPrix: string;
-    private pourDemande: string;
+    static Mesures: IdTypeMesure[] = [IdTypeMesure.ALaPièce, IdTypeMesure.AuKilo, IdTypeMesure.AuLitre];
 
-    constructor(id: string, pourListe: string, pourPrix: string, pourDemande: string) {
-        this.id = id;
-        this.pourListe = pourListe;
-        this.pourPrix = pourPrix;
-        this.pourDemande = pourDemande;
-    }
-    get valeur(): string {
-        return this.id;
-    }
-    texteDemande(demande: number): string {
-        return demande.toLocaleString('fr-FR') + this.pourDemande;
-    }
-    get textePourDemande(): string {
-        return this.pourDemande;
-    }
-    textePrix(prix: number): string {
-        return textePrix(prix) + ' ' + this.pourPrix;
-    }
-    texteListe() {
-        return this.pourListe + ' (ex: ' + this.textePrix(exemple) + ')';
-    }
-}
-
-const ALaPièce = new TypeMesure(IdTypeMesure.ALaPièce, 'à l\'unité', '', ' pièce(s)');
-const AuKilo = new TypeMesure(IdTypeMesure.AuKilo, 'au poids', ' le kilo', '  kg');
-const AuLitre = new TypeMesure(IdTypeMesure.AuLitre, 'au volume', ' le litre', ' L');
-
-export const TypesMesures = {
-    ALaPièce: ALaPièce,
-    AuKilo: AuKilo,
-    AuLitre: AuLitre,
-    Mesures: [ALaPièce, AuKilo, AuLitre],
-    ParId: (id: string): TypeMesure => {
+    static unité(id: string): string {
         switch (id) {
             case IdTypeMesure.ALaPièce:
-                return ALaPièce;
-            case IdTypeMesure.AuKilo:
-                return AuKilo;
-            case IdTypeMesure.AuLitre:
-                return AuLitre;
-            default:
                 break;
-        }
-    },
-    texteSeCommande: (typeMesure: TypeMesure, typeCommande: TypeCommande): string => {
-        if (typeCommande.valeur === IdTypeCommande.ALUnité) {
-            if (typeMesure.valeur === IdTypeMesure.ALaPièce) {
-                return typeCommande.pourListe;
-            }
-            throw Error('Types de commande et de mesure incompatibles');
-        }
-        if (typeCommande.valeur === IdTypeCommande.EnVrac) {
-            if (typeMesure.valeur === IdTypeMesure.ALaPièce) {
-                throw Error('Types de commande et de mesure incompatibles');
-            }
-            return typeMesure.pourListe;
-        }
-        if (typeCommande.valeur === IdTypeCommande.ALUnitéOuEnVrac) {
-            if (typeMesure.valeur === IdTypeMesure.ALaPièce) {
-                throw Error('Types de commande et de mesure incompatibles');
-            }
-            return TypesCommandes.ALUnité.pourListe + ' ou ' + typeMesure.pourListe;
-        }
-    },
-    texteTypeCommande: (typeMesure: TypeMesure, typeCommande: TypeCommande): string => {
-        if (typeCommande.valeur === IdTypeCommande.ALUnité) {
-                return typeCommande.pourListe;
-        }
-        if (typeCommande.valeur === IdTypeCommande.EnVrac) {
-            return typeMesure.pourListe;
-        }
-    },
-    texteDemande: (typeMesure: TypeMesure, typeCommande: TypeCommande, demande: number): string => {
-        if (typeCommande.valeur === IdTypeCommande.ALUnité) {
-                return ALaPièce.texteDemande(demande);
-        }
-        if (typeCommande.valeur === IdTypeCommande.EnVrac) {
-            return typeMesure.texteDemande(demande);
+            case IdTypeMesure.AuKilo:
+                return 'kg';
+            case IdTypeMesure.AuLitre:
+                return 'L';
+            default:
+                throw new Error(`TypeMesure: la valeur ${id} n'appartient pas au type`);
         }
     }
-};
+
+    static texte_le(id: string): string {
+        switch (id) {
+            case IdTypeMesure.ALaPièce:
+                return 'la pièce';
+            case IdTypeMesure.AuKilo:
+                return 'le kg';
+            case IdTypeMesure.AuLitre:
+                return 'le L';
+            default:
+                throw new Error(`TypeMesure: la valeur ${id} n'appartient pas au type`);
+        }
+    }
+
+    static texte_au(id: string): string {
+        switch (id) {
+            case IdTypeMesure.ALaPièce:
+                return 'à l\'unité';
+            case IdTypeMesure.AuKilo:
+                return 'au poids';
+            case IdTypeMesure.AuLitre:
+                return 'au volume';
+            default:
+                throw new Error(`TypeMesure: la valeur ${id} n'appartient pas au type`);
+        }
+    }
+
+    static texteSeCommande(idTypeMesure: string, idTypeCommande: string): string {
+        if (idTypeMesure === IdTypeMesure.ALaPièce && idTypeCommande !== IdTypeCommande.ALUnité) {
+            throw Error('Types de commande et de mesure incompatibles');
+        }
+        if (idTypeCommande === IdTypeCommande.ALUnitéOuEnVrac) {
+            return TypeCommande.pourListe(IdTypeCommande.ALUnité) + ' ou ' + TypeMesure.texte_au(idTypeMesure);
+        } else {
+            return TypeMesure.texte_au(idTypeMesure);
+        }
+    }
+}

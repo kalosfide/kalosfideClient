@@ -11,6 +11,10 @@ import { Identifiant } from '../securite/identifiant';
 import { FournisseurRoutes } from '../fournisseur/fournisseur-pages';
 import { ClientRoutes } from '../client/client-pages';
 import { VisiteurRoutes } from '../visiteur/visiteur-pages';
+import { ApiResult } from '../commun/api-results/api-result';
+import { ILienDef } from '../disposition/fabrique/fabrique-lien';
+import { ValeurTexteDef } from '../commun/kf-composants/kf-partages/kf-texte-def';
+import { IUrlDef } from '../disposition/fabrique/fabrique-url';
 
 @Injectable({
     providedIn: 'root'
@@ -20,7 +24,7 @@ export class RouteurService {
 
     constructor(
         public router: Router,
-        public identification: IdentificationService,
+        private identification: IdentificationService,
         public navigation: NavigationService,
     ) { }
 
@@ -36,28 +40,70 @@ export class RouteurService {
         }
     }
 
-    url(segments?: string[]): string {
-        const site: Site = this.navigation.siteEnCours;
+    /**
+     * préfixe l'url définie par segments par l'url racine du site pour l'identifiant
+     * @param segments de l'url relative
+     */
+    urlDansSite(segments?: string[]): string {
+        const site: Site = this.navigation.litSiteEnCours();
         const identifiant = this.identification.litIdentifiant();
         return site
             ? SiteRoutes.urlSite(site.nomSite, identifiant, segments)
             : AppSiteRoutes.url(segments);
     }
 
-    navigue(segments?: string[]) {
-        this.router.navigate([this.url(segments)]);
+    navigue(segments?: string[], params?: any) {
+        if (params) {
+            this.router.navigate([this.urlDansSite(segments), params]);
+        } else {
+            this.router.navigate([this.urlDansSite(segments)]);
+        }
+    }
+
+    navigueVersErreur(apiResult: ApiResult) {
+        if (apiResult.traite) {
+            apiResult.traite();
+        }
+        if (apiResult.routeErreurAbsolue) {
+            this.navigue(apiResult.routeErreur);
+        } else {
+            this.navigue(apiResult.routeErreur, apiResult.paramRouteErreur);
+        }
     }
 
     navigate(routes: any[]) {
         this.router.navigate(routes);
     }
 
-    naviguePageDef(pageDef?: PageDef, routes?: ISiteRoutes, nomSite?: string) {
-        if (pageDef) {
-            this.router.navigate([nomSite ? routes.url(nomSite, [pageDef.urlSegment]) : AppRoutes.url([pageDef.urlSegment])]);
-        } else {
-            this.router.navigate([nomSite ? routes.url(nomSite) : AppRoutes.url()]);
-        }
+    urlDeDef(def: IUrlDef): string {
+        const segments: string[] = [def.pageDef.urlSegment].concat(def.keys);
+        return  def.nomSite
+            ? def.routes.url(ValeurTexteDef(def.nomSite), segments)
+            : AppRoutes.url(segments);
     }
 
+    urlPageDef(pageDef: PageDef, routes?: ISiteRoutes, nomSite?: string): string {
+        return  nomSite ? routes.url(nomSite, [pageDef.urlSegment]) : AppRoutes.url([pageDef.urlSegment]);
+    }
+
+    naviguePageDef(pageDef: PageDef, routes?: ISiteRoutes, nomSite?: string) {
+        const urlDef: IUrlDef = {
+            pageDef: pageDef,
+            routes: routes,
+            nomSite: nomSite,
+        };
+        this.router.navigate([this.urlDeDef(urlDef)]);
+    }
+
+    navigueUrlDef(urlDef: IUrlDef) {
+        const url = this.urlDeDef(urlDef);
+        let params: { [key: string]: string };
+        if (urlDef.params) {
+            params = {};
+            urlDef.params.forEach(p => params[p.nom] = p.valeur);
+            this.router.navigate([url, params]);
+        } else {
+            this.router.navigate([url]);
+        }
+    }
 }

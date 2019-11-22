@@ -2,54 +2,44 @@ import { Injectable } from '@angular/core';
 
 import { Subject, Observable } from 'rxjs';
 import { JwtIdentifiant, Identifiant } from './identifiant';
-import { Stockage } from '../services/stockage';
-
-class IdentifiantStocké {
-    jwt: JwtIdentifiant;
-    utilisateur: Identifiant;
-}
+import { Site } from '../modeles/site';
+import { Stockage } from '../services/stockage/stockage';
+import { StockageService } from '../services/stockage/stockage.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class IdentificationService {
 
-    private _stockage: Stockage<IdentifiantStocké>;
+    private _stockageJwtIdentifiant: Stockage<JwtIdentifiant>;
+    private _stockageIdentifiant: Stockage<Identifiant>;
 
-    private identificationAChangé = new Subject<boolean>();
-
-    private _vientDenregistrer: boolean;
+    private utilisateurAChangé = new Subject<boolean>();
 
     constructor(
+        stockageService: StockageService
     ) {
-        this._stockage = new Stockage('Identifiant',
-            {
-                distincts: (stock1: IdentifiantStocké, stock2: IdentifiantStocké): boolean => {
-                    return !stock1.utilisateur.estIdentique(stock2.utilisateur);
-                },
-                action: () => {
-                    this.identificationAChangé.next(true);
+        this._stockageJwtIdentifiant = stockageService.nouveau('JwtIdentifiant', { rafraichit: 'aucun'});
+        this._stockageIdentifiant = stockageService.nouveau('Identifiant', {
+            quandStockChange : (ancien: Identifiant, nouveau: Identifiant) => {
+                if (!nouveau || !ancien || ancien.userId !== nouveau.userId) {
+                    this.utilisateurAChangé.next(true);
                 }
-            });
-    }
-
-    public get estAnonyme(): boolean {
-        return this._stockage.estNull;
+            },
+            rafraichit: 'déclenche',
+            doitRéinitialiser: this.utilisateurAChangé.asObservable()
+        });
     }
 
     public get estIdentifié(): boolean {
-        return !this.estAnonyme;
+        return !this._stockageIdentifiant.estNull();
     }
 
-    public get stockageIdentifiant(): IdentifiantStocké {
-        if (this.estAnonyme) {
-            return null;
-        }
-        return this._stockage.litStock();
-    }
-
-    public changementDIdentifiant(): Observable<boolean> {
-        return this.identificationAChangé.asObservable();
+    /**
+     * se produit à la connection et la déconnection
+     */
+    public changementDUtilisateur(): Observable<boolean> {
+        return this.utilisateurAChangé.asObservable();
     }
 
     public get jeton(): string {
@@ -58,43 +48,30 @@ export class IdentificationService {
     }
 
     private litJwtIdentifiant(): JwtIdentifiant {
-        if (this.estAnonyme) {
-            return null;
-        }
-        return this._stockage.litStock().jwt;
+        return this._stockageJwtIdentifiant.litStock();
     }
 
     public litIdentifiant(): Identifiant {
-        if (this.estAnonyme) {
-            return null;
+        const stock = this._stockageIdentifiant.litStock();
+        return stock ? new Identifiant(stock) : null;
+    }
+
+    public fixeIdentifiants(jwtIdentifiantSérialisé: string, identifiant: Identifiant): void {
+        this._stockageJwtIdentifiant.fixeStock(JSON.parse(jwtIdentifiantSérialisé) as JwtIdentifiant);
+        this._stockageIdentifiant.fixeStock(identifiant);
+    }
+
+    public fixeSiteIdentifiant(site: Site) {
+        const identifiant = this._stockageIdentifiant.litStock();
+        if (identifiant) {
+            const index = identifiant.sites.findIndex((s: Site) => site.uid === s.uid && site.rno === s.rno);
+            identifiant.sites[index] = site;
+            this._stockageIdentifiant.fixeStock(identifiant);
         }
-        const utilisateur = this._stockage.litStock().utilisateur;
-        const identifiant = new Identifiant();
-        identifiant.copie(utilisateur);
-        return identifiant;
-    }
-
-    public fixeIdentifiant(jwtIdentifiantSérialisé: string, utilisateur: Identifiant): void {
-        const stock: IdentifiantStocké = {
-            jwt: JSON.parse(jwtIdentifiantSérialisé) as JwtIdentifiant,
-            utilisateur: utilisateur
-        };
-        this._stockage.fixeStock(stock);
-    }
-
-    public désérialiseIdentifiant(identifiantSérialisé: string): JwtIdentifiant {
-        return JSON.parse(identifiantSérialisé) as JwtIdentifiant;
-    }
-
-    // fixé à vrai dans actionSiOk des Enregistrement...Component
-    public get vientDEnregistrer(): boolean {
-        return this._vientDenregistrer;
-    }
-    public set vientDEnregistrer(value: boolean) {
-        this._vientDenregistrer = value;
     }
 
     public déconnecte(): void {
-        this._stockage.fixeStock(undefined);
+        this._stockageJwtIdentifiant.fixeStock(undefined);
+        this._stockageIdentifiant.fixeStock(undefined);
     }
 }

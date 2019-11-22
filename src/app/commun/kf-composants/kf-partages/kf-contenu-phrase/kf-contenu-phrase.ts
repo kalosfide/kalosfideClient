@@ -6,8 +6,7 @@ import { KfLien } from '../../kf-elements/kf-lien/kf-lien';
 import { KfComposant } from '../../kf-composant/kf-composant';
 import { KfTypeDeComposant } from '../../kf-composants-types';
 import { KfImageDef } from '../kf-image-def';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { ValeurIconeDef } from '../kf-icone-def';
+import { FANomIcone } from '../kf-icone-def';
 
 export type KfTypeContenuPhrasé = KfTexte | KfImage | KfIcone | KfLien;
 
@@ -28,7 +27,7 @@ export class KfContenuPhrase {
     enfantsDeVue: { [key: string]: HTMLElement };
 
     constructor(
-        composant: KfComposant,
+        composant?: KfComposant,
         texte?: KfTexteDef,
     ) {
         this.composant = composant;
@@ -37,27 +36,35 @@ export class KfContenuPhrase {
         }
     }
 
-    ajoute(composant: KfTypeContenuPhrasé) {
-        if (composant.typeDeComposant === KfTypeDeComposant.lien) {
-            if (!composant.style) {
-                composant.style = {};
-            }
-            composant.style['display'] = 'inline';
-            composant.style['padding'] = '0';
+    ajoute(contenu: KfTypeContenuPhrasé) {
+        if (contenu.type === KfTypeDeComposant.lien) {
+            contenu.fixeStyleDef('display', 'inline');
+            contenu.fixeStyleDef('padding', '0');
         }
-        this.contenus.push(composant);
+        this.contenus.push(contenu);
+    }
+
+    fixeContenus(...contenus: KfTypeContenuPhrasé[]) {
+        this.contenus = contenus;
     }
 
     private créeKfTexte(texteDef: KfTexteDef) {
-        const t = new KfTexte(this.composant.nom + '_t', texteDef);
+        const t = new KfTexte((this.composant ? this.composant.nom : '') + '_t', texteDef);
         this.contenus.push(t);
+    }
+
+    /**
+     * retourne le premier contenu qui est un KfTexte
+     */
+    get kfTexte(): KfTexte {
+        return this.contenus.find(c => c.type === KfTypeDeComposant.texte) as KfTexte;
     }
 
     /**
      * retourne le texte du premier contenu qui est un KfTexte
      */
     get texte(): string {
-        const kfTexte = (this.contenus.find(c => c.typeDeComposant === KfTypeDeComposant.texte) as KfTexte);
+        const kfTexte = this.kfTexte;
         if (kfTexte) {
             return kfTexte.texte;
         }
@@ -66,24 +73,30 @@ export class KfContenuPhrase {
      * fixe le texte du premier contenu qui est un KfTexte ou crée un contenu KfTexte
      */
     fixeTexte(texte: KfTexteDef) {
-        const kfTexte = (this.contenus.find(c => c.typeDeComposant === KfTypeDeComposant.texte) as KfTexte);
+        const kfTexte = this.kfTexte;
         if (kfTexte) {
-            kfTexte.texteDef = texte;
+            kfTexte.fixeTexte(texte);
         } else {
             this.créeKfTexte(texte);
         }
     }
 
     private créeKfImage(imageDef: KfImageDef) {
-        const t = new KfImage(this.composant.nom + '__img', imageDef);
+        const t = new KfImage((this.composant ? this.composant.nom : '') + '_img', imageDef);
         this.contenus.push(t);
     }
 
     /**
      * retourne l'imageDef du premier contenu qui est un KfImage
      */
+    get kfImage(): KfImage {
+        return this.contenus.find(c => c.type === KfTypeDeComposant.image) as KfImage;
+    }
+    /**
+     * retourne l'imageDef du premier contenu qui est un KfImage
+     */
     get imageDef(): KfImageDef {
-        const kfImage = (this.contenus.find(c => c.typeDeComposant === KfTypeDeComposant.image) as KfImage);
+        const kfImage = this.kfImage;
         if (kfImage) {
             return kfImage.imageDef;
         }
@@ -92,7 +105,7 @@ export class KfContenuPhrase {
      * fixe l'imageDef du premier contenu qui est un KfImage ou crée un contenu KfImage
      */
     fixeImage(imageDef: KfImageDef) {
-        const kfImage = (this.contenus.find(c => c.typeDeComposant === KfTypeDeComposant.image) as KfImage);
+        const kfImage = this.kfImage;
         if (kfImage) {
             kfImage.imageDef = imageDef;
         } else {
@@ -100,8 +113,8 @@ export class KfContenuPhrase {
         }
     }
 
-    private créeKfIcone(iconeDef: IconDefinition): KfIcone {
-        const kfIcone = new KfIcone(this.composant.nom + '_t', iconeDef);
+    private créeKfIcone(nomIcone: FANomIcone): KfIcone {
+        const kfIcone = new KfIcone((this.composant ? this.composant.nom : '') + '_t', nomIcone);
         this.contenus.push(kfIcone);
         return kfIcone;
     }
@@ -109,22 +122,28 @@ export class KfContenuPhrase {
     /**
      * retourne l'icone du premier contenu qui est un KfIcone
      */
-    get icone(): IconDefinition {
-        const kfIcone = (this.contenus.find(c => c.typeDeComposant === KfTypeDeComposant.icone) as KfIcone);
+    get kfIcone(): KfIcone {
+        return this.contenus.find(c => c.type === KfTypeDeComposant.icone) as KfIcone;
+    }
+    /**
+     * retourne l'icone du premier contenu qui est un KfIcone
+     */
+    get icone(): FANomIcone {
+        const kfIcone = this.kfIcone;
         if (kfIcone) {
-            return ValeurIconeDef(kfIcone.iconeDef);
+            return kfIcone.icone;
         }
     }
     /**
      * fixe l'icone du premier contenu qui est un KfIcone ou crée un contenu KfIcone
      */
-    fixeIcone(icone: IconDefinition): KfIcone {
-        const kfIcone = (this.contenus.find(c => c.typeDeComposant === KfTypeDeComposant.icone) as KfIcone);
+    fixeIcone(nomIcone: FANomIcone): KfIcone {
+        const kfIcone = this.kfIcone;
         if (kfIcone) {
-            kfIcone.iconeDef = icone;
+            kfIcone.nomIcone = nomIcone;
             return kfIcone;
         } else {
-            return this.créeKfIcone(icone);
+            return this.créeKfIcone(nomIcone);
         }
     }
 

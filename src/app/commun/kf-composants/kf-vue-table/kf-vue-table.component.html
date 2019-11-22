@@ -1,66 +1,72 @@
-<ng-template #enTetesTemplate>
-    <ng-container *ngFor="let enTete of vueTable.enTetes">
-        <th>
-            <app-kf-composant [composant]="enTete" (output)="transmet($event)"></app-kf-composant>
-        </th>
+<ng-container *ngIf="avecOutils">
+    <ng-container *ngIf="vueTable.outils.classe; else outilsTemplate">
+        <div [ngClass]="vueTable.outils.classe" [ngStyle]="vueTable.outils.style">
+            <ng-container *ngTemplateOutlet="outilsTemplate"></ng-container>
+        </div>
     </ng-container>
-    <th *ngIf="vueTable.avecCommandes"></th>
-    <th *ngIf="vueTable.avecComposantsAValider" class="kf-invisible"></th>
-</ng-template>
+    <ng-template #outilsTemplate>
+        <app-kf-b-btn-toolbar [composant]="vueTable.outils.btnToolbar"></app-kf-b-btn-toolbar>
+    </ng-template>
 
-<ng-template #ligneTemplate let-ligne="ligne1">
-    <ng-container *ngFor="let cellule of ligne.cellules">
-        <td [class]="cellule.classe">
-            <ng-container *ngIf="cellule.texte">{{ cellule.texte }}</ng-container>
-            <ng-container *ngIf="cellule.composant">
-                <app-kf-composant [composant]="cellule.composant" (output)="transmet($event)"></app-kf-composant>
+</ng-container>
+<!-- outils
+-->
+
+<table #tableElement [ngClass]="vueTable.classe" [ngStyle]="vueTable.style">
+
+    <!-- en-têtes -->
+    <thead *ngIf="vueTable.lignesEnTete" [ngClass]="vueTable.classeEnTete">
+        <tr *ngFor="let ligneEnTete of vueTable.lignesEnTete">
+            <ng-container *ngTemplateOutlet="ligneTemplate; context: { ligne1: ligneEnTete }">
             </ng-container>
-        </td>
+        </tr>
+    </thead>
+    <tbody [ngClass]="vueTable.classeCorps">
+        <!-- remplace les lignes quand les filtres ne laissent rien passer -->
+        <tr *ngIf="vueTable.rienPasseFiltres">
+            <td class="text-center" [attr.colspan]="vueTable.nbColonnesVisibles">{{ vueTable.texteRienPasseFiltres }}
+            </td>
+        </tr>
+
+        <ng-container *ngIf="vueTable.avecValeur; then avecValeurTemplate; else autreTemplate"></ng-container>
+
+    </tbody>
+    <tfoot *ngIf="vueTable.lignesBilan" [ngClass]="vueTable.classeBilan">
+        <tr *ngFor="let ligneBilan of vueTable.lignesBilan">
+            <ng-container *ngTemplateOutlet="ligneTemplate; context: { ligne1: ligneBilan }">
+            </ng-container>
+        </tr>
+    </tfoot>
+</table>
+
+<ng-template #avecValeurTemplate>
+    <ng-container *ngFor="let ligne of vueTable.ilignes">
+        <tr [attr.id]="ligne.id" [ngClass]="ligne.classe" [ngStyle]="ligne.style" [formGroup]="ligne.formGroup">
+            <ng-container *ngTemplateOutlet="ligneTemplate; context: { ligne1: ligne }"></ng-container>
+        </tr>
     </ng-container>
-    <td *ngIf="ligne.commandes">
-        <ng-container *ngFor="let commande of ligne.commandes">
-            <app-kf-composant [composant]="commande" (output)="transmet($event)"></app-kf-composant>
-        </ng-container>
-    </td>
-    <td *ngIf="ligne.composantsAValider" class="kf-invisible">
-        <ng-container *ngFor="let composant of ligne.composantsAValider">
-            <app-kf-composant [composant]="composant" (output)="transmet($event)"></app-kf-composant>
-        </ng-container>
-    </td>
-</ng-template>
-
-<ng-container *ngIf="vueTable.avecValeur; then thenTemplate; else autreTemplate"></ng-container>
-
-<ng-template #thenTemplate>
-    <table [class]="vueTable.classe" #tableElement>
-        <thead *ngIf="vueTable.enTetes" [class]="vueTable.classeEntete">
-            <tr>
-                <ng-container *ngTemplateOutlet="enTetesTemplate"></ng-container>
-            </tr>
-        </thead>
-        <tbody>
-            <ng-container *ngFor="let ligne of vueTable.lignes">
-                <tr [class]="" [formGroup]="ligne.formGroup">
-                    <ng-container *ngTemplateOutlet="ligneTemplate; context: { ligne1: ligne }"></ng-container>
-                </tr>
-            </ng-container>
-        </tbody>
-    </table>
 </ng-template>
 
 <ng-template #autreTemplate>
-    <table [class]="vueTable.classe" #tableElement>
-        <thead *ngIf="vueTable.enTetes" [class]="vueTable.classeEntete">
-            <tr>
-                <ng-container *ngTemplateOutlet="enTetesTemplate"></ng-container>
-            </tr>
-        </thead>
-        <tbody>
-            <ng-container *ngFor="let ligne of vueTable.lignes">
-                <tr *ngIf="ligne.visible" [class]="">
-                    <ng-container *ngTemplateOutlet="ligneTemplate; context: { ligne1: ligne }"></ng-container>
-                </tr>
-            </ng-container>
-        </tbody>
-    </table>
+    <ng-container *ngFor="let ligne of vueTable.ilignes">
+        <tr [attr.id]="ligne.id" [ngClass]="ligne.classe" [ngStyle]="ligne.style">
+            <ng-container *ngTemplateOutlet="ligneTemplate; context: { ligne1: ligne }"></ng-container>
+        </tr>
+    </ng-container>
+</ng-template>
+
+<!-- ligne -->
+<ng-template #ligneTemplate let-ligne="ligne1">
+    <ng-container *ngFor="let cellule of ligne.cellules">
+        <ng-container *ngIf="cellule.th_scope; else tdTemplate">
+            <th [attr.scope]="cellule.th_scope" [ngClass]="cellule.classe" [colSpan]="cellule.colSpan" [attr.rowspan]="cellule.rowSpan">
+                <app-kf-composant [composant]="cellule.composant" (output)="transmet($event)"></app-kf-composant>
+            </th>
+        </ng-container>
+        <ng-template #tdTemplate>
+            <td [ngClass]="cellule.classe" [colSpan]="cellule.colSpan">
+                <app-kf-composant [composant]="cellule.composant" (output)="transmet($event)"></app-kf-composant>
+            </td>
+        </ng-template>
+    </ng-container>
 </ng-template>

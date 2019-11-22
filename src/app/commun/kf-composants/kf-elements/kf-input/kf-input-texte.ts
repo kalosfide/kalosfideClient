@@ -7,7 +7,6 @@ export class KfInputTexte extends KfInput {
     constructor(nom: string, texte?: KfTexteDef) {
         super(nom, texte);
         this.typeDInput = KfTypeDInput.texte;
-        this._valeur = null;
     }
 
     get valeur(): string {

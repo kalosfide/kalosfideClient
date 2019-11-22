@@ -17,6 +17,7 @@ import { EtapeDeFormulaireComponent } from '../disposition/formulaire/etape-de-f
 import { DevenirFournisseurPages } from './devenir-fournisseur/devenir-fournisseur-pages';
 import { MotDePasseResolverService } from '../securite/mot-de-passe/mot-de-passe-resolver.service';
 import { PeutQuitterGarde } from '../commun/peut-quitter/peut-quitter-garde.service';
+import { PeupleResolverService } from './peuple-resolver.service';
 
 const routes: Routes = [
     {
@@ -31,6 +32,9 @@ const routes: Routes = [
             {
                 path: AppSitePages.index.urlSegment,
                 component: AppSiteIndexComponent,
+                resolve: {
+                    estPeuplé: PeupleResolverService,
+                }
             },
             {
                 path: AppSitePages.sites.urlSegment,
@@ -89,7 +93,7 @@ const routes: Routes = [
             },
             {
                 path: AppPages.compte.urlSegment,
-                loadChildren: '../compte/compte.module#CompteModule'
+                loadChildren: () => import('../compte/compte.module').then(mod => mod.CompteModule)
             },
             // pages d'erreur
             {

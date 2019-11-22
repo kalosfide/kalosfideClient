@@ -1,55 +1,76 @@
-<div [ngClass]="{'form-group': !composant.estDansVueTable}">
-    <label *ngIf="composant.contenuPhrase.contenus.length > 0" #labelElement [attr.for]="composant.nom">
+<ng-template #labelTemplate>
+    <label #labelElement *ngIf="composant.classeLabel" [attr.for]="composant.nom" [ngClass]="composant.classeLabel">
         <app-kf-contenu-phrase [contenuPhrase]="composant.contenuPhrase"></app-kf-contenu-phrase>
     </label>
-    <ng-container *ngIf="nombre; then nombre_; else pasNombre_"></ng-container>
+</ng-template>
+
+<ng-template #infoTemplate>
     <app-kf-etiquette *ngIf="composant.texteAide" [composant]="composant.texteAide"></app-kf-etiquette>
     <div *ngIf="composant.avecInvalidFeedback" class="invalid-feedback">
         <p *ngFor="let erreur of composant.erreurs">{{erreur}}</p>
     </div>
-</div>
+</ng-template>
+
+<ng-container *ngIf="composant.classeDiv; then avecDivTemplate; else sansDivTemplate"></ng-container>
+
+<ng-template #avecDivTemplate>
+    <div nom="classeDiv" [ngClass]="composant.classeDiv">
+        <ng-container *ngTemplateOutlet="sansDivTemplate"></ng-container>
+    </div>
+</ng-template>
+
+<ng-template #sansDivTemplate>
+    <ng-container *ngIf="composant.avecLabel">
+        <ng-container *ngTemplateOutlet="labelTemplate"></ng-container>
+    </ng-container>
+    <ng-container *ngIf="composant.classeEntree; then entreeAvecDivTemplate; else entreeTemplate"></ng-container>
+
+    <ng-template #entreeAvecDivTemplate>
+        <div nom="classeEntree" [ngClass]="composant.classeEntree">
+            <ng-container *ngTemplateOutlet="entreeTemplate"></ng-container>
+            <ng-container *ngIf="composant.boutonEfface">
+                <button type="button" role="efface" [ngClass]="composant.boutonEfface.classe" (click)="composant.efface()">x</button>
+            </ng-container>
+            <ng-container *ngIf="composant.iconeSurvol">
+                <app-kf-icone [composant]="composant.iconeSurvol"></app-kf-icone>
+            </ng-container>
+        </div>
+    </ng-template>
+</ng-template>
+
+<ng-template #entreeTemplate>
+    <div *ngIf="composant.composantAvant" class="input-group-prepend">
+        <app-kf-composant [composant]="composant.composantAvant"></app-kf-composant>
+    </div>
+    <ng-container *ngIf="nombre; then nombre_; else pasNombre_"></ng-container>
+    <ng-container *ngTemplateOutlet="infoTemplate"></ng-container>
+</ng-template>
+
 
 <ng-template #nombre_>
     <input #inputElement [name]="composant.nom" [type]="composant.typeDInput" [formControl]="composant.formControl"
-        [class]="classe(composant)" [readonly]="composant.lectureSeule" [attr.disabled]="composant.inactif"
-        [placeholder]="composant.texteRemplissage" [min]="nombre.min" [max]="nombre.max" [step]="nombre.pas" />
+        [ngClass]="composant.classe" [readonly]="composant.lectureSeule" [attr.disabled]="composant.inactif"
+        [attr.placeholder]="composant.placeholder" [min]="nombre.min" [max]="nombre.max" [step]="nombre.pas" />
 </ng-template>
 
 <ng-template #pasNombre_>
     <ng-container *ngIf="dateTemps; then dateTempsTemplate; else normalTemplate"></ng-container>
     <ng-template #dateTempsTemplate>
         <div class="input-group form-inline">
-            <input #inputElement [name]="composant.nom" [type]="composant.inputDate.typeDInput" [formControl]="composant.inputDate.formControl"
-                [ngClass]="{'form-control': true, 'is-invalid': composant.inputDate.estInvalide}" [class]="composant.classe"
-                [readonly]="composant.lectureSeule" [attr.disabled]="composant.inactif" [placeholder]="composant.inputDate.texteRemplissage"
-                (change)="composant.quandValeurChange()" />
-            <input [name]="composant.inputTemps.nom" [type]="composant.inputTemps.typeDInput" [formControl]="composant.inputTemps.formControl"
-                [ngClass]="{'form-control': true, 'is-invalid': composant.inputTemps.estInvalide}" [class]="composant.classe"
-                [readonly]="composant.lectureSeule" [attr.disabled]="composant.inactif" [placeholder]="composant.inputTemps.texteRemplissage"
-                (change)="composant.quandValeurChange()" />
+            <input #inputElement [name]="composant.nom" [type]="composant.inputDate.typeDInput"
+                [formControl]="composant.inputDate.formControl" [ngClass]="composant.classe"
+                [readonly]="composant.lectureSeule" [attr.disabled]="composant.inactif"
+                [attr.placeholder]="composant.inputDate.placeholder" (change)="composant.quandValeurChange()" />
+            <input [name]="composant.inputTemps.nom" [type]="composant.inputTemps.typeDInput"
+                [formControl]="composant.inputTemps.formControl" [ngClass]="composant.classe"
+                [readonly]="composant.lectureSeule" [attr.disabled]="composant.inactif"
+                [attr.placeholder]="composant.inputTemps.placeholder" (change)="composant.quandValeurChange()" />
         </div>
     </ng-template>
     <ng-template #normalTemplate>
         <input #inputElement [name]="composant.nom" [type]="composant.typeDInput" [formControl]="composant.formControl"
-            [class]="classe(composant)" [readonly]="composant.lectureSeule" [attr.disabled]="composant.inactif"
-            [placeholder]="composant.texteRemplissage" />
+            [ngClass]="composant.classe" [readonly]="composant.lectureSeule" [attr.disabled]="composant.inactif"
+            [attr.placeholder]="composant.placeholder" />
     </ng-template>
 
 </ng-template>
-
-<ng-template #inputTemplate let-input="input1">
-    <input #inputElement [name]="composant.nom" [type]="composant.typeDInput" [formControl]="composant.formControl"
-        [class]="classe" [readonly]="composant.lectureSeule" [attr.disabled]="composant.inactif" [placeholder]="composant.texteRemplissage" />
-</ng-template>
-<!--
-        <ng-container *ngIf="estDate; then date_; else autre_"></ng-container>
-
-    <ng-template #date_>
-    </ng-template>
-
-    <ng-template #autre_>
-        <input #inputElement [name]="composant.nom" [type]="composant.typeDInput" [formControl]="composant.formControl"
-            [class]="classe" [readonly]="composant.lectureSeule" [attr.disabled]="composant.inactif" [placeholder]="composant.texteRemplissage" />
-    </ng-template>
-
--->

@@ -1,6 +1,6 @@
 
 export enum KfListeMiseAJour {
-    immédiate,
+    immédiate = 1,
     immédiateSaufPourAjout,
     parOkAnnuler,
     parEditeurSéparé,

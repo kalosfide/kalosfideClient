@@ -2,26 +2,31 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CommunModule } from '../commun/commun.module';
 import { DispositionModule } from '../disposition/disposition.module';
-import { ProduitService } from './produit.service';
-import { CategorieService } from './categorie.service';
 import { SiteService } from './site.service';
-import { SiteProduitsResolverService } from './site-produits-resolver.service';
-import { SiteCategoriesResolverService } from './site-categories-resolver.service';
+import { ClientService } from './clientele/client.service';
+import { ClientResolverService, ClientRésoluResolverService } from './clientele/client-resolver.service';
+import { ClientsResolverService, ClientsRésoluResolverService } from './clientele/clients-resolver.service';
+import { CatalogueModule } from './catalogue/modeles.module';
 
 @NgModule({
     imports: [
         CommonModule,
         CommunModule,
         DispositionModule,
+        CatalogueModule,
     ],
     declarations: [
     ],
     providers: [
         SiteService,
-        CategorieService,
-        ProduitService,
-        SiteProduitsResolverService,
-        SiteCategoriesResolverService,
+        ClientService,
+        ClientResolverService,
+        ClientRésoluResolverService,
+        ClientsResolverService,
+        ClientsRésoluResolverService,
     ],
+    exports: [
+        CatalogueModule
+    ]
 })
 export class ModelesModule { }

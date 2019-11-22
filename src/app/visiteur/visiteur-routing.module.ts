@@ -8,8 +8,6 @@ import { DevenirClientComponent } from './devenir-client/devenir-client.componen
 import { DevenirClientPages } from './devenir-client/devenir-client-pages';
 import { MotDePasseResolverService } from '../securite/mot-de-passe/mot-de-passe-resolver.service';
 import { VProduitsComponent } from './v-produits.component';
-import { SiteCategoriesResolverService } from '../modeles/site-categories-resolver.service';
-import { SiteProduitsResolverService } from '../modeles/site-produits-resolver.service';
 import { AppPages } from '../app-pages';
 import { SiteOuvertGarde } from '../securite/site-ouvert-garde';
 import { PageInterditeComponent } from '../messages/page-interdite.component';
@@ -18,6 +16,7 @@ import { PageErreurComponent } from '../messages/page-erreur.component';
 import { SitePasOuvertComponent } from '../messages/site-pas-ouvert.component';
 import { VisiteurPages } from './visiteur-pages';
 import { PageIntrouvableComponent } from '../messages/page-introuvable.component';
+import { CatalogueResolverService } from 'src/app/modeles/catalogue/catalogue-resolver.service';
 
 const routes: Routes = [
     {
@@ -33,8 +32,7 @@ const routes: Routes = [
         path: VisiteurPages.produits.urlSegment,
         component: VProduitsComponent,
         resolve: {
-            liste: SiteProduitsResolverService,
-            categories: SiteCategoriesResolverService,
+            catalogue: CatalogueResolverService,
         },
         canActivate: [SiteOuvertGarde]
     },
@@ -82,7 +80,7 @@ const routes: Routes = [
     },
     {
         path: AppPages.compte.urlSegment,
-        loadChildren: '../compte/compte.module#CompteModule'
+        loadChildren: () => import('../compte/compte.module').then(mod => mod.CompteModule)
     },
     // pages d'erreur
     {

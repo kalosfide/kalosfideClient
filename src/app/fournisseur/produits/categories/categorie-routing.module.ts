@@ -5,9 +5,9 @@ import { CategoriePages } from './categorie-pages';
 import { CategorieIndexComponent } from './categorie-index.component';
 import { CategorieAjouteComponent } from './categorie-ajoute.component';
 import { CategorieEditeComponent } from './categorie-edite.component';
-import { CategorieResolverService } from './categorie-resolver.service';
-import { SiteCategoriesResolverService } from 'src/app/modeles/site-categories-resolver.service';
-import { SiteRoleGarde } from 'src/app/securite/site-role-garde';
+import { CategorieResolverService } from '../../../modeles/catalogue/categorie-resolver.service';
+import { CategoriesResolverService } from 'src/app/modeles/catalogue/categories-resolver.service';
+import { CategorieSitePasCatalogueGarde } from './categorie-site-pas-catalogue-garde';
 
 const routes: Routes = [
     {
@@ -22,18 +22,22 @@ const routes: Routes = [
                 path: CategoriePages.index.urlSegment,
                 component: CategorieIndexComponent,
                 resolve: {
-                    liste: SiteCategoriesResolverService,
+                    liste: CategoriesResolverService,
                 }
             },
             {
                 path: CategoriePages.ajoute.urlSegment,
                 component: CategorieAjouteComponent,
-                canActivate: [SiteRoleGarde],
+                canActivate: [
+                    CategorieSitePasCatalogueGarde,
+                ],
             },
             {
                 path: CategoriePages.edite.urlSegment + '/:no',
                 component: CategorieEditeComponent,
-                canActivate: [SiteRoleGarde],
+                canActivate: [
+                    CategorieSitePasCatalogueGarde,
+                ],
                 resolve: {
                     valeur: CategorieResolverService,
                 }

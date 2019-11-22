@@ -25,7 +25,7 @@ export abstract class SiteContactComponent extends PageBaseComponent implements 
     }
 
     ngOnInit() {
-        this.site = this.service.siteEnCours;
+        this.site = this.service.litSiteEnCours();
         this.créeContenus();
     }
 

@@ -2,195 +2,325 @@ import { KfTypeDeComposant, KfTypeDeValeur } from '../kf-composants-types';
 import { KfComposant, IKfComposant } from '../kf-composant/kf-composant';
 import { KfComposantGereValeur } from '../kf-composant/kf-composant-gere-valeur';
 import { KfSuperGroupe } from '../kf-groupe/kf-super-groupe';
-import { FormArray, FormGroup, FormControl } from '@angular/forms';
-import { Tri, Trieur, Filtre, ITri } from '../../outils/trieur';
-import { KfVueTableFiltres, KfVueTableFiltre, TFiltre } from './kf-vue-table-filtre';
-import { KfTexte } from '../kf-elements/kf-texte/kf-texte';
-import { KfIcone } from '../kf-elements/kf-icone/kf-icone';
-import { KfContenuPhrase } from '../kf-partages/kf-contenu-phrase/kf-contenu-phrase';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons';
-import { KfTypeDEvenement, KfEvenement, KfStatutDEvenement } from '../kf-partages/kf-evenements';
-import { KfEtiquette } from '../kf-elements/kf-etiquette/kf-etiquette';
+import { FormArray, FormGroup } from '@angular/forms';
+import { Tri } from '../../outils/trieur';
+import { KfGroupe } from '../kf-groupe/kf-groupe';
+import { IKfVueTableColonneDef } from './i-kf-vue-table-colonne-def';
+import { KfVueTableColonne } from './kf-vue-table-colonne';
+import { IKfVueTableLigne, KfVueTableLigne, KfVueTableBilan } from './kf-vue-table-ligne';
+import { KfNgClasse, KfNgClasseDef } from '../kf-partages/kf-gere-css-classe';
+import { KfTexteDef } from '../kf-partages/kf-texte-def';
+import { KfGèreCss } from '../kf-partages/kf-gere-css';
+import { KfVueTableOutils, IKfVueTableOutils } from './kf-vue-table-outils';
+import { KfInitialObservable } from '../kf-partages/kf-initial-observable';
+import { IKfVueTableDef } from './i-kf-vue-table-def';
+import { KfVueTableEnTete } from './kf-vue-table-en-tete';
 
-export interface KfVueTableEnTete<T> {
-    texte: string;
-    tri?: Tri<T>;
-}
-
-export interface IKfVueTableCellule {
-    texte?: string;
-    composant?: KfComposant;
-    classe?: string;
-}
-
-export interface IKfVueTableLigne {
-    cellules: IKfVueTableCellule[];
-    commandes: KfComposant[];
-    composantsAValider: KfComposant[];
-    visible: boolean;
-    formGroup: FormGroup;
-}
-
-export class KfVueTableLigne<T> implements IKfVueTableLigne {
-    item: T;
-    cellules: IKfVueTableCellule[];
-    superGroupe: KfSuperGroupe;
-    commandes: KfComposant[];
-    composantsAValider: KfComposant[];
-    visible: boolean;
-    get formGroup(): FormGroup { return this.superGroupe.formGroup; }
-}
-
-export type KfVueCelluleDef = string | KfComposant;
-
-export interface KfVueTableDef<T> {
-    enTetesDef: KfVueTableEnTete<T>[];
-    cellules: (item: T) => KfVueCelluleDef[];
-    classesCellules?: (item: T) => string[];
-    superGroupe?: (item: T) => KfSuperGroupe;
-    commandes?: (item: T) => KfComposant[];
-    composantsAValider?: (item: T) => KfComposant[];
-    filtres?: KfVueTableFiltre<T>[];
-}
-
+/** pour que le component soit indépendant du générique T */
 export interface IKfVueTable extends IKfComposant {
-    enTetes: KfComposant[];
-    lignes: IKfVueTableLigne[];
+    outils: IKfVueTableOutils;
+    ilignes: IKfVueTableLigne[];
     avecValeur: boolean;
-    avecCommandes: boolean;
     valeurs: any[];
     formGroups: FormGroup[];
-    classeEntete?: string;
+    lignesEnTete: IKfVueTableLigne[];
+    lignesBilan: IKfVueTableLigne[];
+    groupeDesOutils: KfGroupe;
 }
 
 export class KfVueTable<T> extends KfComposant implements IKfVueTable {
+    /**
+     * pile des tris effectués
+     */
+    private _tris: Tri<T>[];
 
-    private _filtres: KfVueTableFiltres<T>;
+    private _def: IKfVueTableDef<T>;
+
+    private _outils: KfVueTableOutils<T>;
+    private _colonnes: KfVueTableColonne<T>[];
     private _lignes: KfVueTableLigne<T>[];
-    private _classeEntete: string;
-    private _enTetesDef: KfVueTableEnTete<T>[];
-    private _enTetes: KfComposant[];
-    private _cellules: (item: T) => KfVueCelluleDef[];
-    private _classesCellules: (item: T) => string[];
-    private _superGroupe: (item: T) => KfSuperGroupe;
-    private _commandes: (item: T) => KfComposant[];
-    private _composantsAValider?: (item: T) => KfComposant[];
+    private _enTete: KfVueTableEnTete<T>;
+    private _gereCssEnTete: KfGèreCss;
+    private _gereCssCorps: KfGèreCss;
+    private _ligneBilan: KfVueTableBilan<T>;
+    private _ligneBilanDesVisibles: KfVueTableBilan<T>;
+    private _gereCssBilan: KfGèreCss;
+    private _enveloppe: KfGèreCss;
 
-    get classeEntete(): string { return this._classeEntete; }
-    get enTetes(): KfComposant[] { return this._enTetes; }
-    get cellules(): (item: T) => KfVueCelluleDef[] { return this._cellules; }
-    get classesCellules(): (item: T) => string[] { return this._classesCellules; }
-    get superGroupe(): (item: T) => KfSuperGroupe { return this._superGroupe; }
-    get commandes(): (item: T) => KfComposant[] { return this._commandes; }
-    get composantsAValider(): (item: T) => KfComposant[] { return this._composantsAValider; }
+    private _choisie: KfVueTableLigne<T>;
+    private _fixeChoisie: (id: string) => KfVueTableLigne<T>;
 
-    constructor(nom: string, vueTableDef: KfVueTableDef<T>) {
+    private _remplaceSiVide: KfGroupe;
+
+    constructor(nom: string, vueTableDef: IKfVueTableDef<T>) {
         super(nom, KfTypeDeComposant.vuetable);
+        this._def = vueTableDef;
         this._lignes = [];
-        this._enTetesDef = vueTableDef.enTetesDef;
-        this._cellules = vueTableDef.cellules;
-        this._classesCellules = vueTableDef.classesCellules;
+        this.ajouteClasseDef('table');
         if (vueTableDef.superGroupe) {
-            this._superGroupe = vueTableDef.superGroupe;
             this.gereValeur = new KfComposantGereValeur(this, KfTypeDeValeur.avecListe);
         }
-        if (vueTableDef.commandes) {
-            this._commandes = vueTableDef.commandes;
+
+        this.créeColonnes(vueTableDef.colonnesDef);
+
+        if (vueTableDef.outils) {
+            this._outils = vueTableDef.outils;
+            this._outils.initialise(this);
         }
-        if (vueTableDef.filtres) {
-            this._filtres = new KfVueTableFiltres(this);
-            vueTableDef.filtres.forEach(f => this._filtres.ajouteFiltre(f));
+
+        if (this._def.id) {
+            this._fixeChoisie = (id: string) => {
+                this._choisie = this._lignes.find(l => this._def.id(l.item) === id);
+                return this._choisie;
+            };
         }
-        this._composantsAValider = vueTableDef.composantsAValider;
-        this.ajouteClasseDef('table');
+
+        if (vueTableDef.colonnesDef.find(c => c.enTeteDef !== undefined) !== undefined) {
+            this._enTete = new KfVueTableEnTete(this);
+        }
+
+        const colonnesAvecBilan = vueTableDef.colonnesDef.filter(c => c.bilanDef !== undefined && c.bilanDef !== null);
+        if (colonnesAvecBilan.length > 0) {
+            this._ligneBilan = new KfVueTableBilan(this);
+            const colonnesAvecVisiblesSeulement = colonnesAvecBilan.filter(
+                c => c.bilanDef.titreVisiblesSeulement !== undefined && c.bilanDef.titreVisiblesSeulement !== null
+            );
+            if (colonnesAvecVisiblesSeulement.length > 0) {
+                this._ligneBilanDesVisibles = new KfVueTableBilan(this, true);
+            }
+        }
     }
 
-    ajouteClasseEntete(classeEntete: string) {
-        this._classeEntete = classeEntete;
+    private créeColonnes(colonnesDef: IKfVueTableColonneDef<T>[]) {
+        const colonnes: KfVueTableColonne<T>[] = [];
+        const listeNePasAfficher: {
+            io: KfInitialObservable<boolean>,
+            colonnes: KfVueTableColonne<T>[]
+        }[] = [];
+        const listeAfficher: {
+            io: KfInitialObservable<boolean>,
+            colonnes: KfVueTableColonne<T>[]
+        }[] = [];
+        for (let index = 0; index < colonnesDef.length; index++) {
+            const def = colonnesDef[index];
+            const colonne = new KfVueTableColonne<T>(this, def, index);
+            colonnes.push(colonne);
+            let liste: {
+                io: KfInitialObservable<boolean>,
+                colonnes: KfVueTableColonne<T>[]
+            }[];
+            let io: KfInitialObservable<boolean>;
+            if (def.nePasAfficherSi) {
+                liste = listeNePasAfficher;
+                io = def.nePasAfficherSi;
+            } else {
+                if (def.afficherSi) {
+                    liste = listeAfficher;
+                    io = def.afficherSi;
+                }
+            }
+            if (liste) {
+                let masqueur = liste.find(m => m.io === io);
+                if (masqueur) {
+                    masqueur.colonnes.push(colonne);
+                } else {
+                    masqueur = {
+                        io: io,
+                        colonnes: [colonne]
+                    };
+                    liste.push(masqueur);
+                }
+            }
+        }
+        this._colonnes = colonnes;
+        listeNePasAfficher.forEach(m => {
+            m.colonnes.forEach(colonne => {
+                colonne.nePasAfficher = m.io.valeur;
+            });
+            if (m.io.observable) {
+                m.io.observable.subscribe(nePasAfficher => {
+                    m.colonnes.forEach(colonne => {
+                        colonne.nePasAfficher = nePasAfficher;
+                    });
+                });
+            }
+        });
+        listeAfficher.forEach(m => {
+            m.colonnes.forEach(colonne => {
+                colonne.nePasAfficher = !m.io.valeur;
+            });
+            if (m.io.observable) {
+                m.io.observable.subscribe(afficher => {
+                    m.colonnes.forEach(colonne => {
+                        colonne.nePasAfficher = !afficher;
+                    });
+                });
+            }
+        });
     }
 
-    get avecFiltres(): boolean {
-        return !!this._filtres;
-    }
-    créeSuperGroupeDesFiltres(): KfSuperGroupe {
-        return this._filtres.créeSuperGroupe();
+    get colonnes(): KfVueTableColonne<T>[] { return this._colonnes; }
+    get avecEnTêtesDeLigne(): boolean { return this._def.avecEnTêtesDeLigne; }
+    get superGroupe(): (item: T) => KfSuperGroupe { return this._def.superGroupe; }
+    get gereCss(): (item: T) => KfGèreCss { return this._def.gereCss; }
+    get composantsAValider(): (item: T) => KfComposant[] { return this._def.composantsAValider; }
+    get id(): (item: T) => string { return this._def.id; }
+
+    get index(): number { return this._choisie ? this._choisie.index : -1; }
+
+    get fixeChoisie(): (id: string) => KfVueTableLigne<T> {
+        return this._fixeChoisie;
     }
 
-    chargeFiltre(nom: string, options: { texte: string, valeur: TFiltre }[], parDéfaut?: TFiltre) {
-        this._filtres.charge(nom, options, parDéfaut);
+    /**
+     * définit des classes css à appliquer suivant létat et l'effet des filtres
+     * @param siFiltrée classe css du corps de la table quand des lignes sont arrêtées par les filtres
+     * @param siNonFiltrée classe css du corps de la table quand aucune ligne n'est arrêtée par les filtres
+     */
+    fixeClassesFiltre(siFiltrée?: string, siNonFiltrée?: string) {
+        if (siFiltrée) {
+            this.ajouteClasseCorps({
+                nom: siFiltrée,
+                active: () => this.estFiltrée
+            });
+        }
+        if (siNonFiltrée) {
+            this.ajouteClasseCorps({
+                nom: siNonFiltrée,
+                active: () => !this.estFiltrée
+            });
+        }
+    }
+
+    get estFiltrée(): boolean {
+        return this._lignes.find(l => !l.passeFiltres) !== undefined;
+    }
+    get rienPasseFiltres(): boolean {
+        return this._lignes.find(l => l.passeFiltres) === undefined;
+    }
+    /** remplace les lignes quand les filtres ne laissent rien passer */
+    get texteRienPasseFiltres(): string {
+        return this._outils.texteRienPasseFiltres;
+    }
+    /** colspan du td du texte qui remplace les lignes quand les filtres ne laissent rien passer */
+    get nbColonnesVisibles(): number {
+        return this._colonnes.filter(c => !c.nePasAfficher).length;
+    }
+
+    get remplaceSiVide(): KfGroupe { return this._remplaceSiVide; }
+    get estVide(): boolean { return this._lignes.length === 0; }
+
+    ajouteClasseEnTete(...classeDefs: (KfTexteDef | KfNgClasseDef)[]) {
+        if (!this._gereCssEnTete) {
+            this._gereCssEnTete = new KfGèreCss();
+        }
+        this._gereCssEnTete.ajouteClasseDefArray(classeDefs);
+    }
+
+    get gereCssEnTete(): KfGèreCss { return this._gereCssEnTete; }
+
+    get classeEnTete(): KfNgClasse {
+        if (this._gereCssEnTete) {
+            return this._gereCssEnTete.classe;
+        }
+    }
+
+    get lignesEnTete(): IKfVueTableLigne[] {
+        if (this._enTete) {
+            return this._enTete.lignes;
+        }
+    }
+
+    ajouteClasseCorps(...classeDefs: (KfTexteDef | KfNgClasseDef)[]) {
+        if (!this._gereCssCorps) {
+            this._gereCssCorps = new KfGèreCss();
+        }
+        this._gereCssCorps.ajouteClasseDefArray(classeDefs);
+    }
+
+    get gereCssCorps(): KfGèreCss { return this._gereCssCorps; }
+
+    get classeCorps(): KfNgClasse {
+        if (this._gereCssCorps) {
+            return this._gereCssCorps.classe;
+        }
+    }
+
+    get lignesBilan(): IKfVueTableLigne[] {
+        if (this._ligneBilan) {
+            return this.estFiltrée ? [this._ligneBilanDesVisibles, this._ligneBilan] : [this._ligneBilan];
+        }
+    }
+
+    ajouteClasseBilan(...classeDefs: (KfTexteDef | KfNgClasseDef)[]) {
+        if (!this._gereCssBilan) {
+            this._gereCssBilan = new KfGèreCss();
+        }
+        this._gereCssBilan.ajouteClasseDefArray(classeDefs);
+    }
+
+    get gereCssBilan(): KfGèreCss { return this._gereCssBilan; }
+
+    get classeBilan(): KfNgClasse {
+        if (this._gereCssBilan) {
+            return this._gereCssBilan.classe;
+        }
+    }
+
+    get outils(): KfVueTableOutils<T> {
+        if (this._outils) {
+            return this._outils;
+        }
+    }
+
+    /** sert à initialiser les controls */
+    get groupeDesOutils(): KfGroupe {
+        if (this._outils) {
+            return this._outils.btnToolbar;
+        }
+    }
+
+    get enveloppe(): KfGèreCss {
+        return this._enveloppe;
+    }
+
+    /** pour mettre un élément div autour des outils */
+    set enveloppe(enveloppe: KfGèreCss) {
+        this._enveloppe = enveloppe;
     }
 
     get avecValeur(): boolean {
-        return !!this._superGroupe;
-    }
-
-    get avecCommandes(): boolean {
-        return !!this._commandes;
+        return !!this.superGroupe;
     }
 
     get avecComposantsAValider(): boolean {
-        return !!this._composantsAValider;
+        return !!this.composantsAValider;
     }
 
     get lignes(): KfVueTableLigne<T>[] {
         return this._lignes;
     }
 
+    get ilignes(): IKfVueTableLigne[] {
+        return this._lignes.filter(l => l.passeFiltres);
+    }
+
+    get lignesDansLOrdreDesItems(): KfVueTableLigne<T>[] {
+        return this._lignes.sort((l1, l2) => {
+            return l1.index < l2.index ? -1 : l1.index === l2.index ? 0 : 1;
+        });
+    }
+
+    get items(): T[] {
+        return this.lignesDansLOrdreDesItems.map(l => l.item);
+    }
+
     get valeurs(): any[] {
-        return this._lignes.map(l => l.superGroupe.valeur);
+        return this.lignesDansLOrdreDesItems.map(l => l.superGroupe.valeur);
     }
 
     get formGroups(): FormGroup[] {
-        return this._lignes.map(l => l.superGroupe.formGroup);
-    }
-
-    iconeDef(tri: Tri<T>): IconDefinition {
-        if (tri) {
-            if (tri.desc === true) {
-                return faSortUp;
-            }
-            return faSortDown;
-        }
-    }
-
-    créeLigne(item: T): KfVueTableLigne<T> {
-        const ligne = new KfVueTableLigne<T>();
-        ligne.item = item;
-        const c = this._cellules(item);
-        let classe: (index: number) => string;
-        if (this._classesCellules)  {
-            const classes = this._classesCellules(item);
-            classe = (index: number) => {
-                return index < classes.length ? classes[index] : classes[classes.length - 1];
-            };
-        }
-        ligne.cellules = [];
-        for (let index = 0; index < c.length; index++) {
-            const celluleDef = c[index];
-            const icellule: IKfVueTableCellule = {};
-            if (typeof (celluleDef) === 'string') {
-                icellule.texte = celluleDef;
-            } else {
-                icellule.composant = celluleDef as KfComposant;
-            }
-            if (classe) {
-                icellule.classe = classe(index);
-            }
-            ligne.cellules.push(icellule);
-        }
-        if (this._superGroupe) {
-            ligne.superGroupe = this._superGroupe(item);
-            ligne.superGroupe.listeParent = this;
-        }
-        if (this._commandes) {
-            ligne.commandes = this._commandes(item);
-        }
-        if (this._composantsAValider) {
-            ligne.composantsAValider = this._composantsAValider(item);
-        }
-        ligne.visible = true;
-        return ligne;
+        return this.lignesDansLOrdreDesItems.map(l => l.superGroupe.formGroup);
     }
 
     get formArray(): FormArray {
@@ -200,7 +330,7 @@ export class KfVueTable<T> extends KfComposant implements IKfVueTable {
     }
 
     ajouteItem(index: number, item: T) {
-        const ligne = this.créeLigne(item);
+        const ligne = new KfVueTableLigne<T>(this, item, index);
         this._lignes.splice(index, 0, ligne);
         if (this.avecValeur) {
             if (this.formArray) {
@@ -233,28 +363,15 @@ export class KfVueTable<T> extends KfComposant implements IKfVueTable {
         }
     }
 
+    trie(tri: Tri<T>) {
+        this._lignes = tri.trieDérivés<KfVueTableLigne<T>>(this._lignes, (l: KfVueTableLigne<T>) => l.item);
+        this._tris.push(tri);
+    }
+
     initialise(items: T[]) {
-        if (this._enTetesDef) {
-            let index = 0;
-            this._enTetes = this._enTetesDef.map(edef => {
-                index++;
-                const e = new KfEtiquette('e' + index, edef.texte);
-                if (edef.tri) {
-                    const i = new KfIcone('i' + index, this.iconeDef(edef.tri), true);
-                    e.gereHtml.ajouteTraiteur(KfTypeDEvenement.clic,
-                        (evenement: KfEvenement) => {
-                            if (evenement.emetteur === i) {
-                                this._lignes = edef.tri.trieDérivés<KfVueTableLigne<T>>(this._lignes, (l: KfVueTableLigne<T>) => l.item);
-                                i.iconeDef = this.iconeDef(edef.tri);
-                                evenement.statut = KfStatutDEvenement.fini;
-                            }
-                        });
-                    e.contenuPhrase.ajoute(i);
-                    items = edef.tri.trie(items);
-                }
-                return e;
-            });
-        }
         this.remplitLignes(items);
+        if (this._outils) {
+            this._outils.appliqueFiltres();
+        }
     }
 }

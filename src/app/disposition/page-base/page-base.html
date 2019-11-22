@@ -1,9 +1,9 @@
 <div class="container-fluid">
-    <app-titre-page [titre]="titre"></app-titre-page>
-    <div class="container-fluid">
-        <ng-container *ngFor="let superGroupe of superGroupes">
-            {{ valeur1(superGroupe) | json }}
-            <app-kf-composant [composant]="superGroupe" (output)="traite($event)"></app-kf-composant>
-        </ng-container>
+    <app-titre-page [iTitrePage]="titrePage"></app-titre-page>
+    <ng-container *ngIf="avecValeur">{{ valeur | json }}</ng-container>
+    <div class="row">
+        <div class="col">
+            <app-kf-groupe [composant]="superGroupe" (output)="traite($event)"></app-kf-groupe>
+        </div>
     </div>
 </div>

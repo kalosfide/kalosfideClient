@@ -5,60 +5,40 @@ import { Observable } from 'rxjs';
 import { KfSuperGroupe } from '../../commun/kf-composants/kf-groupe/kf-super-groupe';
 import { KfEvenement, KfTypeDEvenement } from '../../commun/kf-composants/kf-partages/kf-evenements';
 import { KfBouton } from '../../commun/kf-composants/kf-elements/kf-bouton/kf-bouton';
-import { KfAfficheResultat } from '../../commun/kf-composants/kf-elements/kf-affiche-resultat/kf-affiche-resultat';
-import { KfLien } from '../../commun/kf-composants/kf-elements/kf-lien/kf-lien';
 import { KfGroupe } from '../../commun/kf-composants/kf-groupe/kf-groupe';
 
 import { ApiResult } from '../../commun/api-results/api-result';
 
 import { DataService } from '../../services/data.service';
-import { AttenteAsyncService } from '../../services/attenteAsync.service';
 
 import { FormulaireBaseComponent } from './formulaire-base.component';
-import { FormulaireFabrique } from './formulaire-fabrique';
+import { Fabrique } from '../fabrique/fabrique';
+import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
+import { KfLien } from 'src/app/commun/kf-composants/kf-elements/kf-lien/kf-lien';
+import { IFormulaireDef } from '../fabrique/fabrique-formulaire';
 
-export abstract class FormulaireComponent extends FormulaireBaseComponent implements OnInit, OnDestroy {
+export abstract class FormulaireComponent extends FormulaireBaseComponent implements IFormulaireDef, OnInit, OnDestroy {
 
-    boutonsDeFormulaire = [];
     abstract créeEdition: () => KfGroupe;
-    abstract créeBoutonsDeFormulaire: () => KfBouton[];
+    abstract créeBoutonsDeFormulaire: (formulaire: KfSuperGroupe) => (KfBouton | KfLien)[];
 
     abstract actionSiOk: () => void;
-    abstract soumission: () => Observable<ApiResult>;
+    abstract apiDemande: () => Observable<ApiResult>;
 
     // membres communs
     formulaire: KfSuperGroupe;
+    avantEdition: () => KfComposant[];
     edition: KfGroupe;
-
-    boutonSoumettre: KfBouton;
-    afficheResultat: KfAfficheResultat;
+    aprèsBoutons: () => KfComposant[];
 
     constructor(
-        protected service: DataService,
-        protected attenteAsyncService: AttenteAsyncService,
+        protected _service: DataService,
     ) {
-        super(service, attenteAsyncService);
-    }
-
-    protected créeFormulaire() {
-        this.formulaire = new KfSuperGroupe(this.nom);
-        this.edition = this.créeEdition();
-        if (this.edition.gereValeur) {
-            this.formulaire.créeGereValeur();
-        }
-        this.formulaire.ajoute(this.edition);
-        this.boutonsDeFormulaire = this.créeBoutonsDeFormulaire();
-        this.formulaire.ajouteBoutonsDeFormulaire(this.boutonsDeFormulaire);
-        this.afficheResultat = FormulaireFabrique.AjouteAfficheResultat(this.formulaire);
-        FormulaireFabrique.AjouteLienRetour(this.formulaire, this.lienRetour);
-        if (this.edition.gereValeur) {
-            this.formulaire.avecInvalidFeedback = true;
-            this.formulaire.quandTousAjoutés();
-        }
+        super(_service);
     }
 
     ngOnInit() {
-        this.créeFormulaire();
+        this.formulaire = Fabrique.formulaire.formulaire(this);
     }
 
     ngOnDestroy() {

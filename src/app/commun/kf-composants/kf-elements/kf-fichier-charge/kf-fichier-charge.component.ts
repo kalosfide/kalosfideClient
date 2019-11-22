@@ -9,6 +9,7 @@ import { LitFichierTexteService } from '../../../outils/lit-fichier-texte.servic
     template: `
     <app-kf-fichier [composant]="composant.fichier" (output)="quandChoisis($event)"></app-kf-fichier>
 `,
+    styleUrls: ['../../kf-composants.scss']
 })
 export class KfFichierChargeComponent extends KfComposantComponent implements OnInit, AfterViewInit {
 

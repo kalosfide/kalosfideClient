@@ -1,4 +1,4 @@
-import { CommandeLigne } from './commande-ligne';
+import { DetailCommande } from 'src/app/commandes/detail-commande';
 
 export enum IdEtatCommandeLigne {
     tous = 'T',
@@ -15,23 +15,23 @@ export const IdsEtatsCommandeLignes: string[] = [
 export class EtatCommandeLigne {
     valeur: IdEtatCommandeLigne;
     texte: string;
-    vérifie: (p: CommandeLigne) => boolean;
+    vérifie: (p: DetailCommande) => boolean;
 }
 
 const tous: EtatCommandeLigne = {
     valeur: IdEtatCommandeLigne.tous,
     texte: '',
-    vérifie: (p: CommandeLigne) => true
+    vérifie: (p: DetailCommande) => true
 };
 const avecDemande: EtatCommandeLigne = {
     valeur: IdEtatCommandeLigne.avecDemande,
     texte: 'avec demande',
-    vérifie: (cl: CommandeLigne) => cl.demande > 0
+    vérifie: (cl: DetailCommande) => cl.demande > 0
 };
 const sansDemande: EtatCommandeLigne = {
     valeur: IdEtatCommandeLigne.sansDemande,
     texte: 'sans demande',
-    vérifie: (cl: CommandeLigne) => cl.demande <= 0
+    vérifie: (cl: DetailCommande) => cl.demande <= 0
 };
 class CEtatsCommandeLignes {
     tous = tous;

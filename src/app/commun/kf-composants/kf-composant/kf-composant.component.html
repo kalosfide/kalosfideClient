@@ -1,70 +1,104 @@
-<!-- <span>{{ composant.nom + ' ' + composant.tabIndex }}</span> -->
-<ng-container [ngSwitch]="composant.typeDeComposant">
+<ng-container *ngIf="!composant.nePasAfficher">
 
-    <!-- composants conteneurs -->
-    <app-kf-groupe *ngSwitchCase="typeDeComposant.groupe" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-groupe>
+    <ng-container [ngSwitch]="composant.type">
 
-    <app-kf-liste *ngSwitchCase="typeDeComposant.liste" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-liste>
+        <!-- composants conteneurs -->
+        <app-kf-groupe *ngSwitchCase="type.groupe" [composant]="composant"
+            (output)="traiteOuTransmet($event)">
+        </app-kf-groupe>
 
-    <app-kf-liste-editeur *ngSwitchCase="typeDeComposant.listeEditeur" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-liste-editeur>
+        <app-kf-ngb-dropdown *ngSwitchCase="type.ngbDropdown" [composant]="composant"
+            (output)="traiteOuTransmet($event)"></app-kf-ngb-dropdown>
 
-    <app-kf-ngb-dropdown *ngSwitchCase="typeDeComposant.ngbDropdown" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-ngb-dropdown>
+        <app-kf-radios *ngSwitchCase="type.radios" [composant]="composant"
+            (output)="traiteOuTransmet($event)">
+        </app-kf-radios>
 
-    <app-kf-radios *ngSwitchCase="typeDeComposant.radios" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-radios>
+        <app-kf-b-btn-group *ngSwitchCase="type.b_btn_group" [composant]="composant"
+            (output)="traiteOuTransmet($event)">
+        </app-kf-b-btn-group>
 
-    <ng-container *ngSwitchDefault>
+        <app-kf-b-btn-toolbar *ngSwitchCase="type.b_btn_toolbar" [composant]="composant"
+            (output)="traiteOuTransmet($event)">
+        </app-kf-b-btn-toolbar>
 
-        <ng-container [ngSwitch]="composant.typeDeComposant">
+        <app-kf-ul *ngSwitchCase="type.ul" [composant]="composant" (output)="traiteOuTransmet($event)">
+        </app-kf-ul>
 
-            <!-- contenus phrasés simples -->
+        <ng-container *ngSwitchDefault>
 
-            <app-kf-texte *ngSwitchCase="typeDeComposant.texte" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-texte>
+            <ng-container [ngSwitch]="composant.type">
 
-            <app-kf-image *ngSwitchCase="typeDeComposant.image" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-image>
+                <!-- contenus phrasés simples -->
 
-            <app-kf-icone *ngSwitchCase="typeDeComposant.icone" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-icone>
+                <app-kf-texte *ngSwitchCase="type.texte" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-texte>
 
-            <!-- composés -->
-            <app-kf-menu *ngSwitchCase="typeDeComposant.menu" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-menu>
+                <app-kf-image *ngSwitchCase="type.image" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-image>
 
-            <app-kf-ul *ngSwitchCase="typeDeComposant.ul" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-ul>
+                <app-kf-icone *ngSwitchCase="type.icone" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-icone>
 
-            <!-- éléments -->
-            <app-kf-etiquette *ngSwitchCase="typeDeComposant.etiquette" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-etiquette>
+                <!-- éléments -->
+                <app-kf-etiquette *ngSwitchCase="type.etiquette" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-etiquette>
 
-            <app-kf-bouton *ngSwitchCase="typeDeComposant.bouton" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-bouton>
+                <app-kf-bouton *ngSwitchCase="type.bouton" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-bouton>
 
-            <app-kf-vue-json *ngSwitchCase="typeDeComposant.vuejson" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-vue-json>
+                <app-kf-lien *ngSwitchCase="type.lien" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-lien>
 
-            <app-kf-lien *ngSwitchCase="typeDeComposant.lien" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-lien>
+                <app-kf-fichier-sauve *ngSwitchCase="type.fichierSauve" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-fichier-sauve>
 
-            <app-kf-fichier-sauve *ngSwitchCase="typeDeComposant.fichierSauve" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-fichier-sauve>
+                <app-kf-fichier-charge *ngSwitchCase="type.fichierCharge" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-fichier-charge>
 
-            <app-kf-fichier-charge *ngSwitchCase="typeDeComposant.fichierCharge" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-fichier-charge>
+                <app-kf-fichier *ngSwitchCase="type.fichier" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-fichier>
 
-            <app-kf-fichier *ngSwitchCase="typeDeComposant.fichier" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-fichier>
+                <app-kf-vue-table *ngSwitchCase="type.vuetable" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-vue-table>
 
-            <app-kf-vue-table *ngSwitchCase="typeDeComposant.vuetable" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-vue-table>
+                <!-- éléments de formulaire -->
+                <app-kf-caseacocher *ngSwitchCase="type.caseacocher" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-caseacocher>
 
-            <!-- éléments de formulaire -->
-            <app-kf-caseacocher *ngSwitchCase="typeDeComposant.caseacocher" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-caseacocher>
+                <app-kf-input *ngSwitchCase="type.input" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-input>
 
-            <app-kf-input *ngSwitchCase="typeDeComposant.input" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-input>
+                <app-kf-radio *ngSwitchCase="type.radio" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-radio>
 
-            <app-kf-radio *ngSwitchCase="typeDeComposant.radio" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-radio>
+                <app-kf-liste-deroulante *ngSwitchCase="type.listederoulante" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-liste-deroulante>
 
-            <app-kf-liste-deroulante *ngSwitchCase="typeDeComposant.listederoulante" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-liste-deroulante>
+            </ng-container>
+            <ng-container *ngFor="let contenu of composant.contenus">
+                <app-kf-composant [attr.nom]="contenu.nom" [composant]="contenu" (output)="transmet($event)">
+                </app-kf-composant>
+            </ng-container>
 
-            <!-- patience -->
-
-            <app-kf-affiche-resultat *ngSwitchCase="typeDeComposant.afficheResultat" [composant]="composant" (output)="traiteOuTransmet($event)"></app-kf-affiche-resultat>
-
-        </ng-container>
-        <ng-container *ngFor="let contenu of composant.contenus">
-            <app-kf-composant [attr.nom]="contenu.nom" [ngClass]="{'kf-invisible': !contenu.visible}" [composant]="contenu"
-                (output)="transmet($event)"></app-kf-composant>
         </ng-container>
 
     </ng-container>
 
 </ng-container>
+
+<!-- POUBELLE
+
+        <app-kf-liste *ngSwitchCase="type.liste" [composant]="composant" (output)="traiteOuTransmet($event)">
+        </app-kf-liste>
+
+        <app-kf-liste-editeur *ngSwitchCase="type.listeEditeur" [composant]="composant"
+            (output)="traiteOuTransmet($event)"></app-kf-liste-editeur>
+
+                <app-kf-menu *ngSwitchCase="type.menu" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-menu>
+
+                <app-kf-vue-json *ngSwitchCase="type.vuejson" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-vue-json>
+
+-->

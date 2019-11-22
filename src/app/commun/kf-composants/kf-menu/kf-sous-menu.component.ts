@@ -3,12 +3,12 @@ import {
     ViewChild, AfterViewInit, ElementRef
 } from '@angular/core';
 import { KfComposantComponent } from '../kf-composant/kf-composant.component';
-import { KfMenu } from './kf-menu';
 import { KfSousMenu } from './kf-sous-menu';
 
 @Component({
     selector: 'app-kf-sous-menu',
     templateUrl: './kf-sous-menu.component.html',
+    styleUrls: ['../kf-composants.scss']
 })
 export class KfSousMenuComponent extends KfComposantComponent implements OnInit, AfterViewInit {
     @ViewChild('divElement') divElementRef: ElementRef;
@@ -21,7 +21,7 @@ export class KfSousMenuComponent extends KfComposantComponent implements OnInit,
 
     ngAfterViewInit() {
         this.composant.gereHtml.htmlElement = this.divElementRef.nativeElement;
-        this.initialiseHtml();
+        this.composant.gereHtml.initialiseHtml(this.output);
     }
 
     get sousMenu(): KfSousMenu {

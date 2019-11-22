@@ -1,65 +1,63 @@
-import { SiteRoutes, SitePages, ISiteRoutes } from '../site/site-pages';
+import { SiteRoutes, ISiteRoutes, SitePages } from '../site/site-pages';
+import { PageDef, BaseRoutes } from '../commun/page-def';
 
-export const FournisseurPages = {
-    accueil: {
-        urlSegment: SitePages.accueil.urlSegment,
-        lien: '',
-        title: 'Accueil',
-    },
-    produits: {
-        urlSegment: 'produits',
-        lien: 'Produits',
-        title: 'Produits',
-    },
-    commandes: {
-        urlSegment: 'commandes',
-        lien: 'Commandes',
-        title: 'Commandes',
-    },
-    livraisons: {
-        urlSegment: 'livraisons',
-        lien: 'Livraisons',
-        title: 'Livraisons',
-    },
-    factures: {
+export class FournisseurPages {
+    static accueil: PageDef = SitePages.accueil;
+    static produits: PageDef = SitePages.produits;
+    static commandes: PageDef = SitePages.commandes;
+    static livraison: PageDef = {
+        urlSegment: 'livraison',
+        lien: 'Livraison',
+        title: 'Livraison',
+        titre: 'Livraison',
+    };
+    static factures: PageDef = {
         urlSegment: 'factures',
         lien: 'Factures',
         title: 'Factures',
-    },
-    documents: {
+        titre: 'Factures'
+    };
+    static documents: PageDef = {
         urlSegment: 'documents',
         lien: 'Documents',
         title: 'Documents',
         titre: 'Documents',
-    },
-    site: {
+    };
+    static clients: PageDef = {
+        urlSegment: 'clients',
+        lien: 'Clients',
+        title: 'Clients',
+        titre: 'Clients',
+    };
+    static site: PageDef = {
         urlSegment: 'site',
         lien: 'Site',
         title: 'Site',
         titre: 'Site',
-    },
-    // choix accepter/refuser pour chaque bon de commande
-    // tous les acceptés sont affectés à une nouvelle livraison
-    // impossible s'il y a des bons de commande acceptés sans bon de livraison
-    // transfert des données d'un seul coup
-    reception: {
-        urlSegment: '',
-        lien: '',
-        title: '',
-        titre: '',
-    },
-    // fixe les ALivrer des commandes
-    preparation: {
-        urlSegment: '',
-        lien: '',
-        title: '',
-        titre: '',
-    },
-};
+    };
 
-class CFournisseurRoutes implements ISiteRoutes {
+
+    static pageDefs: PageDef[] = [
+        FournisseurPages.accueil,
+        FournisseurPages.produits,
+        FournisseurPages.commandes,
+        FournisseurPages.livraison,
+        FournisseurPages.factures,
+        FournisseurPages.documents,
+        FournisseurPages.clients,
+        FournisseurPages.site,
+    ];
+}
+
+class CFournisseurRoutes extends BaseRoutes implements ISiteRoutes {
     url(nomSite: string, segments: any[]): string {
         return SiteRoutes.urlRole(nomSite, SitePages.fournisseur.urlSegment, segments);
+    }
+    page(url: string): PageDef {
+        const analyse = SiteRoutes.nomSite_typeRole_page(url);
+        if (analyse.page) {
+            return FournisseurPages.pageDefs.find(p => p.urlSegment === analyse.page);
+        }
     }
 }
 export const FournisseurRoutes = new CFournisseurRoutes();

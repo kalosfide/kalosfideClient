@@ -4,85 +4,71 @@ import { Routes, RouterModule } from '@angular/router';
 import { ProduitIndexComponent } from './produit-index.component';
 import { ProduitAjouteComponent } from './produit-ajoute.component';
 import { ProduitEditeComponent } from './produit-edite.component';
-import { ProduitResolverService } from './produit-resolver.service';
+import { ProduitResolverService } from '../../modeles/catalogue/produit-resolver.service';
 import { ProduitPrixComponent } from './produit-prix.component';
-import { SitePasOuvertGarde } from '../../securite/site-pas-ouvert-garde';
-import { ProduitAccueilComponent } from './produit-accueil.component';
-import { SiteProduitsResolverService } from 'src/app/modeles/site-produits-resolver.service';
-import { ProduitPrixResolverService } from './produit-prix-resolver.service';
-import { SiteCategoriesResolverService } from 'src/app/modeles/site-categories-resolver.service';
-import { FProduitsComponent } from './F-produits.component';
+import { CategoriesResolverService } from 'src/app/modeles/catalogue/categories-resolver.service';
 import { ProduitPages } from './produit-pages';
+import { CatalogueResolverService, CatalogueRésoluResolverService } from 'src/app/modeles/catalogue/catalogue-resolver.service';
+import { ProduitSitePasCatalogueGarde } from './produit-site-pas-catalogue-garde';
+import { CatalogueComponent } from './catalogue.component';
+import { NbCommandesOuvertesResolverService } from 'src/app/modeles/nb-commandes-ouvertes-resolver.service';
 
 const routes: Routes = [
     {
         path: '',
+        component: CatalogueComponent,
+        resolve: {
+            nbCommandesOuvertes: NbCommandesOuvertesResolverService,
+            catalogue: CatalogueResolverService,
+        },
         children: [
             {
                 path: '',
-                redirectTo: ProduitPages.accueil.urlSegment,
+                redirectTo: ProduitPages.index.urlSegment,
                 pathMatch: 'full'
-            },
-            {
-                path: ProduitPages.accueil.urlSegment,
-                component: ProduitAccueilComponent,
-            },
-            {
-                path: ProduitPages.visite.urlSegment,
-                component: FProduitsComponent,
-                resolve: {
-                    liste: SiteProduitsResolverService,
-                    categories: SiteCategoriesResolverService,
-                },
             },
             {
                 path: ProduitPages.index.urlSegment,
                 component: ProduitIndexComponent,
-                canActivate: [
-                    SitePasOuvertGarde,
-                ],
                 resolve: {
-                    liste: SiteProduitsResolverService,
-                    categories: SiteCategoriesResolverService,
+                    catalogue: CatalogueRésoluResolverService,
                 }
             },
             {
                 path: ProduitPages.ajoute.urlSegment,
                 component: ProduitAjouteComponent,
                 canActivate: [
-                    SitePasOuvertGarde,
+                    ProduitSitePasCatalogueGarde,
                 ],
                 resolve: {
-                    categories: SiteCategoriesResolverService,
+                    categories: CategoriesResolverService,
                 }
             },
             {
                 path: ProduitPages.edite.urlSegment + '/:no',
                 component: ProduitEditeComponent,
                 canActivate: [
-                    SitePasOuvertGarde,
+                    ProduitSitePasCatalogueGarde,
                 ],
                 resolve: {
                     valeur: ProduitResolverService,
-                    categories: SiteCategoriesResolverService,
+                    categories: CategoriesResolverService,
                 }
             },
             {
                 path: ProduitPages.prix.urlSegment + '/:no',
-                canActivate: [
-                    SitePasOuvertGarde,
-                ],
                 component: ProduitPrixComponent,
+                canActivate: [
+                    ProduitSitePasCatalogueGarde,
+                ],
                 resolve: {
-                    valeur: ProduitPrixResolverService,
+                    valeur: ProduitResolverService,
+                    categories: CategoriesResolverService,
                 }
             },
             {
                 path: ProduitPages.categories.urlSegment,
-                canActivateChild: [
-                    SitePasOuvertGarde,
-                ],
-                loadChildren: './categories/categorie.module#CategorieModule'
+                loadChildren: () => import('./categories/categorie.module').then(mod => mod.CategorieModule)
             },
         ]
     }

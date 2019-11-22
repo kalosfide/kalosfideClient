@@ -6,8 +6,8 @@ import { KfComposant } from './kf-composant';
  * composant sans contenus et sans valeur
  */
 export abstract class KfElement extends KfComposant {
-    constructor(nom: string, typeDeComposant: KfTypeDeComposant) {
-        super(nom, typeDeComposant);
+    constructor(nom: string, type: KfTypeDeComposant) {
+        super(nom, type);
     }
 
 }

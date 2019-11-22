@@ -13,7 +13,7 @@
  */
 import { AbstractControl } from '@angular/forms';
 
-import { KfTypeDeComposant, KfTypeDeValeur, KfTypeDeBaliseHTML } from '../kf-composants-types';
+import { KfTypeDeComposant, KfTypeDeValeur } from '../kf-composants-types';
 import { Noeud } from '../../outils/arbre/noeud';
 import { KfListe } from '../kf-liste/kf-liste';
 import { KfSuperGroupe } from '../kf-groupe/kf-super-groupe';
@@ -25,15 +25,18 @@ import { KfContenuPhrase } from '../kf-partages/kf-contenu-phrase/kf-contenu-phr
 import { KfComposantGereValeur } from './kf-composant-gere-valeur';
 import { KfValidateur } from '../kf-partages/kf-validateur';
 import { KfTexteDef } from '../kf-partages/kf-texte-def';
-import { KfClasseDefs } from '../kf-partages/kf-classe-defs';
 import { KfImageDef } from '../kf-partages/kf-image-def';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { IKfVueTable } from '../kf-vue-table/kf-vue-table';
+import { FANomIcone } from '../kf-partages/kf-icone-def';
+import { KfGèreCss } from '../kf-partages/kf-gere-css';
+import { Subscription, Observable } from 'rxjs';
+import { KfInitialObservable } from '../kf-partages/kf-initial-observable';
+import { KfDiv } from '../kf-partages/kf-div/kf-div';
 
 export interface IKfComposant {
     composant: KfComposant;
 }
-export abstract class KfComposant implements IKfComposant {
+export abstract class KfComposant extends KfGèreCss implements IKfComposant {
     // GENERAL
     /**
      * nom: string
@@ -45,11 +48,11 @@ export abstract class KfComposant implements IKfComposant {
     nom: string;
 
     /**
-     * typeDeComposant: TypeDeComposant
+     * type: TypeDeComposant
      *  détermine quel Angular component doit afficher ce KfComposant
      *  est fixé par le constructeur des classes dérivées non abstraites
      */
-    typeDeComposant: KfTypeDeComposant;
+    type: KfTypeDeComposant;
 
     // STRUCTURE
     /**
@@ -106,14 +109,6 @@ export abstract class KfComposant implements IKfComposant {
     gereTabIndex: KfGereTabIndex;
 
     /**
-     * _classeDefs: KfClasseDef[]
-     *  classes css à appliquer
-     */
-    classeDefs: KfClasseDefs;
-
-    style: { [keys: string]: any };
-
-    /**
      * si vrai, le template du composant sera suivi d'un <br>
      * implémenté par KfEtiquette si pas dans balises, par KfTexte
      */
@@ -125,11 +120,18 @@ export abstract class KfComposant implements IKfComposant {
     private _contenuPhrase?: KfContenuPhrase;
     // pour debug
     get contenuPhrase(): KfContenuPhrase {
-//        console.log(this);
         return this._contenuPhrase;
     }
     set contenuPhrase(contenuPhrase: KfContenuPhrase) {
         this._contenuPhrase = contenuPhrase;
+    }
+
+    /**
+     * pour entourer le template du composant dans un ou des éléments div
+     */
+    private _div: KfDiv;
+    get div(): KfDiv {
+        return this._div;
     }
 
     /**
@@ -152,10 +154,12 @@ export abstract class KfComposant implements IKfComposant {
      */
     private _inactivité: boolean;
     private _inactivitéFnc: () => boolean;
+    private _subscriptionInactif: Subscription;
 
-    constructor(nom: string, typeDeComposant: KfTypeDeComposant) {
+    constructor(nom: string, type: KfTypeDeComposant) {
+        super();
         this.nom = nom;
-        this.typeDeComposant = typeDeComposant;
+        this.type = type;
         this.noeud = new Noeud;
         this.noeud.objet = this;
         this.gereVisible = new KfComposantGereVisible(this);
@@ -198,7 +202,7 @@ export abstract class KfComposant implements IKfComposant {
 
     get estDansVueTable(): boolean {
         if (this.listeParent) {
-            return this.listeParent.composant.typeDeComposant === KfTypeDeComposant.vuetable;
+            return this.listeParent.composant.type === KfTypeDeComposant.vuetable;
         }
         if (this.parent) {
             return this.parent.estDansVueTable;
@@ -218,7 +222,14 @@ export abstract class KfComposant implements IKfComposant {
 
     /* A N'UTILISER QU'APRES QUE LA RACINE DU COMPOSANT A APPELE créeValeur */
     get groupeParent(): KfGroupe {
-        return this.ascendantVérifiant((c: KfComposant) => c.typeDeValeur === KfTypeDeValeur.avecGroupe) as KfGroupe;
+        let c = this.parent;
+        while (c) {
+            if (c.typeDeValeur === KfTypeDeValeur.avecGroupe) {
+                break;
+            }
+            c = c.parent;
+        }
+        return c as KfGroupe;
     }
 
     get formulaireParent(): KfSuperGroupe {
@@ -277,16 +288,19 @@ export abstract class KfComposant implements IKfComposant {
         return !(this.noeud.parent);
     }
     get estFormulaire(): boolean {
-        return this.estRacineV && this.typeDeComposant === KfTypeDeComposant.groupe;
+        return this.estRacineV && this.estGroupePourLaValeur && !!this.gereValeur;
     }
-    get estGroupe(): boolean {
-        return this.typeDeComposant === KfTypeDeComposant.groupe;
+    get estGroupePourLaValeur(): boolean {
+        return this.type === KfTypeDeComposant.groupe || this.type === KfTypeDeComposant.b_btn_toolbar;
     }
     get estListe(): boolean {
-        return this.typeDeComposant === KfTypeDeComposant.liste;
+        return this.type === KfTypeDeComposant.liste;
+    }
+    get estVueTable(): boolean {
+        return this.type === KfTypeDeComposant.vuetable;
     }
     get estElement(): boolean {
-        return !this.estGroupe && !this.estListe;
+        return !this.estGroupePourLaValeur && !this.estListe && !this.estVueTable;
     }
     get estEntree(): boolean {
         return this.estElement && this.typeDeValeur !== KfTypeDeValeur.aucun;
@@ -321,15 +335,6 @@ export abstract class KfComposant implements IKfComposant {
         }
     }
 
-    get afficheErreur(): boolean {
-        return this.gereValeur && this.gereValeur.afficheErreur;
-    }
-    set afficheErreur(valeur: boolean) {
-        if (this.gereValeur) {
-            this.gereValeur.afficheErreur = valeur;
-        }
-    }
-
     get erreurs(): string[] {
         if (this.gereValeur) {
             return this.gereValeur.erreurs;
@@ -337,7 +342,27 @@ export abstract class KfComposant implements IKfComposant {
     }
 
     get estInvalide(): boolean {
-        return this.erreurs && this.erreurs.length > 0;
+        return this.gereValeur && this.gereValeur.invalide;
+    }
+
+    get nomPourErreur(): string {
+        if (this._nomPourErreur) {
+            return this._nomPourErreur;
+        }
+        const t = this.texte;
+        if (t) {
+            return t;
+        }
+        return this.nom;
+    }
+    set nomPourErreur(nom: string) {
+        this._nomPourErreur = nom;
+    }
+
+    get avecInvalidFeedback(): boolean {
+        if (this.parent) {
+            return this.parent.avecInvalidFeedback;
+        }
     }
 
     // INTERFACE
@@ -348,35 +373,21 @@ export abstract class KfComposant implements IKfComposant {
         }
     }
 
-    active() {
-        this._inactivité = false;
+    private _active(inactivité: boolean) {
+        this._inactivité = inactivité;
         if (this.abstractControl) {
-            this.abstractControl.enable();
+            if (inactivité) {
+                this.abstractControl.enable();
+            } else {
+                this.abstractControl.disable();
+            }
         }
+    }
+    active() {
+        this._active(false);
     }
     désactive() {
-        console.log('désactive', this.nom);
-        this._inactivité = true;
-        if (this.abstractControl) {
-            this.abstractControl.disable();
-        }
-    }
-
-    /**
-     *  méthodes pour fixer la façon de déterminer la visibilité
-     */
-    set visibilite(visibilite: boolean) {
-        this.gereVisible.visibilite = visibilite;
-    }
-    set visibiliteFnc(visibiliteFnc: () => boolean) {
-        this.gereVisible.visibiliteFnc = visibiliteFnc;
-    }
-    /**
-     * visible: boolean
-     *  utilisé par l'Angular component parent pour affecter ou non la classe css kf-invisible au template du composant
-     */
-    get visible(): boolean {
-        return this.gereVisible.visible;
+        this._active(true);
     }
 
     /**
@@ -384,15 +395,32 @@ export abstract class KfComposant implements IKfComposant {
      */
     set inactivité(inactivité: boolean) {
         this._inactivité = inactivité;
+        this._active(inactivité);
     }
     set inactivitéFnc(inactivitéFnc: () => boolean) {
         this._inactivitéFnc = inactivitéFnc;
+        this._active(inactivitéFnc());
     }
+    set inactivitéObs(inactivitéObs: Observable<boolean>) {
+        if (this._subscriptionInactif) {
+            this._subscriptionInactif.unsubscribe();
+        }
+        this._subscriptionInactif = inactivitéObs.subscribe(inactif => {
+            this._active(inactif);
+        });
+    }
+    set inactivitéIO(inactivitéIO: KfInitialObservable<boolean>) {
+        this.inactivité = inactivitéIO.valeur;
+        this.inactivitéObs = inactivitéIO.observable;
+    }
+
     /**
      * permet d'affecter l'attribut disabled au DOM element
      */
     get inactif(): boolean {
-        let inactif = (this._inactivitéFnc) ? this._inactivitéFnc() : this._inactivité;
+        let inactif = (this._inactivitéFnc)
+            ? this._inactivitéFnc()
+            : this._inactivité; // si l'inactivité dépend d'un observable elle a été fixée
         inactif = (this.abstractControl && this.abstractControl.disabled)
             || (this.parent && this.parent.inactif)
             || (this.listeParent && this.listeParent.composant.inactif)
@@ -401,6 +429,15 @@ export abstract class KfComposant implements IKfComposant {
     }
 
     // HTML
+
+    enveloppeDiv(): KfDiv {
+        if (!this._div) {
+            this._div = KfDiv.enveloppe(this);
+            return this._div;
+        } else {
+            return KfDiv.ajouteA(this._div);
+        }
+    }
 
     get tabIndex(): number {
         return this.gereHtml.tabIndex;
@@ -435,40 +472,6 @@ export abstract class KfComposant implements IKfComposant {
         }
         if (this.gereTabIndex) {
             return this.gereTabIndex.prendLeFocus();
-        }
-    }
-
-    // CSS
-    trouveClasse(classe: string): KfTexteDef {
-        return this.classeDefs.trouveClasse(classe);
-    }
-    ajouteClasseDef(...classeDefs: KfTexteDef[]) {
-        if (!this.classeDefs) {
-            this.classeDefs = new KfClasseDefs();
-        }
-        this.classeDefs.ajouteClasseDef(classeDefs);
-    }
-    supprimeClasseDef(...classeDefs: KfTexteDef[]) {
-        this.classeDefs.supprimeClasseDef(classeDefs);
-    }
-
-    get classes(): string[] {
-        const classes = this.classeDefs ? this.classeDefs.classes : [];
-        return classes;
-    }
-
-    get classe(): string {
-        return ' ' + this.classes.join(' ');
-    }
-
-    get avecClassesOuStyle(): boolean {
-        return !!this.classeDefs || !!this.style;
-    }
-
-    copieClassesEtStyle(composant: KfComposant) {
-        this.classeDefs = composant.classeDefs;
-        if (composant.style) {
-            this.style = composant.style;
         }
     }
 
@@ -515,7 +518,7 @@ export abstract class KfComposant implements IKfComposant {
     /**
      * retourne l'icone de l'element ou de son label si l'élément est équivalent à un label ou a un label
      */
-    get icone(): IconDefinition {
+    get icone(): FANomIcone {
         if (this.contenuPhrase) {
             return this.contenuPhrase.icone;
         }
@@ -523,31 +526,11 @@ export abstract class KfComposant implements IKfComposant {
     /**
      * fixe le icone de l'element ou de son label
      */
-    fixeIcone(icone: IconDefinition) {
+    fixeIcone(icone: FANomIcone) {
         if (!this.contenuPhrase) {
             throw new Error(`Ce composant n'a pas de contenu phrasé.`);
         } else {
             this.contenuPhrase.fixeIcone(icone);
-        }
-    }
-
-    get nomPourErreur(): string {
-        if (this._nomPourErreur) {
-            return this._nomPourErreur;
-        }
-        const t = this.texte;
-        if (t) {
-            return t;
-        }
-        return this.nom;
-    }
-    set nomPourErreur(nom: string) {
-        this._nomPourErreur = nom;
-    }
-
-    get avecInvalidFeedback(): boolean {
-        if (this.parent) {
-            return this.parent.avecInvalidFeedback;
         }
     }
 

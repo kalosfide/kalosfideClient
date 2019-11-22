@@ -1,7 +1,8 @@
 import { KfEtiquette } from 'src/app/commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
+import { BootstrapType } from '../fabrique/fabrique-bootstrap';
 
 export enum TypeAlerte {
-    success,
+    success = 1,
     danger,
     info,
     warning
@@ -10,22 +11,15 @@ export enum TypeAlerte {
 export class Alerte {
     id: string;
     contenu: KfEtiquette;
-    type: TypeAlerte;
+    type: BootstrapType;
     fermable: boolean;
     fermetureAuto: number;
     nbNavigationAvantFermeture: number;
+    invisible: boolean;
+    inutile: (url: string) => boolean;
 
-    get classe(): string {
-        switch (this.type) {
-            case TypeAlerte.success:
-                return 'alert alert-success';
-            case TypeAlerte.danger:
-                return 'alert alert-danger';
-            case TypeAlerte.info:
-                return 'alert alert-info';
-            case TypeAlerte.warning:
-                return 'alert alert-warning';
-        }
+    vérifieUrl(url: string) {
+        this.invisible = this.inutile && this.inutile(url);
     }
 
 }

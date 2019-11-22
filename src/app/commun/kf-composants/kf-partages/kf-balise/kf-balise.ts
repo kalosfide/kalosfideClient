@@ -1,35 +1,9 @@
-import { KfTypeDeComposant, KfTypeDeBaliseHTML } from '../../kf-composants-types';
-import { KfElement } from '../../kf-composant/kf-element';
-import { KfComposant } from '../../kf-composant/kf-composant';
-import { KfClasseDefs } from '../../kf-partages/kf-classe-defs';
+import { KfTypeDeBaliseHTML } from '../../kf-composants-types';
 import { KfContenuPhrase } from '../../kf-partages/kf-contenu-phrase/kf-contenu-phrase';
+import { KfGèreCss } from '../kf-gere-css';
 
-export class KfBalise {
+export class KfBalise extends KfGèreCss {
     baliseHTML: KfTypeDeBaliseHTML;
-
-    private _classeDefs: KfClasseDefs;
-
-    set classeDefs(classeDefs: KfClasseDefs) {
-        this._classeDefs = classeDefs;
-    }
-
-    get classe(): string {
-        if (this._classeDefs) {
-            return this._classeDefs.classe;
-        }
-    }
-
-    private _style: { [keys: string]: any };
-
-    set style(style: { [keys: string]: any }) {
-        if (style) {
-            this._style = style;
-        }
-    }
-
-    get style(): { [keys: string]: any } {
-        return this._style;
-    }
 
     private _contenuPhrase: KfContenuPhrase;
 

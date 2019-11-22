@@ -30,6 +30,8 @@ export class KfMenu extends KfElement {
      */
     feuilleChoisie: KfSousMenu;
 
+    direction: KfMenuDirection;
+
     /**
      * KfMenu
      * @param nom nom du menu
@@ -39,7 +41,8 @@ export class KfMenu extends KfElement {
         // traitement des clics
         this.gereHtml.ajouteTraiteur(KfTypeDEvenement.menuChange, this.traiteMenuChange);
         // classe css
-        this.ajouteClasseDef(direction ? direction : KfMenuDirection.vertical);
+        this.direction = direction ? direction : KfMenuDirection.vertical;
+        this.ajouteClasseDef(this.direction);
     }
 
     // OUVRIR FERMER
@@ -80,7 +83,7 @@ export class KfMenu extends KfElement {
     ajouteItem(idParent: any, definition: KfDefinitionDeMenu): KfSousMenu {
         let parent: KfMenu | KfSousMenu;
         // si idParent est null, c'est le sous-menu racine
-        if (!idParent) {
+        if (idParent === null || idParent === undefined) {
             parent = this;
         } else {
             parent = this.sousMenu(idParent);
