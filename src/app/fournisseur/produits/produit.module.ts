@@ -9,11 +9,11 @@ import { ProduitIndexComponent } from './produit-index.component';
 import { ProduitEditeComponent } from './produit-edite.component';
 import { ProduitAjouteComponent } from './produit-ajoute.component';
 import { ProduitResolverService } from '../../modeles/catalogue/produit-resolver.service';
-import { ProduitPrixComponent } from './produit-prix.component';
 import { ModelesModule } from 'src/app/modeles/modeles.module';
 import { ProduitSiteCatalogueGarde } from './produit-site-catalogue-garde';
 import { ProduitSitePasCatalogueGarde } from './produit-site-pas-catalogue-garde';
 import { CatalogueComponent } from './catalogue.component';
+import { ProduitSupprimeComponent } from './produit-supprime.component';
 
 @NgModule({
     imports: [
@@ -27,8 +27,8 @@ import { CatalogueComponent } from './catalogue.component';
         CatalogueComponent,
         ProduitAjouteComponent,
         ProduitEditeComponent,
+        ProduitSupprimeComponent,
         ProduitIndexComponent,
-        ProduitPrixComponent,
     ],
     providers: [
         ProduitResolverService,

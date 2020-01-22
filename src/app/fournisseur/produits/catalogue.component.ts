@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
 import { PageDef } from 'src/app/commun/page-def';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { Observable } from 'rxjs';
 import { ApiResult } from 'src/app/commun/api-results/api-result';
@@ -39,8 +39,6 @@ export class CatalogueComponent extends PageBaseComponent implements OnInit, OnD
     barre: BarreTitre;
 
     actionDef: IActionDef;
-
-    private _nbCommandesOuvertes: number;
 
     constructor(
         protected route: ActivatedRoute,
@@ -162,19 +160,6 @@ export class CatalogueComponent extends PageBaseComponent implements OnInit, OnD
         let etiquette: KfEtiquette;
 
         switch (this.site.etat) {
-            case IdEtatSite.livraison:
-                etiquette = Fabrique.ajouteEtiquetteP(infos);
-                etiquette.ajouteClasseDef('alert-danger');
-                Fabrique.ajouteTexte(etiquette,
-                    `Vous ne pouvez pas `,
-                    { t: this.titre_Commencer, b: KfTypeDeBaliseHTML.b },
-                    ` pendant le traitement des commandes.`
-                );
-                alerte = 'danger';
-                inactif = true;
-                titre = this.titre_Commencer;
-                apiRequête = this.apiRequêteCommencer;
-                break;
             case IdEtatSite.catalogue:
                 if (this.site.nbProduits === 0) {
                     etiquette = Fabrique.ajouteEtiquetteP(infos);
@@ -183,6 +168,8 @@ export class CatalogueComponent extends PageBaseComponent implements OnInit, OnD
                         { t: 'Terminer la modification', b: KfTypeDeBaliseHTML.b },
                         ` et rouvrir votre site tant qu'il n'y a pas de produits disponibles.`
                     );
+                    alerte = 'danger';
+                    inactif = true;
                 } else {
                     etiquette = Fabrique.ajouteEtiquetteP(infos);
                     etiquette.ajouteClasseDef('alert-warning');
@@ -192,19 +179,6 @@ export class CatalogueComponent extends PageBaseComponent implements OnInit, OnD
                 apiRequête = this.apiRequêteTerminer;
                 break;
             case IdEtatSite.ouvert:
-                if (this._nbCommandesOuvertes > 0) {
-                    etiquette = Fabrique.ajouteEtiquetteP(infos);
-                    etiquette.baliseHtml = KfTypeDeBaliseHTML.p;
-                    etiquette.ajouteClasseDef('text-justify text-danger');
-                    Fabrique.ajouteTexte(etiquette,
-                        `Vous ne pouvez pas `,
-                        { t: this.titre_Commencer, b: KfTypeDeBaliseHTML.b },
-                        ` parce qu'il y a ${this._nbCommandesOuvertes > 1 ? this._nbCommandesOuvertes : 'une'} `
-                        + `commande${this._nbCommandesOuvertes > 1 ? 's' : ''} en attente de traitement.`
-                    );
-                    alerte = 'danger';
-                    inactif = true;
-                }
                 titre = this.titre_Commencer;
                 apiRequête = this.apiRequêteCommencer;
                 break;
@@ -231,20 +205,15 @@ export class CatalogueComponent extends PageBaseComponent implements OnInit, OnD
 
     ngOnInit() {
         this.site = this.service.navigation.litSiteEnCours();
-        this.subscriptions.push(this.route.data.subscribe(
-            data => {
-                this._nbCommandesOuvertes = data.nbCommandesOuvertes;
-                this.niveauTitre = 0;
-                this.créeTitrePage();
-                this.rafraichit();
+        this.niveauTitre = 0;
+        this.créeTitrePage();
+        this.rafraichit();
 
-                this.subscriptions.push(this.service.navigation.siteObs().subscribe(
-                    () => {
-                        this.site = this.service.navigation.litSiteEnCours();
-                        this.rafraichit();
-                    }));
-            }
-        ));
+        this.subscriptions.push(this.service.navigation.siteObs().subscribe(
+            () => {
+                this.site = this.service.navigation.litSiteEnCours();
+                this.rafraichit();
+            }));
     }
 
 }

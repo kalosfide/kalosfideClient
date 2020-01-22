@@ -1,12 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { RouteurService } from '../services/routeur.service';
-import { Observable, of, EMPTY } from 'rxjs';
-import { Site } from '../modeles/site';
-import { AppPages } from '../app-pages';
-import { take, mergeMap, tap } from 'rxjs/operators';
-import { ApiResult200Ok } from '../commun/api-results/api-result-200-ok';
-import { SiteService } from '../modeles/site.service';
+import { Observable, EMPTY } from 'rxjs';
+import { Site } from '../modeles/site/site';
+import { tap } from 'rxjs/operators';
+import { SiteService } from '../modeles/site/site.service';
 import { NavigationService } from '../services/navigation.service';
 
 
@@ -14,7 +11,6 @@ import { NavigationService } from '../services/navigation.service';
 export class SiteResolverService implements Resolve<Site> {
 
     constructor(
-        private _routeur: RouteurService,
         private _siteService: SiteService,
         private _navigation: NavigationService,
     ) {

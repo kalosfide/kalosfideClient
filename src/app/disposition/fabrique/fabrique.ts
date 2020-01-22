@@ -5,9 +5,6 @@ import { KfTexte } from 'src/app/commun/kf-composants/kf-elements/kf-texte/kf-te
 import { KfTypeDeBaliseHTML } from 'src/app/commun/kf-composants/kf-composants-types';
 import { KfTexteDef } from 'src/app/commun/kf-composants/kf-partages/kf-texte-def';
 import { FabriqueIcone } from './fabrique-icone';
-import { KfInputTexte } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-input-texte';
-import { KfInputNombre } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-input-nombre';
-import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-groupe';
 import { KfCaseACocher } from 'src/app/commun/kf-composants/kf-elements/kf-case-a-cocher/kf-case-a-cocher';
 import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
 import { AfficheResultat } from 'src/app/disposition/affiche-resultat/affiche-resultat';
@@ -16,25 +13,14 @@ import { FabriqueUrl } from './fabrique-url';
 import { FabriqueContenuPhrase } from './fabrique-contenu-phrase';
 import { FabriqueBouton } from './fabrique-bouton';
 import { BootstrapType, FabriqueBootstrap } from './fabrique-bootstrap';
-import {
-    KfListeDeroulanteTexte, KfListeDeroulanteNombre
-} from 'src/app/commun/kf-composants/kf-elements/kf-liste-deroulante/kf-liste-deroulante-texte';
-import { KfListeDeroulanteObjet } from 'src/app/commun/kf-composants/kf-elements/kf-liste-deroulante/kf-liste-deroulante-objet';
-import { KfEntrée } from 'src/app/commun/kf-composants/kf-composant/kf-entree';
 import { FabriqueVueTable } from './fabrique-vue-table';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
 import { FabriqueCouleur } from './fabrique-couleurs';
-import { KfLien } from 'src/app/commun/kf-composants/kf-elements/kf-lien/kf-lien';
 import { FabriqueBarreTitre } from './fabrique-barre-titre/fabrique-barre-titre';
 import { FabriqueTexte } from './fabrique-texte';
 import { FabriqueEtatSite } from './fabrique-etat-site';
 import { FabriqueFormulaire } from './fabrique-formulaire';
 import { FabriqueInput, FabriqueListeDéroulante } from './fabrique-input';
-import { KfInput } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-input';
-import { ApiRequêteAction } from 'src/app/services/api-requete-action';
-import { DataService } from 'src/app/services/data.service';
-import { ResultatAction } from '../affiche-resultat/resultat-affichable';
 
 export interface IFormulaireGroupeDesBoutons {
     avantBoutons?: KfComposant[];
@@ -122,11 +108,13 @@ export class FabriqueClasse {
     animeAttenteGlobal(visibilitéObs: Observable<boolean>): KfGroupe {
         const groupe = new KfGroupe('animeAttente');
         groupe.visible = false;
+        /*
         groupe.visibilitéObs = visibilitéObs.pipe(
             tap(visible => {
                 console.log(1, visible);
             })
         );
+        */
         groupe.ajouteClasseDef('plein-ecran');
         groupe.fixeStyleDef('opacity', '.33');
         groupe.fixeStyleDef('background-color', 'antiquewhite');

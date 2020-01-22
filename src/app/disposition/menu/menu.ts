@@ -1,4 +1,4 @@
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { Identifiant } from 'src/app/securite/identifiant';
 import { AppSite } from 'src/app/app-site/app-site';
 import { AppRoutes } from 'src/app/app-pages';

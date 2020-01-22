@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ClientALESComponent } from './client-ales.component';
 import { PageDef } from 'src/app/commun/page-def';
 import { ClientPages } from './client-pages';
-import { ClientService } from 'src/app/modeles/clientele/client.service';
+import { ClientService } from 'src/app/modeles/client/client.service';
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',

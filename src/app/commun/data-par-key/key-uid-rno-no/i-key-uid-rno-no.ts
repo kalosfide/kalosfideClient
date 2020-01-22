@@ -5,11 +5,3 @@ export interface IKeyUidRnoNo {
     rno: number;
     no: number;
 }
-
-export function KeyUidRnoNoCréeKey(ikey: IKeyUidRnoNo): KeyUidRnoNo {
-    const key = new KeyUidRnoNo();
-    key.uid = ikey.uid;
-    key.rno = ikey.rno;
-    key.no = ikey.no;
-    return key;
-}

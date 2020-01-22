@@ -1,19 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { PageDef } from 'src/app/commun/page-def';
 import { ClientPages, ClientRoutes } from './client-pages';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { Identifiant } from 'src/app/securite/identifiant';
 import { ActivatedRoute } from '@angular/router';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 import { KeyUidRnoIndexComponent } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno-index.component';
-import { ClientService } from 'src/app/modeles/clientele/client.service';
+import { ClientService } from 'src/app/modeles/client/client.service';
 import { IdEtatSite } from 'src/app/modeles/etat-site';
 import { IKfVueTableColonneDef } from 'src/app/commun/kf-composants/kf-vue-table/i-kf-vue-table-colonne-def';
 import { IGroupeTableDef } from 'src/app/disposition/page-table/groupe-table';
 import { EtatTableType } from 'src/app/disposition/page-table/etat-table';
 import { ModeTable } from 'src/app/commun/data-par-key/condition-table';
-import { texteKeyUidRno } from 'src/app/commun/data-par-key/data-key';
+import { KeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno';
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',
@@ -37,30 +37,23 @@ export class ClientIndexComponent extends KeyUidRnoIndexComponent<Client> implem
 
     constructor(
         protected route: ActivatedRoute,
-        protected service: ClientService,
+        protected _service: ClientService,
     ) {
-        super(route, service);
+        super(route, _service);
     }
 
     créeGroupeTableDef(): IGroupeTableDef<Client> {
         const outils = Fabrique.vueTable.outils<Client>(this.nom);
-        outils.ajoute(this.service.utile.outils.client());
+        outils.ajoute(this._service.utile.outils.client());
         outils.texteRienPasseFiltres = `Il n\'a pas de client correspondant aux critères de recherche.`;
-
-        let colonnes: IKfVueTableColonneDef<Client>[];
-        if (this.site.etat === IdEtatSite.livraison) {
-            colonnes = this.service.utile.colonne.colonnesLivraison();
-        } else {
-            colonnes = this.service.utile.colonne.colonnes();
-            outils.ajoute(this.service.utile.outils.ajoute());
-        }
+            outils.ajoute(this._service.utile.outils.ajoute());
 
         return {
             vueTableDef: {
-                colonnesDef: colonnes,
+                colonnesDef: this._service.utile.colonne.colonnes(),
                 outils: outils,
                 id: (t: Client) => {
-                    return this.service.utile.url.id(texteKeyUidRno(t));
+                    return this._service.utile.url.id(KeyUidRno.texteDeKey(t));
                 },
             },
             typeEtat: EtatTableType.remplaceTableSiVide
@@ -73,7 +66,7 @@ export class ClientIndexComponent extends KeyUidRnoIndexComponent<Client> implem
     }
 
     calculeModeTable(): ModeTable {
-        return this.site.etat === IdEtatSite.livraison ? ModeTable.aperçu : ModeTable.edite;
+        return ModeTable.edite;
     }
 
     avantChargeData() {
@@ -85,7 +78,7 @@ export class ClientIndexComponent extends KeyUidRnoIndexComponent<Client> implem
         this.pageTableDef = this.créePageTableDefBase();
         this.pageTableDef.avantChargeData = () => this.avantChargeData();
         this.pageTableDef.chargeGroupe = () => this.chargeGroupe();
-        this.pageTableDef.initialiseUtile = () => this.service.initialiseModeTable(this.calculeModeTable());
+        this.pageTableDef.initialiseUtile = () => this._service.initialiseModeTable(this.calculeModeTable());
     }
 
 }

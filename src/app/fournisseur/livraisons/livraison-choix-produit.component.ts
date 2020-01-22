@@ -3,12 +3,12 @@ import { ActivatedRoute } from '@angular/router';
 import { CommandeChoixProduitComponent } from 'src/app/commandes/commande-choix-produit.component';
 import { LivraisonService } from './livraison.service';
 import { PageDef } from 'src/app/commun/page-def';
-import { CommandePages } from 'src/app/commandes/commande-pages';
 import { ApiCommande } from 'src/app/commandes/api-commande';
 import { Produit } from 'src/app/modeles/catalogue/produit';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 import { DetailCommande } from 'src/app/commandes/detail-commande';
 import { ILivraisonComponent } from './i-livraison-component';
+import { LivraisonPages } from './livraison-pages';
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',
@@ -16,8 +16,8 @@ import { ILivraisonComponent } from './i-livraison-component';
 })
 export class LivraisonChoixProduitComponent extends CommandeChoixProduitComponent implements OnInit, OnDestroy, ILivraisonComponent {
 
-    static _pageDef: PageDef = CommandePages.choixProduit;
-    pageDef: PageDef = CommandePages.choixProduit;
+    static _pageDef: PageDef = LivraisonPages.choixProduit;
+    pageDef: PageDef = LivraisonPages.choixProduit;
 
     get titre(): string {
         return 'Commander pour ' + this.client.nom + ' - ' + this.pageDef.titre;
@@ -33,6 +33,6 @@ export class LivraisonChoixProduitComponent extends CommandeChoixProduitComponen
     get service(): LivraisonService { return this._service; }
 
     créeUnDétail(apiCommande: ApiCommande, produit: Produit, client: Client): DetailCommande {
-        return new DetailCommande(apiCommande, produit, { client: client, étatSiteLivraison: true, estDansListeParProduit: true });
+        return new DetailCommande(apiCommande, produit, { client: client, estDansListeParProduit: true });
     }
 }

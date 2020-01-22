@@ -1,16 +1,16 @@
 import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-groupe';
-import { IdTypeCommande, TypeCommande } from 'src/app/modeles/type-commande';
+import { TypeCommande } from 'src/app/modeles/type-commande';
 import { Produit } from 'src/app/modeles/catalogue/produit';
 import { IKeyUidRnoNo } from 'src/app/commun/data-par-key/key-uid-rno-no/i-key-uid-rno-no';
 import { ApiCommande } from 'src/app/commandes/api-commande';
-import { Client } from 'src/app/modeles/clientele/client';
-import { compareKeyUidRno } from 'src/app/commun/data-par-key/data-key';
+import { Client } from 'src/app/modeles/client/client';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { DetailCommande } from 'src/app/commandes/detail-commande';
 import { LivraisonStock } from './livraison-stock';
 import { EtatCommande } from 'src/app/commandes/etat-commande';
 import { IDemandeCopiable } from 'src/app/commandes/i-demande-copiable';
 import { IAvecDemandeProduit } from 'src/app/commandes/i-avec-demande-produit';
+import { KeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno';
 
 export class LivraisonProduit implements IKeyUidRnoNo, IDemandeCopiable, IAvecDemandeProduit {
 
@@ -25,19 +25,17 @@ export class LivraisonProduit implements IKeyUidRnoNo, IDemandeCopiable, IAvecDe
 
     constructor(
         stock: LivraisonStock,
-        clients: Client[],
         produit: Produit,
     ) {
         this._stock = stock;
         this.produit = produit;
         this.détails = [];
         stock.apiCommandesATraiter.forEach((apiCommande: ApiCommande) => {
-            const client = clients.find(c => compareKeyUidRno(c, apiCommande));
+            const client = stock.clients.find(c => KeyUidRno.compareKey(c, apiCommande));
             apiCommande.details.forEach(d => {
                 if (d.no === produit.no) {
                     const détail: DetailCommande = new DetailCommande(apiCommande, produit, {
                         client: client,
-                        étatSiteLivraison: true,
                         estDansListeParProduit: true,
                     });
                     this.détails.push(détail);
@@ -60,14 +58,14 @@ export class LivraisonProduit implements IKeyUidRnoNo, IDemandeCopiable, IAvecDe
     get nbRefus(): number {
         return this.détails.filter(l => l.aLivrer === 0).length;
     }
-    get prêt(): boolean {
+    get préparé(): boolean {
         return this.nbDemandes === this.nbRéponses;
     }
 
     get demande(): number {
         let total = 0;
         this.détails.forEach(d => {
-            if (d.demande && d.demandeCopiable) {
+            if (d.demande && d.copiable) {
                 total += d.demande;
             }
         });
@@ -85,16 +83,16 @@ export class LivraisonProduit implements IKeyUidRnoNo, IDemandeCopiable, IAvecDe
     }
 
     get texteEtat(): string {
-        const def = this.prêt ? EtatCommande.prêt
+        const def = this.préparé ? EtatCommande.prêt
             : EtatCommande.incomplet;
         return def.texte;
     }
 
-    get demandeCopiable(): boolean {
-        if (this.produit.typeCommande !== IdTypeCommande.ALUnitéOuEnVrac) {
-            return true;
+    get àCopier(): DetailCommande[] {
+        if (this.produit.typeCommande !== TypeCommande.id.ALUnitéOuEnVrac) {
+            return this.détails;
         }
-        return this.détails.find(d => d.demandeCopiable) !== undefined;
+        return this.détails.filter(d => d.copiable && !d.préparé);
     }
 
     copieDemande() {
@@ -111,7 +109,7 @@ export class LivraisonProduit implements IKeyUidRnoNo, IDemandeCopiable, IAvecDe
             nonCopiables: DetailCommande[],
         } = { copiables: [], nonCopiables: [] };
         this.détails.forEach(d => {
-            if (d.produit.typeCommande === IdTypeCommande.ALUnitéOuEnVrac && d.typeCommande === IdTypeCommande.ALUnité) {
+            if (d.produit.typeCommande === TypeCommande.id.ALUnitéOuEnVrac && d.typeCommande === TypeCommande.id.ALUnité) {
                 copiablesOuNon.nonCopiables.push(d);
             } else {
                 copiablesOuNon.copiables.push(d);

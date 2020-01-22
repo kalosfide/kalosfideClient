@@ -1,8 +1,8 @@
-import { compareKeyUidRno } from 'src/app/commun/data-par-key/data-key';
 import { Commande } from 'src/app/commandes/commande';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 import { LivraisonStock } from './livraison-stock';
 import { ApiCommande } from 'src/app/commandes/api-commande';
+import { KeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno';
 
 export class LivraisonCommandes {
 
@@ -20,11 +20,11 @@ export class LivraisonCommandes {
      */
     get commandes(): Commande[] { return this._commandes; }
 
-    constructor(stock: LivraisonStock, clients: Client[]) {
+    constructor(stock: LivraisonStock) {
         this._stock = stock;
         const àTraiter = stock.apiCommandesATraiter;
         if (àTraiter) {
-            this._commandes = àTraiter.map(apiCommande => this.créeCommande(apiCommande, clients));
+            this._commandes = àTraiter.map(apiCommande => this.créeCommande(apiCommande, stock.clients));
         } else {
             // il n'y a jamais eu de livraison
             this._commandes = [];
@@ -32,7 +32,7 @@ export class LivraisonCommandes {
     }
 
     private créeCommande(apiCommande: ApiCommande, clients: Client[]): Commande {
-        const client = clients.find(cl => compareKeyUidRno(cl, apiCommande));
+        const client = clients.find(cl => KeyUidRno.compareKey(cl, apiCommande));
         return new Commande(apiCommande, client);
     }
 

@@ -7,7 +7,7 @@ import { KfComposantComponent } from '../kf-composant/kf-composant.component';
     styleUrls: ['../kf-composants.scss']
 })
 export class KfBBtnGroupComponent extends KfComposantComponent implements OnInit, AfterViewInit {
-    @ViewChild('htmlElement') domElementRef: ElementRef;
+    @ViewChild('htmlElement', {static: false}) domElementRef: ElementRef;
 
     constructor() {
         super();

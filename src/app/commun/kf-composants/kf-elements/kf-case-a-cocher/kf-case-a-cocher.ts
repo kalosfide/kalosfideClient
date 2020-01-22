@@ -3,14 +3,14 @@ import { KfEntrée } from '../../kf-composant/kf-entree';
 import { KfTexteDef } from '../../kf-partages/kf-texte-def';
 import { KfContenuPhrase } from '../../kf-partages/kf-contenu-phrase/kf-contenu-phrase';
 import { KfNgClasse } from '../../kf-partages/kf-gere-css-classe';
-import { KfGèreCss } from '../../kf-partages/kf-gere-css';
+import { KfGéreCss } from '../../kf-partages/kf-gere-css';
 
 export class KfCaseACocher extends KfEntrée {
 
     /**
      * gère la classe de la div vide d'alignement dans un formulaire horizontal si il y en a une
      */
-    private _gèreClasseDivVide: KfGèreCss;
+    private _gèreClasseDivVide: KfGéreCss;
 
     /** si vrai, la case est après sa légende */
     caseApres: boolean;
@@ -63,7 +63,7 @@ export class KfCaseACocher extends KfEntrée {
      */
     get gèreClasseDivVide() {
         if (!this._gèreClasseDivVide) {
-            this._gèreClasseDivVide = new KfGèreCss();
+            this._gèreClasseDivVide = new KfGéreCss();
         }
         return this._gèreClasseDivVide;
     }

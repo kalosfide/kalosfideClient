@@ -12,7 +12,7 @@ import { KfComposantComponent } from '../../kf-composant/kf-composant.component'
     styleUrls: ['../../kf-composants.scss']
 })
 export class KfVueJsonComponent extends KfComposantComponent implements AfterViewInit {
-    @ViewChild('preElement') preElement: ElementRef;
+    @ViewChild('preElement', {static: false}) preElement: ElementRef;
 
     constructor() {
         super();

@@ -6,7 +6,7 @@ import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { Facture } from './facture';
 import { FactureCommande } from './facture-commande';
 import { IKeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/i-key-uid-rno';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 
 export class FactureUtileLien extends CommandeUtileLien {
 

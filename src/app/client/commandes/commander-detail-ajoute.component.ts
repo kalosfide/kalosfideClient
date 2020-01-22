@@ -5,9 +5,9 @@ import { PageDef } from 'src/app/commun/page-def';
 import { CommanderService } from './commander.service';
 import { PeutQuitterService } from 'src/app/commun/peut-quitter/peut-quitter.service';
 import { ComponentAAutoriserAQuitter } from 'src/app/commun/peut-quitter/peut-quitter-garde.service';
-import { CommandePages } from 'src/app/commandes/commande-pages';
 import { CommanderDetailComponent } from './commander-detail.component';
 import { ICommanderComponent } from './i-commander-component';
+import { CommanderPages } from './commander-pages';
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',
@@ -16,8 +16,8 @@ import { ICommanderComponent } from './i-commander-component';
 export class CommanderDetailAjouteComponent extends CommanderDetailComponent
     implements OnInit, OnDestroy, ComponentAAutoriserAQuitter, ICommanderComponent {
 
-    static _pageDef: PageDef = CommandePages.ajoute;
-    pageDef: PageDef = CommandePages.ajoute;
+    static _pageDef: PageDef = CommanderPages.ajoute;
+    pageDef: PageDef = CommanderPages.ajoute;
 
     constructor(
         protected route: ActivatedRoute,

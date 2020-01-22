@@ -6,7 +6,7 @@ import { NavigationService } from 'src/app/services/navigation.service';
 import { IdentificationService } from 'src/app/securite/identification.service';
 import { RacineComponent } from '../disposition/racine/racine.component';
 import { ActivatedRoute } from '@angular/router';
-import { Site } from '../modeles/site';
+import { Site } from '../modeles/site/site';
 import { AlerteService } from '../disposition/alerte/alerte-service';
 
 export abstract class SiteRacineComponent extends RacineComponent implements OnInit, OnDestroy {

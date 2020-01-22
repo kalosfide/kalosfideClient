@@ -14,8 +14,8 @@ import { ModeAction } from 'src/app/commandes/condition-action';
 })
 export class LivraisonCommandeSupprimeComponent extends LivraisonCommandeComponent implements OnInit, OnDestroy, ILivraisonComponent {
 
-    static _pageDef: PageDef = LivraisonPages.efface;
-    pageDef: PageDef = LivraisonPages.efface;
+    static _pageDef: PageDef = LivraisonPages.annule;
+    pageDef: PageDef = LivraisonPages.annule;
 
     constructor(
         protected route: ActivatedRoute,

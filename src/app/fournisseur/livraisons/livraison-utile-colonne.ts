@@ -1,6 +1,6 @@
 import { Commande } from 'src/app/commandes/commande';
 import { LivraisonProduit } from './livraison-produit';
-import { DetailCommande } from 'src/app/commandes/detail-commande';
+import { DetailCommande, DetailCommandeTitre } from 'src/app/commandes/detail-commande';
 import { LivraisonUtile } from './livraison-utile';
 import { CommandeUtileColonne, CommandeUtileColonneDétail } from 'src/app/commandes/commande-utile-colonne';
 import { LivraisonUtileBouton } from './livraison-utile-bouton';
@@ -8,9 +8,10 @@ import { IKfVueTableColonneDef } from 'src/app/commun/kf-composants/kf-vue-table
 import { Tri } from 'src/app/commun/outils/trieur';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { CommandeUtileLien } from 'src/app/commandes/commande-utile-lien';
-import { GèreCopier } from './livraison-utile-copier';
 import { LivraisonProduits } from './livraison-produits';
 import { Compare } from 'src/app/modeles/compare';
+import { KfInitialObservable } from 'src/app/commun/kf-composants/kf-partages/kf-initial-observable';
+import { BilanLivraison } from './livraison-etat';
 
 export class LivraisonUtileColonneDétail extends CommandeUtileColonneDétail {
     private get _utile(): LivraisonUtile {
@@ -25,31 +26,67 @@ export class LivraisonUtileColonneDétail extends CommandeUtileColonneDétail {
         return this._utile.bouton as LivraisonUtileBouton;
     }
 
-    copierProduit(livraisonProduit: LivraisonProduit): IKfVueTableColonneDef<DetailCommande> {
-        const gèreCopier = GèreCopier.livraisonProduit(livraisonProduit);
+    copierCommande(commande: Commande): IKfVueTableColonneDef<DetailCommande> {
+        const rienACopier = KfInitialObservable.transforme(this._utile.service.bilanLivraisonIO,
+            (bilan: BilanLivraison) => {
+                return commande.àCopier.length === 0;
+            });
+        const nePasAfficherSi = KfInitialObservable.ou(rienACopier, this._utile.conditionTable.pasEdition);
         return {
             nom: 'copier',
-            enTeteDef: { titreDef: { composant: this.bouton.copieProduit(gèreCopier, livraisonProduit) } },
+            enTeteDef: { titreDef: { composant: this.bouton.copieCommande(commande) } },
             créeContenu: (détail: DetailCommande) => {
-                if (détail.demandeCopiable) {
-                    const bouton = this.bouton.copieDétail(gèreCopier, détail);
-                    return { composant: bouton };
-                }
+                const bouton = this.bouton.copieDétail(détail);
+                bouton.inactivitéFnc = () => !détail.copiable || détail.préparé;
+                return { composant: bouton };
             },
-            nePasAfficherSi: this._utile.conditionTable.pasEdition,
+            nePasAfficherSi: nePasAfficherSi,
+        };
+    }
+
+    copierProduit(livraisonProduit: LivraisonProduit): IKfVueTableColonneDef<DetailCommande> {
+        const rienACopier = KfInitialObservable.transforme(this._utile.service.bilanLivraisonIO,
+            (bilan: BilanLivraison) => {
+                return livraisonProduit.àCopier.length === 0;
+            });
+        const nePasAfficherSi = KfInitialObservable.ou(rienACopier, this._utile.conditionTable.pasEdition);
+        return {
+            nom: 'copier',
+            enTeteDef: { titreDef: { composant: this.bouton.copieProduit(livraisonProduit) } },
+            créeContenu: (détail: DetailCommande) => {
+                const bouton = this.bouton.copieDétail(détail);
+                bouton.inactivitéFnc = () => !détail.copiable || détail.préparé;
+                return { composant: bouton };
+            },
+            nePasAfficherSi: nePasAfficherSi,
         };
     }
 
     defsFournisseur(commande: Commande): IKfVueTableColonneDef<DetailCommande>[] {
-        const defs = this._defsFournisseur();
-        //    defs.push(this.copierCommande(commande));
-        return defs;
+        return [
+            this.catégorie(),
+            this.produit(),
+            this.demande(DetailCommandeTitre.demande.fournisseur),
+            this.demande_edite(DetailCommandeTitre.demande.fournisseur),
+            this.typeCommande(DetailCommandeTitre.typeCommande.fournisseur),
+            this.typeCommande_edite(DetailCommandeTitre.typeCommande.fournisseur),
+            this.copierCommande(commande),
+            this.aLivrer(DetailCommandeTitre.aLivrer.commande),
+            this.aLivrer_edite(DetailCommandeTitre.aLivrer.commande),
+            this.typeMesure(DetailCommandeTitre.typeMesure.commande),
+            this.supprime(),
+        ];
     }
 
     defsDUnProduit(livraisonProduit: LivraisonProduit): IKfVueTableColonneDef<DetailCommande>[] {
-        const defs = this._defsDUnProduit();
-        defs.push(this.copierProduit(livraisonProduit));
-        return defs;
+        return [
+            this.client(),
+            this.demande(DetailCommandeTitre.demande.fournisseur),
+            this.demande_edite(DetailCommandeTitre.demande.fournisseur),
+            this.copierProduit(livraisonProduit),
+            this.aLivrer(DetailCommandeTitre.aLivrer.commande),
+            this.aLivrer_edite(DetailCommandeTitre.aLivrer.commande),
+        ];
     }
 
 }
@@ -92,7 +129,7 @@ class LivraisonUtileColonneCommande extends LivraisonUtileColonneAvecNombres {
             nom: 'demandes',
             créeContenu: (commande: Commande) => '' + commande.nbDemandes,
             enTeteDef: { titreDef: 'Demandes' },
-            nePasAfficherSi: this._livraisonUtile.conditionSite.livraison
+//            nePasAfficherSi: this._livraisonUtile.conditionSite.livraison
         };
     }
 
@@ -101,7 +138,7 @@ class LivraisonUtileColonneCommande extends LivraisonUtileColonneAvecNombres {
             nom: 'àPréparer',
             créeContenu: (commande: Commande) => '' + commande.nbDemandes,
             enTeteDef: { titreDef: 'à préparer', chapeauDef: 'Commandes', longueurChapeau: 3 },
-            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison
+////            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison
         };
     }
 
@@ -110,7 +147,7 @@ class LivraisonUtileColonneCommande extends LivraisonUtileColonneAvecNombres {
             nom: 'préparés',
             créeContenu: (commande: Commande) => '' + commande.nbRéponses,
             enTeteDef: { titreDef: 'préparées' },
-            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison
+//            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison
         };
     }
 
@@ -119,7 +156,7 @@ class LivraisonUtileColonneCommande extends LivraisonUtileColonneAvecNombres {
             nom: 'annulés',
             créeContenu: (commande: Commande) => '' + commande.nbRefus,
             enTeteDef: { titreDef: 'dont annulées' },
-            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison
+//            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison
         };
     }
 
@@ -131,7 +168,7 @@ class LivraisonUtileColonneCommande extends LivraisonUtileColonneAvecNombres {
             classeDefs: [
                 {
                     nom: 'text-success',
-                    active: (commande: Commande) => commande.prêt
+                    active: (commande: Commande) => commande.préparé
                 },
                 {
                     nom: 'text-warning',
@@ -149,14 +186,14 @@ class LivraisonUtileColonneCommande extends LivraisonUtileColonneAvecNombres {
         return {
             nom: 'edite',
             créeContenu: (commande: Commande) => ({ composant: this.lien.dUnClient(commande, commande.client.avecCompte) }),
-            afficherSi: this._livraisonUtile.condition.pasLivraisonEtEdite
+            afficherSi: this._livraisonUtile.condition.editeOuAperçu
         };
     }
     editeSiLivraison(): IKfVueTableColonneDef<Commande> {
         return {
             nom: 'edite',
             créeContenu: (commande: Commande) => ({ composant: this.lien.dUnClient(commande) }),
-            afficherSi: this._livraisonUtile.condition.livraisonEtEdite
+            afficherSi: this._livraisonUtile.conditionAction.edite
         };
     }
 
@@ -164,13 +201,13 @@ class LivraisonUtileColonneCommande extends LivraisonUtileColonneAvecNombres {
         return {
             nom: 'supprime',
             créeContenu: (commande: Commande) => {
-                    const lien = this.lien.supprimeCommande(commande);
-                    if (commande.client.avecCompte) {
-                        lien.inactivité = true;
-                    }
-                    return { composant: lien };
-                },
-            afficherSi: this._livraisonUtile.condition.pasLivraisonEtEdite
+                const lien = this.lien.supprimeCommande(commande);
+                if (commande.client.avecCompte) {
+                    lien.inactivité = true;
+                }
+                return { composant: lien };
+            },
+            afficherSi: this._livraisonUtile.conditionAction.edite
         };
     }
 
@@ -178,14 +215,13 @@ class LivraisonUtileColonneCommande extends LivraisonUtileColonneAvecNombres {
         return {
             nom: 'supprime',
             créeContenu: (commande: Commande) => {
-                    const lien = this.lien.supprimeCommande(commande);
-                    if (commande.client.avecCompte) {
-                        const créesParClient = commande.nbDemandesCréesParClient;
-                        lien.inactivité = commande.nbDemandes === créesParClient && créesParClient === commande.nbRefus;
-                    }
-                    return { composant: lien };
-                },
-            afficherSi: this._livraisonUtile.condition.livraisonEtEdite
+                const lien = this.lien.supprimeCommande(commande);
+                if (commande.crééeParLeClient) {
+                    lien.inactivité = commande.nbDemandes === commande.nbRefus;
+                }
+                return { composant: lien };
+            },
+            afficherSi: this._livraisonUtile.conditionAction.edite
         };
     }
 
@@ -193,7 +229,7 @@ class LivraisonUtileColonneCommande extends LivraisonUtileColonneAvecNombres {
         return {
             nom: 'aperçu',
             créeContenu: (commande: Commande) => ({ composant: this.lien.dUnClient(commande, true) }),
-            nePasAfficherSi: this._livraisonUtile.conditionTable.pasAperçu
+            nePasAfficherSi: this._livraisonUtile.conditionTable.pasBilan
         };
     }
 
@@ -252,15 +288,15 @@ class LivraisonUtileColonneProduit extends LivraisonUtileColonneAvecNombres {
             nom: 'état',
             créeContenu: (livraisonProduit: LivraisonProduit) => ({ texteDef: () => livraisonProduit.texteEtat }),
             enTeteDef: { titreDef: 'Etat' },
-            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison,
+//            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison,
             classeDefs: [
                 {
                     nom: 'text-success',
-                    active: (livraisonProduit: LivraisonProduit) => livraisonProduit.prêt
+                    active: (livraisonProduit: LivraisonProduit) => livraisonProduit.préparé
                 },
                 {
                     nom: 'text-warning',
-                    active: (livraisonProduit: LivraisonProduit) => !livraisonProduit.prêt
+                    active: (livraisonProduit: LivraisonProduit) => !livraisonProduit.préparé
                 },
             ]
         };
@@ -271,7 +307,7 @@ class LivraisonUtileColonneProduit extends LivraisonUtileColonneAvecNombres {
             nom: 'àPréparer',
             créeContenu: (commande: LivraisonProduit) => '' + commande.nbDemandes,
             enTeteDef: { titreDef: 'à préparer', chapeauDef: 'Demandes', longueurChapeau: 3 },
-            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison
+//            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison
         };
     }
 
@@ -280,7 +316,7 @@ class LivraisonUtileColonneProduit extends LivraisonUtileColonneAvecNombres {
             nom: 'préparés',
             créeContenu: (commande: LivraisonProduit) => '' + commande.nbRéponses,
             enTeteDef: { titreDef: 'préparées' },
-            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison
+//            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison
         };
     }
 
@@ -289,7 +325,7 @@ class LivraisonUtileColonneProduit extends LivraisonUtileColonneAvecNombres {
             nom: 'annulés',
             créeContenu: (commande: LivraisonProduit) => '' + commande.nbRefus,
             enTeteDef: { titreDef: 'dont annulées' },
-            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison
+//            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison
         };
     }
 
@@ -298,7 +334,7 @@ class LivraisonUtileColonneProduit extends LivraisonUtileColonneAvecNombres {
             nom: 'àPréparer',
             créeContenu: (àPréparer: LivraisonProduit) => Fabrique.texte.demandeAvecUnité(àPréparer),
             enTeteDef: { titreDef: 'à préparer', chapeauDef: 'Quantités', longueurChapeau: 2 },
-            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison
+//            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison
         };
     }
 
@@ -307,7 +343,7 @@ class LivraisonUtileColonneProduit extends LivraisonUtileColonneAvecNombres {
             nom: 'préparés',
             créeContenu: (àPréparer: LivraisonProduit) => Fabrique.texte.aLivrerAvecUnité(àPréparer),
             enTeteDef: { titreDef: 'préparées' },
-            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison
+//            nePasAfficherSi: this._livraisonUtile.conditionSite.pas_livraison
         };
     }
 
@@ -320,18 +356,20 @@ class LivraisonUtileColonneProduit extends LivraisonUtileColonneAvecNombres {
     }
 
     copier(livraisonProduits: LivraisonProduits): IKfVueTableColonneDef<LivraisonProduit> {
-        const gèreCopier = GèreCopier.produits(livraisonProduits);
+        const rienACopier = KfInitialObservable.transforme(this._livraisonUtile.service.bilanLivraisonIO,
+            (bilan: BilanLivraison) => {
+                return livraisonProduits.àCopier.length === 0;
+            });
+        const nePasAfficherSi = rienACopier;
         return {
             nom: 'copier',
-            enTeteDef: { titreDef: { composant: this.bouton.copieProduits(gèreCopier) } },
+            enTeteDef: { titreDef: { composant: this.bouton.copieProduits(livraisonProduits) } },
             créeContenu: (livraisonProduit: LivraisonProduit) => {
-                const c = livraisonProduit.copiablesOuNon();
-                if (c.copiables.length > 0) {
-                    const bouton = this.bouton.copieProduitDeProduits(gèreCopier, livraisonProduit);
-                    return { composant: bouton };
-                }
+                const bouton = this.bouton.copieProduit(livraisonProduit);
+                bouton.inactivitéFnc = () => livraisonProduit.àCopier.length === 0;
+                return { composant: bouton };
             },
-            nePasAfficherSi: this._livraisonUtile.condition.non_livraisonEtEdite,
+            nePasAfficherSi: nePasAfficherSi,
         };
     }
 

@@ -1,11 +1,30 @@
 import { ISiteRoutes } from '../../site/site-pages';
 import { FournisseurRoutes, FournisseurPages } from '../fournisseur-pages';
 import { IKeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/i-key-uid-rno';
-import { texteKeyUidRno } from 'src/app/commun/data-par-key/data-key';
-import { CommandePages } from 'src/app/commandes/commande-pages';
+import { CommandePagesUrlSegments } from 'src/app/commandes/commande-pages';
 import { PageDef, BaseRoutes } from 'src/app/commun/page-def';
+import { KeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno';
 
 export class LivraisonPages {
+    /**
+     * Sélection du client à livrer
+     * table des clients avec leurs nombres de bons de commande et des liens vers client
+     */
+    static clients: PageDef = {
+        urlSegment: 'clients',
+        title: 'Clients',
+    };
+
+    /**
+     * Sélection des bons de commande du client à livrer
+     * table des bons de commande du client avec case de sélection
+     * lien ajouter
+     * bouton commencer
+     */
+    static client: PageDef = {
+        urlSegment: 'client',
+        title: 'Client',
+    };
 
     /**
      * tables des bons de commande des clients
@@ -31,17 +50,36 @@ export class LivraisonPages {
         title: 'Livraison - Commande',
         titre: 'Bon de commande',
     };
-
-    static choixProduit: PageDef = {
-        urlSegment: CommandePages.choixProduit.urlSegment,
-        title: 'Commander _' + CommandePages.choixProduit.title,
-        titre: CommandePages.choixProduit.titre,
+    static liste: PageDef = {
+        urlSegment: CommandePagesUrlSegments.liste,
+        lien: 'Retour au bon de commande',
+        title: 'Bon',
+        titre: 'Bon de commande',
     };
-
-    static efface: PageDef = {
-        urlSegment: 'efface',
-        title: 'Livraison - Commande',
-        titre: 'Effacer le bon de commande',
+    static choixProduit: PageDef = {
+        urlSegment: CommandePagesUrlSegments.choixProduit,
+        title: 'Choix produit',
+        titre: 'Choisir un produit',
+    };
+    static ajoute: PageDef = {
+        urlSegment: CommandePagesUrlSegments.ajoute,
+        title: 'Ajoute',
+        titre: 'Ajouter un produit',
+    };
+    static edite: PageDef = {
+        urlSegment: CommandePagesUrlSegments.edite,
+        title: 'Edite',
+        titre: 'Modifier la ligne',
+    };
+    static supprime: PageDef = {
+        urlSegment: CommandePagesUrlSegments.supprime,
+        title: 'Supprime',
+        titre: 'Supprimer la ligne',
+    };
+    static annule: PageDef = {
+        urlSegment: CommandePagesUrlSegments.annule,
+        title: 'Annule',
+        titre: 'Annuler la commande',
     };
 
     static apercu: PageDef = {
@@ -92,7 +130,7 @@ class CLivraisonCommandeRoutes extends BaseRoutes implements ISiteRoutes {
 
     constructor(ikeyClient: IKeyUidRno, livraisonRoutes: CLivraisonRoutes) {
         super();
-        this.texteKey = texteKeyUidRno(ikeyClient);
+        this.texteKey = KeyUidRno.texteDeKey(ikeyClient);
         this.livraisonRoutes = livraisonRoutes;
     }
     url(nomSite: string, segments?: string[]): string {

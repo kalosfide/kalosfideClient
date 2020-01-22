@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { IdentificationService } from '../securite/identification.service';
 import { NavigationService } from './navigation.service';
-import { Site } from '../modeles/site';
+import { Site } from '../modeles/site/site';
 import { SiteRoutes, ISiteRoutes } from '../site/site-pages';
 import { AppSiteRoutes } from '../app-site/app-site-pages';
 import { PageDef } from '../commun/page-def';

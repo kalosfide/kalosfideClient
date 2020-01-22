@@ -1,5 +1,4 @@
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
-import { Commande } from 'src/app/commandes/commande';
 import { IContenuPhraseDef } from 'src/app/disposition/fabrique/fabrique-contenu-phrase';
 import { ApiRequêteAction } from 'src/app/services/api-requete-action';
 import { Observable } from 'rxjs';
@@ -8,12 +7,8 @@ import { KfBouton } from 'src/app/commun/kf-composants/kf-elements/kf-bouton/kf-
 import { FactureUtile } from './facture-utile';
 import { FactureService } from './facture.service';
 import { CommandeUtileBouton } from 'src/app/commandes/commande-utile-bouton';
-import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-groupe';
-import { IBoutonDef } from 'src/app/disposition/fabrique/fabrique-bouton';
-import { BootstrapNom, FabriqueBootstrap } from 'src/app/disposition/fabrique/fabrique-bootstrap';
-import { ModeAction } from 'src/app/commandes/condition-action';
+import { FabriqueBootstrap } from 'src/app/disposition/fabrique/fabrique-bootstrap';
 import { FactureCommande } from './facture-commande';
-import { IKeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/i-key-uid-rno';
 import { Facture } from './facture';
 import { KfBBtnToolbar } from 'src/app/commun/kf-composants/kf-b-btn-toolbar/kf-b-btn-toolbar';
 import { KfBBtnGroup } from 'src/app/commun/kf-composants/kf-b-btn-group/kf-b-btn-group';
@@ -45,19 +40,6 @@ export class FactureUtileBouton extends CommandeUtileBouton {
         return bouton;
     }
 
-    editeDétail(détail: FactureDétail): KfBouton {
-        const bouton = this.créeBoutonAttente('copie_d',
-            Fabrique.contenu.edite,
-            () => {
-                return this.service.copieDétail(détail);
-            },
-            () => {
-                this.service.copieDétailOk(détail);
-            }
-        );
-        return bouton;
-    }
-
     copieDétail(détail: FactureDétail): KfBouton {
         const bouton = this.créeBoutonAttente('copie_d',
             Fabrique.contenu.copier,
@@ -66,6 +48,7 @@ export class FactureUtileBouton extends CommandeUtileBouton {
             },
             () => {
                 this.service.copieDétailOk(détail);
+                détail.copieALivrer();
             }
         );
         return bouton;
@@ -81,6 +64,7 @@ export class FactureUtileBouton extends CommandeUtileBouton {
                 this.service.annuleDétailOk(détail);
             }
         );
+        bouton.inactivitéFnc = () => détail.facturée;
         return bouton;
     }
 
@@ -106,6 +90,7 @@ export class FactureUtileBouton extends CommandeUtileBouton {
                 this.service.copieCommandeOk(commande);
             }
         );
+        bouton.inactivitéFnc = () => commande.facturée;
         return bouton;
     }
 
@@ -147,6 +132,7 @@ export class FactureUtileBouton extends CommandeUtileBouton {
                 this.service.copieCommandesOk(facture);
             }
         );
+        bouton.inactivitéFnc = () => facture.prête;
         return bouton;
     }
 

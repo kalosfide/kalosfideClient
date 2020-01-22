@@ -2,15 +2,16 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { CommanderAccueilComponent } from './commander-accueil.component';
 import { CommanderProduitResolverService } from './commander-produit-resolver.service';
-import { CommandePages } from 'src/app/commandes/commande-pages';
-import { CommanderCommandeComponent } from './commander-commande.component';
 import { CommanderChoixProduitComponent } from './commander-choix-produit.component';
 import { RetourneVraiResolverService } from 'src/app/services/retourne-vrai-resolver.service';
 import { CommanderDetailAjouteComponent } from './commander-detail-ajoute.component';
 import { CommanderDetailEditeComponent } from './commander-detail-edite.component';
 import { CommanderDetailSupprimeComponent } from './commander-detail-supprime.component';
-import { CommanderStockResolverService } from './commander-stock-resolver.service';
-import { RedirigeSiContexteChangé, EffaceStockSiContexteChangé } from './contexte-change-garde';
+import { CommanderStockResolverService, CommanderStockBonResolverService } from './commander-stock-resolver.service';
+import { RedirigeSiContexteChangé } from './contexte-change-garde';
+import { CommanderPages } from './commander-pages';
+import { CommanderCommandeBonComponent } from './commander-commande-bon.component copy';
+import { CommanderCommandeAnnuleComponent } from './commander-commande-annule.component';
 
 const routes: Routes = [
     {
@@ -19,21 +20,18 @@ const routes: Routes = [
         children: [
             {
                 path: '',
-                redirectTo: CommandePages.liste.urlSegment,
+                redirectTo: CommanderPages.liste.urlSegment,
                 pathMatch: 'full',
             },
             {
-                path: CommandePages.liste.urlSegment,
-                component: CommanderCommandeComponent,
-                canActivate: [
-                    EffaceStockSiContexteChangé,
-                ],
+                path: CommanderPages.liste.urlSegment,
+                component: CommanderCommandeBonComponent,
                 resolve: {
-                    stock: CommanderStockResolverService,
+                    stock: CommanderStockBonResolverService,
                 },
             },
             {
-                path: CommandePages.choixProduit.urlSegment,
+                path: CommanderPages.choixProduit.urlSegment,
                 component: CommanderChoixProduitComponent,
                 canActivate: [
                     RedirigeSiContexteChangé,
@@ -43,7 +41,7 @@ const routes: Routes = [
                 },
             },
             {
-                path: CommandePages.ajoute.urlSegment + '/:no',
+                path: CommanderPages.ajoute.urlSegment + '/:no',
                 component: CommanderDetailAjouteComponent,
                 canActivate: [
                     RedirigeSiContexteChangé,
@@ -54,7 +52,7 @@ const routes: Routes = [
                 },
             },
             {
-                path: CommandePages.edite.urlSegment + '/:no',
+                path: CommanderPages.edite.urlSegment + '/:no',
                 component: CommanderDetailEditeComponent,
                 canActivate: [
                     RedirigeSiContexteChangé,
@@ -65,7 +63,7 @@ const routes: Routes = [
                 },
             },
             {
-                path: CommandePages.supprime.urlSegment + '/:no',
+                path: CommanderPages.supprime.urlSegment + '/:no',
                 component: CommanderDetailSupprimeComponent,
                 canActivate: [
                     RedirigeSiContexteChangé,
@@ -77,8 +75,8 @@ const routes: Routes = [
                 },
             },
             {
-                path: CommandePages.efface.urlSegment,
-                component: CommanderCommandeComponent,
+                path: CommanderPages.annule.urlSegment,
+                component: CommanderCommandeAnnuleComponent,
                 canActivate: [
                     RedirigeSiContexteChangé,
                 ],

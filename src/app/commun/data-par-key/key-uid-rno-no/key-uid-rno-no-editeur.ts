@@ -1,27 +1,29 @@
-import { DataKeyEditeur } from '../data-key-editeur';
+import { IKeyUidRnoNo } from './i-key-uid-rno-no';
 import { KfInputTexte } from '../../kf-composants/kf-elements/kf-input/kf-input-texte';
 import { KfInputNombre } from '../../kf-composants/kf-elements/kf-input/kf-input-nombre';
-import { IKeyUidRnoNo } from './i-key-uid-rno-no';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
+import { KeyUidRnoNo } from './key-uid-rno-no';
+import { DataKeyEditeur } from '../data-key editeur';
 
-export abstract class KeyUidRnoNoEditeur<T extends IKeyUidRnoNo> extends DataKeyEditeur<T> {
+export abstract class KeyUidRnoNoEditeur<T extends KeyUidRnoNo> extends DataKeyEditeur<T> {
 
     protected _kfUid: KfInputTexte;
     protected _kfRno: KfInputNombre;
     protected _kfNo: KfInputNombre;
 
-    créeChampsKeys() {
-        this.champsKeys = [];
-        this._kfUid =  Fabrique.input.texte('uid');
-        this.champsKeys.push(this._kfUid);
-        this._kfRno = Fabrique.input.nombre('rno');
-        this.champsKeys.push(this._kfRno);
-        this._kfNo = Fabrique.input.nombre('no');
-        this.champsKeys.push(this._kfNo);
+    créeKfDeKey() {
+        this._kfUid = Fabrique.input.texteInvisible('uid');
+        this._kfRno = Fabrique.input.nombreInvisible('rno');
+        this._kfNo = Fabrique.input.nombreInvisible('no');
+        this.kfDeKey = [
+            this._kfUid,
+            this._kfRno,
+            this._kfNo
+        ];
     }
-    fixeChampsKeys(key: IKeyUidRnoNo) {
+    fixeKfKey(key: IKeyUidRnoNo) {
         this._kfUid.valeur = key.uid;
         this._kfRno.valeur = key.rno;
-        this._kfNo.valeur = key.no;
-    }
+         this._kfNo.valeur = key.no;
+   }
 }

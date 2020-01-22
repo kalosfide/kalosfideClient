@@ -1,22 +1,23 @@
 import { Injectable } from '@angular/core';
-import { Resolve } from '@angular/router';
-import { CommandeProduitResolverService } from 'src/app/commandes/commande-produit-resolver.service';
+import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Produit } from 'src/app/modeles/catalogue/produit';
 import { CommanderService } from './commander.service';
-import { RouteurService } from 'src/app/services/routeur.service';
-import { CommandePages } from 'src/app/commandes/commande-pages';
-import { CommandeRoutes } from './commander-pages';
+import { CommanderRoutes, CommanderPages } from './commander-pages';
+import { Observable } from 'rxjs';
 
 @Injectable()
-export class CommanderProduitResolverService extends CommandeProduitResolverService implements Resolve<Produit> {
-    pageDefErreur = CommandePages.liste;
-    routesErreur = CommandeRoutes;
+export class CommanderProduitResolverService implements Resolve<Produit> {
+    pageDefErreur = CommanderPages.liste;
+    routesErreur = CommanderRoutes;
 
     constructor(
-        protected _service: CommanderService,
-        protected _routeur: RouteurService,
+        private _service: CommanderService,
     ) {
-        super(_service, _routeur);
+    }
+
+    resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<never> | Produit | Observable<Produit> {
+        const noString: string = route.paramMap.get('no');
+        return this._service.résoudProduit(noString);
     }
 
 }

@@ -6,12 +6,11 @@ import { PageTableComponent } from 'src/app/disposition/page-table/page-table.co
 import { Commande } from 'src/app/commandes/commande';
 import { LivraisonPages } from './livraison-pages';
 import { PageDef } from 'src/app/commun/page-def';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { Identifiant } from 'src/app/securite/identifiant';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { LivraisonStock } from './livraison-stock';
-import { Client } from 'src/app/modeles/clientele/client';
-import { compareKeyUidRno } from 'src/app/commun/data-par-key/data-key';
+import { Client } from 'src/app/modeles/client/client';
 import { ApiCommande } from 'src/app/commandes/api-commande';
 import { LivraisonUtile } from './livraison-utile';
 import { ILivraisonComponent } from './i-livraison-component';
@@ -19,6 +18,7 @@ import { IKfVueTableColonneDef } from 'src/app/commun/kf-composants/kf-vue-table
 import { IGroupeTableDef } from 'src/app/disposition/page-table/groupe-table';
 import { IKfVueTableDef } from 'src/app/commun/kf-composants/kf-vue-table/i-kf-vue-table-def';
 import { BarreTitre } from 'src/app/disposition/fabrique/fabrique-barre-titre/fabrique-barre-titre';
+import { KeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno';
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',
@@ -64,16 +64,16 @@ export class LivraisonChoixClientComponent extends PageTableComponent<Commande> 
 
     protected chargeData(data: Data) {
         const stock: LivraisonStock = data.stock;
-        this.clients = data.clients;
+        this.clients = stock.clients;
         const commandes = stock.apiCommandesATraiter;
-        this.liste = data.clients
+        this.liste = this.clients
             .filter((cl: Client) =>
                 // le fournisseur peut commander pour un client avec compte pendant la livraison
-                (!cl.avecCompte || this.utile.conditionSite.livraison)
+                (!cl.avecCompte)
                 &&
                 (commandes === undefined // il n'y a jamais eu de livraison
                 // ou le client n'est pas déjà dans la livraison
-                || commandes.find((co: ApiCommande) => compareKeyUidRno(cl, co)) === undefined)
+                || commandes.find((co: ApiCommande) => KeyUidRno.compareKey(cl, co)) === undefined)
             )
             .map((client: Client) => {
                 const apiCommande = new ApiCommande();
@@ -95,7 +95,8 @@ export class LivraisonChoixClientComponent extends PageTableComponent<Commande> 
         ];
         const vueTableDef: IKfVueTableDef<Commande> = {
             colonnesDef: colonnesDefs,
-            outils: outils
+            outils: outils,
+            quandClic: (commande: Commande) => (() => this.routeur.navigueUrlDef(this.utile.url.dUnClient(commande))).bind(this)
         };
         return {
             vueTableDef: vueTableDef

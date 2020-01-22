@@ -6,9 +6,9 @@ import { ApiResult200Ok } from '../commun/api-results/api-result-200-ok';
 import { RouteurService } from './routeur.service';
 import { ApiRequêteService } from './api-requete.service';
 import { ApiRequêteAction } from './api-requete-action';
-import { KeyUidRno } from '../commun/data-par-key/key-uid-rno/key-uid-rno';
 import { NavigationService } from './navigation.service';
 import { AttenteService } from './attente.service';
+import { IKeyUidRno } from '../commun/data-par-key/key-uid-rno/i-key-uid-rno';
 
 export abstract class DataService {
 
@@ -24,7 +24,7 @@ export abstract class DataService {
     get navigation(): NavigationService { return this._apiRequete.navigation; }
     get attenteService(): AttenteService { return this._apiRequete.attenteService; }
 
-    public get keyIdentifiant(): KeyUidRno {
+    public get keyIdentifiant(): IKeyUidRno {
         const identifiant = this.identification.litIdentifiant();
         if (identifiant) {
             const nomSite = this.navigation.litSiteEnCours().nomSite;
@@ -35,7 +35,7 @@ export abstract class DataService {
         }
     }
 
-    public get keySiteEnCours(): KeyUidRno {
+    public get keySiteEnCours(): IKeyUidRno {
         const site = this.navigation.litSiteEnCours();
         const keySite = {
             uid: site.uid,

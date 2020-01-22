@@ -1,9 +1,9 @@
 import { IUrlDef } from 'src/app/disposition/fabrique/fabrique-url';
-import { DataKey } from './data-key';
+import { IDataKey } from './data-key';
 import { DataKeyUtile } from './data-key-utile';
 import { PageDef } from '../page-def';
 
-export class DataKeyUtileUrl<T extends DataKey> {
+export class DataKeyUtileUrl<T extends IDataKey> {
     protected _utile: DataKeyUtile<T>;
 
     constructor(utile: DataKeyUtile<T>) {

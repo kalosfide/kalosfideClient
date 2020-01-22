@@ -13,7 +13,10 @@ import {
 } from 'src/app/commun/kf-composants/kf-elements/kf-liste-deroulante/kf-liste-deroulante-texte';
 import { KfListeDeroulanteObjet } from 'src/app/commun/kf-composants/kf-elements/kf-liste-deroulante/kf-liste-deroulante-objet';
 import { KfValidateurs } from 'src/app/commun/kf-composants/kf-partages/kf-validateur';
-import { IdTypeCommande } from 'src/app/modeles/type-commande';
+import { TypeCommande } from 'src/app/modeles/type-commande';
+import { ApiErreur400Traite } from 'src/app/commun/api-results/api-erreur-400';
+import { KfGéreCss } from 'src/app/commun/kf-composants/kf-partages/kf-gere-css';
+import { KfIcone } from 'src/app/commun/kf-composants/kf-elements/kf-icone/kf-icone';
 
 class FabriqueEntrée extends FabriqueMembre {
     constructor(fabrique: FabriqueClasse) {
@@ -29,79 +32,11 @@ class FabriqueEntrée extends FabriqueMembre {
     }
 
     prépareSuitValeurEtFocus(input: KfEntrée, apiAction: ApiRequêteAction, service: DataService) {
-        const icone = this.fabrique.icone.iconeAttente();
-        icone.créeGèreCssFond();
-        icone.gèreCssFond.ajouteClasseDef('survol-centre');
-        icone.gèreCssFond.fixeStyleDef('font-size', '1.25em');
-        icone.fondVisible = false;
+        const icone = this.fabrique.icone.préparePourAttente(input.gèreClasseEntree, apiAction);
         input.ajouteIconeSurvol(icone);
-
-        const commence: () => void = () => {
-            icone.fondVisible = true;
-            input.gèreClasseEntree.fixeStyleDef('opacity', '.33');
-        };
-        const finit: () => void = () => {
-            icone.fondVisible = false;
-            input.gèreClasseEntree.supprimeStyleDef('opacity');
-        };
-
-        const actionDef: ApiRequêteAction = {
-            demandeApi: () => {
-                console.log(input);
-                return apiAction.demandeApi();
-            },
-            actionSiOk: () => {
-                finit();
-                apiAction.actionSiOk();
-            },
-            actionSiErreur: (resultat: ResultatAction) => {
-                finit();
-                if (apiAction.actionSiErreur) {
-                    apiAction.actionSiErreur(resultat);
-                }
-            }
-        };
         input.gereHtml.suitValeurEtFocus(() => {
-            commence();
-            return service.actionOkObs(actionDef);
+            return service.actionOkObs(apiAction);
         });
-    }
-
-    préparePourAttente(input: KfInput, apiAction: ApiRequêteAction, service: DataService) {
-        const icone = this.fabrique.icone.iconeAttente();
-        icone.créeGèreCssFond();
-        icone.gèreCssFond.ajouteClasseDef('survol-centre');
-        icone.gèreCssFond.fixeStyleDef('font-size', '1.25em');
-        icone.fondVisible = false;
-        input.ajouteIconeSurvol(icone);
-
-        const commence: () => void = () => {
-            icone.fondVisible = true;
-            input.gèreClasseEntree.fixeStyleDef('opacity', '.33');
-        };
-        const finit: () => void = () => {
-            icone.fondVisible = false;
-            input.gèreClasseEntree.supprimeStyleDef('opacity');
-        };
-
-        const actionDef: ApiRequêteAction = {
-            demandeApi: apiAction.demandeApi,
-            actionSiOk: () => {
-                finit();
-                apiAction.actionSiOk();
-            },
-            actionSiErreur: (resultat: ResultatAction) => {
-                finit();
-                if (apiAction.actionSiErreur) {
-                    apiAction.actionSiErreur(resultat);
-                }
-            }
-        };
-        input.gereHtml.suitValeurEtFocus(() => {
-            commence();
-            return service.actionOkObs(actionDef);
-        });
-
     }
 }
 
@@ -154,10 +89,10 @@ export class FabriqueInput extends FabriqueEntrée {
     nombreQuantité(nom: string, typeCommande: () => string, texte?: KfTexteDef, placeholder?: string): KfInputNombre {
         const input = this.nombre(nom, texte, placeholder);
         input.min = 0;
-        input.pas = typeCommande() === IdTypeCommande.ALUnité ? 1 : .001;
+        input.pas = typeCommande() === TypeCommande.id.ALUnité ? 1 : .001;
         input.ajouteValidateur(KfValidateurs.nombreVirgule(8, () => {
             const type = typeCommande();
-            return type === IdTypeCommande.ALUnité ? 0 : 3;
+            return type === TypeCommande.id.ALUnité ? 0 : 3;
         }, '>='));
         return input;
     }

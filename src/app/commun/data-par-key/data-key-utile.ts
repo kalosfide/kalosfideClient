@@ -1,6 +1,6 @@
 import { DataKeyService } from './data-key.service';
 import { DataUtile } from './data-utile';
-import { DataKey } from './data-key';
+import { IDataKey } from './data-key';
 import { DataKeyUtileUrl } from './data-key-utile-url';
 import { IDataPages } from './data-pages';
 import { ISiteRoutes } from 'src/app/site/site-pages';
@@ -9,7 +9,7 @@ import { DataKeyUtileColonne } from './data-key-utile-colonne';
 import { DataKeyUtileOutils } from './data-key-utile-outils';
 import { DataKeyUtileEdite } from './data-key-utile-edite';
 
-export class DataKeyUtile<T extends DataKey> extends DataUtile {
+export class DataKeyUtile<T extends IDataKey> extends DataUtile {
     protected _urlKey: DataKeyUtileUrl<T>;
     protected _lienKey: DataKeyUtileLien<T>;
     protected _colonneKey: DataKeyUtileColonne<T>;

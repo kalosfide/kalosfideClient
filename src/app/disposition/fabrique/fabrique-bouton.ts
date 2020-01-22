@@ -143,13 +143,13 @@ export class FabriqueBouton extends FabriqueMembre {
             popOverDef.nomIcone = nomIcone;
         }
         bouton.ngbPopover = popOverDef;
-//        bouton.ajouteClasseDef('dropdown-toggle');
+        //        bouton.ajouteClasseDef('dropdown-toggle');
         this.supprimeActionBouton(bouton);
         return bouton;
     }
     supprimePopover(bouton: KfBouton) {
         bouton.ngbPopover = undefined;
-//        bouton.supprimeClasseDef('dropdown-toggle');
+        //        bouton.supprimeClasseDef('dropdown-toggle');
     }
 
     aide(nom: string, titre?: string): KfBouton {
@@ -180,39 +180,11 @@ export class FabriqueBouton extends FabriqueMembre {
         if (kfIcone) {
             kfIcone.fondVisible = true;
         }
-        const icone = this.fabrique.icone.iconeAttente();
-        icone.créeGèreCssFond();
-        icone.gèreCssFond.ajouteClasseDef('survol-centre');
-        icone.gèreCssFond.fixeStyleDef('font-size', '1.25em');
-        icone.fondVisible = false;
+        const icone = this.fabrique.icone.préparePourAttente(bouton.contenuPhrase.kfIcone.gèreCssFond, apiRequêteDef);
         bouton.contenuPhrase.ajoute(icone);
-
-        const commence: () => void = () => {
-            icone.fondVisible = true;
-            bouton.contenuPhrase.kfIcone.gèreCssFond.fixeStyleDef('opacity', '.33');
-        };
-        const finit: () => void = () => {
-            icone.fondVisible = false;
-            bouton.contenuPhrase.kfIcone.gèreCssFond.supprimeStyleDef('opacity');
-        };
-
-        const actionDef: ApiRequêteAction = {
-            demandeApi: apiRequêteDef.demandeApi,
-            actionSiOk: () => {
-                finit();
-                apiRequêteDef.actionSiOk();
-            },
-            actionSiErreur: (resultat: ResultatAction) => {
-                finit();
-                if (apiRequêteDef.actionSiErreur) {
-                    apiRequêteDef.actionSiErreur(resultat);
-                }
-            }
-        };
         bouton.gereHtml.ajouteTraiteur(KfTypeDEvenement.clic,
             (evenement: KfEvenement) => {
-                commence();
-                dataService.action(actionDef);
+                dataService.action(apiRequêteDef);
                 evenement.statut = KfStatutDEvenement.fini;
             });
         return bouton;

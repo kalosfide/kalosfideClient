@@ -5,12 +5,11 @@ import { Observable } from 'rxjs';
 import { FormulaireAEtapesComponent } from '../../disposition/formulaire/formulaire-a-etapes.component';
 import { ApiResult } from '../../commun/api-results/api-result';
 import { DevenirClientModel } from './devenir-client-model';
-import { ClientEditeurBase } from 'src/app/modeles/clientele/client';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { PageDef } from 'src/app/commun/page-def';
 import { FormulaireAEtapeService } from 'src/app/disposition/formulaire/formulaire-a-etapes.service';
 import { DevenirClientPages, DevenirClientRoutes } from './devenir-client-pages';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { DevenirClientService } from './devenir-client.service';
 import { DevenirConnectionEditeur } from 'src/app/compte/devenir/devenir-connection-model';
 import { ReglesDeMotDePasse } from 'src/app/securite/mot-de-passe/mot-de-passe';
@@ -18,6 +17,7 @@ import { VisiteurPages } from 'src/app/visiteur/visiteur-pages';
 import { ClientRoutes, ClientPages } from 'src/app/client/client-pages';
 import { PeutQuitterService } from 'src/app/commun/peut-quitter/peut-quitter.service';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
+import { ClientEditeur } from 'src/app/modeles/client/client-editeur';
 
 @Component({
     templateUrl: '../../disposition/formulaire/formulaire-a-etapes.component.html',
@@ -65,7 +65,7 @@ export class DevenirClientComponent extends FormulaireAEtapesComponent implement
         this.titreRésultatErreur = 'Enregistrement impossible';
         this.titreRésultatSucces = 'Enregistrement réussi.';
         this.ajouteEtape(DevenirClientPages.connection, new DevenirConnectionEditeur(_service));
-        this.ajouteEtape(DevenirClientPages.profil, new ClientEditeurBase());
+        this.ajouteEtape(DevenirClientPages.profil, new ClientEditeur(this));
         const contenus = this.contenusValidationParDéfaut();
         this.ajouteEtape(DevenirClientPages.validation, { créeContenus() { return contenus; } });
     }

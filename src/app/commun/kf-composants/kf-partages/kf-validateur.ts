@@ -258,7 +258,7 @@ export class KfValidateurs {
 
     static get nombreNonNul(): KfValidateur {
         return KfValidateurs.validateurDeFn('nonNul', valeur => {
-            return valeur === '0';
+            return '' + valeur === '0';
         }, 'Le nombre ne peut pas être nul.');
     }
 
@@ -272,6 +272,18 @@ export class KfValidateurs {
         };
         const liste = champs.map(c => c.texte).join(', ');
         return KfValidateurs.validateurDeFn('auMoinsUnRequis', invalideFn, `L'un au moins de ces champs est requis: ${liste}`);
+    }
+
+    static auMoinsUn(message: string, ...champs: { nom: string, texte: string, valideFnc: (valeur: any) => boolean }[]) {
+        const invalideFn = (value: any) => {
+            const champ = champs.find(c => {
+                const v = value[c.nom];
+                return c.valideFnc(v);
+            });
+            return champ === undefined;
+        };
+        const liste = champs.map(c => c.texte).join(', ');
+        return KfValidateurs.validateurDeFn('auMoinsUn', invalideFn, `L'un au moins de ces champs ${message}: ${liste}`);
     }
 
     static minMax(input: KfInputNombre): KfValidateur {

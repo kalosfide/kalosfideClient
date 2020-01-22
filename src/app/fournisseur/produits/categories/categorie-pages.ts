@@ -26,7 +26,7 @@ export class CategoriePages {
         urlSegment: 'supprime',
         lien: 'Supprimer',
         title: 'Catégories - Supprimer',
-        titre: 'Supprimer un catégorie',
+        titre: 'Supprimer une catégorie',
     };
 }
 

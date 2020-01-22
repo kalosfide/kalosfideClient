@@ -197,24 +197,32 @@ export class KfComposantGereHtml {
         return false;
     }
 
+    /**
+     * Sauve la valeur du control quand il reçoit le focus
+     * Quand le control perd le focus, si sa valeur a changé et si le formulaire parent est valide, déclenche une action async
+     * Si l'action échoue, restaure la valeur d'avant la prise de focus.
+     * @param quandChange retourne un observable qui emet faux si l'action a échoué
+     */
     private traiteFocusChange(quandChange: () => Observable<boolean>): KfTraitementDEvenement {
         return ((evenement: KfEvenement) => {
             if (evenement.type === KfTypeDEvenement.focusPris) {
                 this._valeurAvantFocus = this.composant.abstractControl.value;
-                    return;
+                return;
             }
             if (evenement.type === KfTypeDEvenement.focusPerdu) {
                 if (this.composant.abstractControl.valid) {
                     const valeur = this.composant.abstractControl.value;
                     if ('' + this._valeurAvantFocus !== '' + valeur) {
-                        const subscription = quandChange().subscribe(
-                            ok => {
-                                subscription.unsubscribe();
-                                if (!ok) {
-                                    this.composant.gereValeur.valeur = this._valeurAvantFocus;
+                        if (this.composant.formulaireParent.abstractControl.valid) {
+                            const subscription = quandChange().subscribe(
+                                ok => {
+                                    subscription.unsubscribe();
+                                    if (!ok) {
+                                        this.composant.gereValeur.valeur = this._valeurAvantFocus;
+                                    }
                                 }
-                            }
-                        );
+                            );
+                        }
                     }
                 } else {
                     this.composant.gereValeur.valeur = this._valeurAvantFocus;

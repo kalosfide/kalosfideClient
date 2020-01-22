@@ -34,12 +34,12 @@ export interface IKfVueTableColonneDef<T> {
     bilanDef?: IKfVueTableBilanDef<T>;
 
     /**
-     * valeue initiale et Observable définissant si la colonne n'est pas affichée
+     * valeur initiale et Observable définissant si la colonne n'est pas affichée
      */
     nePasAfficherSi?: KfInitialObservable<boolean>;
 
     /**
-     * valeue initiale et Observable définissant si la colonne est affichée
+     * valeur initiale et Observable définissant si la colonne est affichée
      */
     afficherSi?: KfInitialObservable<boolean>;
 }

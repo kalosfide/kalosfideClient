@@ -8,12 +8,10 @@ import { ComponentAAutoriserAQuitter } from 'src/app/commun/peut-quitter/peut-qu
 import { LivraisonPages, LivraisonRoutes } from './livraison-pages';
 import { ActivatedRoute, RouterStateSnapshot, Data } from '@angular/router';
 import { LivraisonService } from './livraison.service';
-import { compareKeyUidRno } from 'src/app/commun/data-par-key/data-key';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 import { DetailCommande } from 'src/app/commandes/detail-commande';
 import { DetailCommandeComponent } from 'src/app/commandes/detail-commande.component';
 import { LivraisonStock } from './livraison-stock';
-import { ITitrePage } from 'src/app/disposition/titre-page/titre-page';
 import { IdEtatSite } from 'src/app/modeles/etat-site';
 import { IUrlDef } from 'src/app/disposition/fabrique/fabrique-url';
 import { ILivraisonComponent } from './i-livraison-component';
@@ -21,6 +19,7 @@ import { BarreTitre, IBarreDef } from 'src/app/disposition/fabrique/fabrique-bar
 import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
 import { KfEtiquette } from 'src/app/commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
 import { KfTypeDeBaliseHTML } from 'src/app/commun/kf-composants/kf-composants-types';
+import { KeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno';
 
 export abstract class LivraisonDetailComponent extends DetailCommandeComponent
     implements OnInit, OnDestroy, ComponentAAutoriserAQuitter, ILivraisonComponent {
@@ -74,10 +73,9 @@ export abstract class LivraisonDetailComponent extends DetailCommandeComponent
         const stock: LivraisonStock = data.stock;
         const client: Client = data.client;
         const produit = data.produit;
-        const apiCommande = stock.apiCommandesATraiter.find(c => compareKeyUidRno(c, client));
+        const apiCommande = stock.apiCommandesATraiter.find(c => KeyUidRno.compareKey(c, client));
         return new DetailCommande(apiCommande, produit, {
             client: client,
-            étatSiteLivraison: this.site.etat === IdEtatSite.livraison,
             estDansListeParProduit: false,
         });
     }

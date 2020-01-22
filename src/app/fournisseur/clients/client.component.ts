@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
 import { PageDef } from 'src/app/commun/page-def';
-import { Site } from 'src/app/modeles/site';
-import { SiteService } from 'src/app/modeles/site.service';
+import { Site } from 'src/app/modeles/site/site';
+import { SiteService } from 'src/app/modeles/site/site.service';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { ProduitService } from 'src/app/modeles/catalogue/produit.service';
 import { FournisseurPages } from '../fournisseur-pages';

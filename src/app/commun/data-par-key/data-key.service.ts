@@ -3,29 +3,17 @@ import { Observable } from 'rxjs';
 
 import { ApiResult } from '../api-results/api-result';
 import { DataService } from '../../services/data.service';
-import { DataKey } from './data-key';
+import { IDataKey } from './data-key';
 import { ApiAction } from '../api-route';
-import { NavigationService } from 'src/app/services/navigation.service';
-import { KeyUidRno } from './key-uid-rno/key-uid-rno';
 import { tap } from 'rxjs/operators';
 import { ApiResult201Created } from '../api-results/api-result-201-created';
-import { IdentificationService } from 'src/app/securite/identification.service';
-import { RouteurService } from 'src/app/services/routeur.service';
 import { DataUtile } from 'src/app/commun/data-par-key/data-utile';
 import { KfInitialObservable } from '../kf-composants/kf-partages/kf-initial-observable';
 import { ModeTable } from './condition-table';
 import { DataKeyUtile } from './data-key-utile';
+import { IDataKeyService } from './i-data-key-service';
 
-export interface IDataKeyService {
-    dataService: DataService;
-    identification: IdentificationService;
-    routeur: RouteurService;
-    navigation: NavigationService;
-    keyIdentifiant: KeyUidRno;
-    keySiteEnCours: KeyUidRno;
-}
-
-export abstract class DataKeyService<T extends DataKey> extends DataService implements IDataKeyService {
+export abstract class DataKeyService<T extends IDataKey> extends DataService implements IDataKeyService {
 
     protected _utile: DataUtile;
 
@@ -34,7 +22,7 @@ export abstract class DataKeyService<T extends DataKey> extends DataService impl
     protected _modeTableIO: KfInitialObservable<ModeTable>;
 
     abstract urlSegmentDeKey(key: T): string;
-    abstract get keyDeAjoute(): DataKey;
+    abstract get keyDeAjoute(): IDataKey;
     abstract fixeKeyDeAjoute(envoyé: T, reçu: T): void;
 
     protected _créeUtile() {
@@ -98,16 +86,16 @@ export abstract class DataKeyService<T extends DataKey> extends DataService impl
         );
     }
 
-    lit(key: DataKey): Observable<ApiResult> {
+    lit(key: IDataKey): Observable<ApiResult> {
         console.log(key);
         return this.get<T>(this.controllerUrl, ApiAction.data.lit, this.créeParams(key));
     }
 
-    litGroupe<TGroupe>(key: DataKey, apiAction?: string): Observable<ApiResult> {
+    litGroupe<TGroupe>(key: IDataKey, apiAction?: string): Observable<ApiResult> {
         return this.get<TGroupe>(this.controllerUrl, apiAction ? apiAction : ApiAction.data.liste, this.créeParams(key));
     }
 
-    liste(key?: DataKey): Observable<ApiResult> {
+    liste(key?: IDataKey): Observable<ApiResult> {
         return key
             ? this.getAll<T>(this.controllerUrl, ApiAction.data.liste, this.créeParams(key))
             : this.getAll<T>(this.controllerUrl, ApiAction.data.liste);
@@ -123,9 +111,9 @@ export abstract class DataKeyService<T extends DataKey> extends DataService impl
 
     /**
      * demande à l'Api de supprimer un objet de la base de données
-     * @param key clè de l'objet à supprimer
+     * @param key clé de l'objet à supprimer
      */
-    supprime(key: DataKey): Observable<ApiResult> {
+    supprime(key: IDataKey): Observable<ApiResult> {
         return this.delete(this.controllerUrl, ApiAction.data.supprime, this.créeParams(key));
     }
 

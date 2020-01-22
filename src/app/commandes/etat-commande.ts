@@ -34,7 +34,7 @@ const incomplet: EtatCommandeDef = {
 const prêt: EtatCommandeDef = {
     id: IdEtatCommande.prêt,
     texte: 'prêt',
-    vérifie: (c: Commande) => c.prêt
+    vérifie: (c: Commande) => c.préparé
 };
 
 

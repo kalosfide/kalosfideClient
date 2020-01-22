@@ -13,7 +13,7 @@ import { KfTypeDeBouton } from '../../kf-composants-types';
     styleUrls: ['../../kf-composants.scss']
 })
 export class KfBoutonComponent extends KfComposantComponent implements OnInit, AfterViewInit {
-    @ViewChild('htmlElement') htmlElementRef: ElementRef;
+    @ViewChild('htmlElement', {static: false}) htmlElementRef: ElementRef;
 
     constructor() {
         super();

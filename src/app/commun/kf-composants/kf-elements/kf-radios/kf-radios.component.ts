@@ -8,7 +8,7 @@ import { KfComposantComponent } from '../../kf-composant/kf-composant.component'
     styleUrls: ['../../kf-composants.scss']
 })
 export class KfRadiosComponent extends KfComposantComponent implements OnInit, AfterViewInit {
-    @ViewChild('divElement') divElement: ElementRef;
+    @ViewChild('divElement', {static: false}) divElement: ElementRef;
 
     get radios(): KfRadios {
         return this.composant as KfRadios;

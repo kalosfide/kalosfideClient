@@ -28,10 +28,17 @@ export class FactureStock {
         this.noProchaineFacture = noProchaineFacture;
     }
 
-    initialiseLivraisons(livraisons: ApiFactureLivraison[]) {
+    initialiseLivraisons(livraisons: ApiFactureLivraison[]): Date {
+        let date = new Date(Date.now());
         this.factures.forEach(f => {
-            f.commandes.forEach(c => c.dateLivraison = new Date(livraisons.find(l => l.no === c.livraisonNo).date));
+            f.commandes.forEach(c => {
+                c.dateLivraison = new Date(livraisons.find(l => l.no === c.livraisonNo).date);
+                if (c.dateLivraison < date) {
+                    date = c.dateLivraison;
+                }
+            });
         });
+        return date;
     }
 
     apiFacture(ikeyClient: IKeyUidRno): ApiFacture {

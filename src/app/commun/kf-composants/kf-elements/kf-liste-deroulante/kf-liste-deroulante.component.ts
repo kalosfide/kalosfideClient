@@ -7,7 +7,7 @@ import { KfComposantComponent } from '../../kf-composant/kf-composant.component'
     styleUrls: ['../../kf-composants.scss']
 })
 export class KfListeDeroulanteComponent extends KfComposantComponent implements OnInit, AfterViewInit {
-    @ViewChild('selectElement') selectElementRef: ElementRef;
+    @ViewChild('selectElement', {static: false}) selectElementRef: ElementRef;
     @ViewChildren('optionElement') optionElements: QueryList<ElementRef>;
 
     constructor() {

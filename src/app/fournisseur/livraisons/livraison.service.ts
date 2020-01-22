@@ -2,15 +2,14 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { ApiResult } from '../../commun/api-results/api-result';
 import { ApiAction, ApiController } from 'src/app/commun/api-route';
-import { KeyUidRnoCréeParams } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno';
-import { KeyUidRnoNo2CréeParams } from 'src/app/commun/data-par-key/key-uid-rno-no-2/key-uid-rno-no-2';
+import { KeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno';
+import { KeyUidRnoNo2 } from 'src/app/commun/data-par-key/key-uid-rno-no-2/key-uid-rno-no-2';
 import { ApiCommande, ApiDétailCommandeData } from 'src/app/commandes/api-commande';
-import { compareKeyUidRno } from 'src/app/commun/data-par-key/data-key';
 import { ApiLivraison } from './api-livraison';
 import { mergeMap, concatMap, tap, map } from 'rxjs/operators';
 import { IKeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/i-key-uid-rno';
 import { Commande } from 'src/app/commandes/commande';
-import { SiteService } from 'src/app/modeles/site.service';
+import { SiteService } from 'src/app/modeles/site/site.service';
 import { IdEtatSite } from 'src/app/modeles/etat-site';
 import { LivraisonProduit } from './livraison-produit';
 import { DetailCommande } from 'src/app/commandes/detail-commande';
@@ -23,11 +22,15 @@ import { ApiRequêteService } from 'src/app/services/api-requete.service';
 import { LivraisonUtile } from './livraison-utile';
 import { BilanLivraison } from './livraison-etat';
 import { KfInitialObservable } from 'src/app/commun/kf-composants/kf-partages/kf-initial-observable';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { ModeAction } from 'src/app/commandes/condition-action';
 import { ApiResult200Ok } from 'src/app/commun/api-results/api-result-200-ok';
 import { Stockage } from 'src/app/services/stockage/stockage';
 import { StockageService } from 'src/app/services/stockage/stockage.service';
+import { KeyUidRnoNo } from 'src/app/commun/data-par-key/key-uid-rno-no/key-uid-rno-no';
+import { ClientService } from 'src/app/modeles/client/client.service';
+import { Client } from 'src/app/modeles/client/client';
+import { ApiResult201Created } from 'src/app/commun/api-results/api-result-201-created';
 
 @Injectable({
     providedIn: 'root'
@@ -44,14 +47,15 @@ export class LivraisonService extends CommandeService {
         private _catalogueService: CatalogueService,
         _stockageService: StockageService,
         private _siteService: SiteService,
-        protected _apiRequete: ApiRequêteService
+        protected _apiRequete: ApiRequêteService,
+        private _clientService: ClientService,
     ) {
         super(_apiRequete);
         this._stockage = _stockageService.nouveau<LivraisonStock>('Livraison', {
             rafraichit: 'rafraichi',
             avecDate: true
         });
-        this._bilanLivraisonIO = KfInitialObservable.nouveau(LivraisonStock.bilanVide());
+        this._bilanLivraisonIO = KfInitialObservable.nouveau(BilanLivraison.bilanVide());
         this.créeUtile();
     }
 
@@ -81,7 +85,7 @@ export class LivraisonService extends CommandeService {
     litStock(): LivraisonStock {
         const stock = this._stockage.litStock();
         if (stock) {
-            return new LivraisonStock(stock.apiLivraison, stock.etatSite, stock.catalogue, stock.bilan);
+            return new LivraisonStock(stock.apiLivraison, stock.etatSite, stock.catalogue, stock.clients, stock.bilan);
         }
     }
     fixeStock(stock: LivraisonStock) {
@@ -90,13 +94,13 @@ export class LivraisonService extends CommandeService {
         this._bilanLivraisonIO.changeValeur(stock.bilan);
     }
     commandeStockée(stock: LivraisonStock, ikeyClient: IKeyUidRno): ApiCommande {
-        return stock.apiLivraison.commandes.find(c => compareKeyUidRno(ikeyClient, c));
+        return stock.apiLivraison.commandes.find(c => KeyUidRno.compareKey(ikeyClient, c));
     }
     stockeCommande(stock: LivraisonStock, commande: ApiCommande) {
         stock.apiLivraison.commandes.push(commande);
     }
     déstockeCommande(stock: LivraisonStock, ikeyCommande: IKeyUidRnoNo) {
-        const index = stock.apiLivraison.commandes.findIndex(c => compareKeyUidRno(ikeyCommande, c));
+        const index = stock.apiLivraison.commandes.findIndex(c => KeyUidRno.compareKey(ikeyCommande, c));
         stock.apiLivraison.commandes.splice(index, 1);
     }
 
@@ -118,18 +122,24 @@ export class LivraisonService extends CommandeService {
     /// SECTION Observables du stock
 
     private _litApiLivraison$(keySite: IKeyUidRno): Observable<ApiLivraison> {
-        const apiResult$ = this.get<ApiLivraison>(ApiController.livraison, ApiAction.livraison.encours, this.créeParams(keySite));
+        const apiResult$ = this.get<ApiLivraison>(ApiController.livraison, ApiAction.livraison.encours, KeyUidRno.créeParams(keySite));
         return this.objet<ApiLivraison>(apiResult$);
     }
 
-    private _ajouteCatalogue$(stock: LivraisonStock): Observable<LivraisonStock> {
+    private _ajouteCatalogueEtClients$(stock: LivraisonStock): Observable<LivraisonStock> {
         return this._catalogueService.catalogueDisponibles$().pipe(
-            mergeMap((catalogue: Catalogue) => {
+            tap((catalogue: Catalogue) => {
                 stock.catalogue = catalogue;
+            }),
+            mergeMap(x => this._clientService.clients$().pipe(
+                tap((clients: Client[]) => {
+                    stock.clients = clients;
+                }))
+            ),
+            concatMap(x => {
                 this.fixeStock(stock);
                 return of(stock);
-            })
-        );
+            }));
     }
 
     stock$(): Observable<LivraisonStock> {
@@ -140,37 +150,47 @@ export class LivraisonService extends CommandeService {
             rno: site.rno
         };
         if (!stock
-            || !compareKeyUidRno(stock.keySite, keySite) // site changé
+            || !KeyUidRno.compareKey(stock.keySite, keySite) // site changé
         ) {
             return this._litApiLivraison$(keySite).pipe(
                 concatMap((apiLivraison: ApiLivraison) => {
                     stock = new LivraisonStock(apiLivraison, site.etat);
-                    return this._ajouteCatalogue$(stock);
+                    return this._ajouteCatalogueEtClients$(stock);
                 })
             );
         }
 
         if (stock.etatSite !== site.etat) {
-            return this._ajouteCatalogue$(stock);
+            return this._ajouteCatalogueEtClients$(stock);
         }
 
         return of(stock);
     }
 
-    rechargeStock(): Observable<LivraisonStock> {
-        let stock = this._stockage.litStock();
-        const site = this.navigation.litSiteEnCours();
-        const keySite = {
-            uid: site.uid,
-            rno: site.rno
-        };
-        const catalogue = stock.catalogue;
-        return this._litApiLivraison$(keySite).pipe(
-            map((apiLivraison: ApiLivraison) => {
-                stock = new LivraisonStock(apiLivraison, site.etat);
-                stock.catalogue = catalogue;
-                this.fixeStock(stock);
-                return stock;
+    /**
+     * Recharge les dernières commandes ouvertes des clients avec compte
+     * Retourne un Observable du stock mis à jour
+     */
+    rafraichitStock(site: Site): Observable<LivraisonStock> {
+        const stock = this.litStock();
+
+        const apiResult$ = this.get<ApiLivraison>(ApiController.livraison, ApiAction.livraison.avecCompte, KeyUidRno.créeParams(site));
+        return this.objet<ApiLivraison>(apiResult$).pipe(
+            concatMap((apiLivraison: ApiLivraison) => {
+                if (apiLivraison.commandes.length === 0) {
+                    stock.apiLivraison.date = apiLivraison.date;
+                    this.fixeStock(stock);
+                    return of(stock);
+                }
+                stock.rafraichit(apiLivraison.commandes, apiLivraison.date);
+                return this._clientService.rafraichitStock().pipe(
+                    tap((clients: Client[]) => {
+                        stock.clients = clients;
+                    }),
+                    concatMap(x => {
+                        this.fixeStock(stock);
+                        return of(stock);
+                    }));
             })
         );
     }
@@ -196,13 +216,14 @@ export class LivraisonService extends CommandeService {
      */
     copieDemande(détail: DetailCommande): Observable<ApiResult> {
         return this.post(ApiController.commande, ApiAction.commande.copieDemandeDétail, null,
-            KeyUidRnoNo2CréeParams(détail.créeApiDetailClé()));
+            KeyUidRnoNo2.créeParams(détail.créeApiDetailClé()));
     }
     /** actionSiOk de copieDemande */
     siCopieDemandeOk(détail: DetailCommande) {
         const stock = this.litStock();
         const détailStock = this.détailStocké(stock, détail);
         détailStock.aLivrer = détailStock.demande;
+        détail.aLivrer = détail.demande;
         this.fixeStock(stock);
     }
 
@@ -211,7 +232,7 @@ export class LivraisonService extends CommandeService {
      * @param commande
      */
     copieDemandesCommande(commande: Commande): Observable<ApiResult> {
-        return this.post(ApiController.commande, ApiAction.commande.copieDemandesCommande, null, this.créeParams(commande));
+        return this.post(ApiController.commande, ApiAction.commande.copieDemandesCommande, null, KeyUidRno.créeParams(commande));
     }
     /** actionSiOk de copieDemandesCommande */
     siCopieDemandesCommandeOk(commande: Commande) {
@@ -226,7 +247,7 @@ export class LivraisonService extends CommandeService {
      * @param produit
      */
     copieDemandesProduit(produit: LivraisonProduit): Observable<ApiResult> {
-        return this.post(ApiController.commande, ApiAction.commande.copieDemandesProduit, null, this.créeParams(produit));
+        return this.post(ApiController.commande, ApiAction.commande.copieDemandesProduit, null, KeyUidRnoNo.créeParams(produit));
     }
     /** actionSiOk de copieDemandesProduit */
     siCopieDemandesProduitOk(produit: LivraisonProduit) {
@@ -243,8 +264,8 @@ export class LivraisonService extends CommandeService {
      * @param produit
      */
     copieDemandes(): Observable<ApiResult> {
-        const stock = this.litStock();
-        return this.post(ApiController.commande, ApiAction.commande.copieDemandes, null, this.créeParams(stock.apiLivraison));
+        const site = this.navigation.litSiteEnCours();
+        return this.post(ApiController.commande, ApiAction.commande.copieDemandes, null, KeyUidRno.créeParams(site));
     }
     /** actionSiOk de copieDemandes */
     siCopieDemandesOk() {
@@ -285,7 +306,29 @@ export class LivraisonService extends CommandeService {
 
     // ACTIONS
     commenceLivraison(site: Site): Observable<ApiResult> {
-        return this.post(ApiController.livraison, ApiAction.livraison.commence, null, KeyUidRnoCréeParams(site));
+        const stock = this.litStock();
+
+        return this.post(ApiController.livraison, ApiAction.livraison.commence, null, KeyUidRno.créeParams(site)).pipe(
+            concatMap(apiResult => {
+                if (apiResult.statusCode === ApiResult201Created.code) {
+                    const apiLivraison: ApiLivraison = (apiResult as ApiResult201Created).entity as ApiLivraison;
+                    if (apiLivraison.commandes.length === 0) {
+                        stock.apiLivraison.date = apiLivraison.date;
+                        this.fixeStock(stock);
+                        return of(apiResult);
+                    }
+                    stock.rafraichit(apiLivraison.commandes, apiLivraison.date);
+                    return this._clientService.rafraichitStock().pipe(
+                        map(clients => {
+                            stock.clients = clients;
+                            this.fixeStock(stock);
+                            return apiResult;
+                        })
+                    );
+                }
+                return of(apiResult);
+            })
+        );
     }
     /**
      * fixe le numéro de livraison des commandes sans numéro de livraison
@@ -293,14 +336,14 @@ export class LivraisonService extends CommandeService {
      */
     commenceLivraisonOk(site: Site) {
         const stock = this.litStock();
-        stock.etatSite = IdEtatSite.livraison;
+//        stock.etatSite = IdEtatSite.livraison;
         stock.apiCommandesATraiter.forEach(c => c.livraisonNo = stock.livraisonNo);
         this.fixeStock(stock);
-        this._siteService.changeEtatOk(site, IdEtatSite.livraison);
+//        this._siteService.changeEtatOk(site, IdEtatSite.livraison);
     }
 
     annuleLivraison(site: Site): Observable<ApiResult> {
-        return this.post(ApiController.livraison, ApiAction.livraison.annule, null, KeyUidRnoCréeParams(site));
+        return this.post(ApiController.livraison, ApiAction.livraison.annule, null, KeyUidRno.créeParams(site));
     }
     annuleLivraisonOk(site: Site) {
         const stock = this.litStock();
@@ -315,7 +358,7 @@ export class LivraisonService extends CommandeService {
      * @param site
      */
     termineLivraison(site: Site): Observable<ApiResult> {
-        return this.post(ApiController.livraison, ApiAction.livraison.termine, null, KeyUidRnoCréeParams(site)).pipe(
+        return this.post(ApiController.livraison, ApiAction.livraison.termine, null, KeyUidRno.créeParams(site)).pipe(
             mergeMap((apiResult: ApiResult) => {
                 if (apiResult.ok) {
                     return this.get<ApiLivraison>(ApiController.livraison, ApiAction.livraison.encours, this.créeParams(site)).pipe(
@@ -334,22 +377,7 @@ export class LivraisonService extends CommandeService {
         );
     }
     termineLivraisonOk(site: Site) {
-        this._siteService.changeEtatOk(site, IdEtatSite.livraison);
-    }
-
-    /**
-     * change l'état du site en Livraison
-     */
-    reception(): Observable<ApiResult> {
-        return this._siteService.changeEtat(this.navigation.litSiteEnCours(), IdEtatSite.livraison);
-    }
-    /** actionSiOk de reception */
-    quandReceptionOk() {
-        const stock = this.litStock();
-        stock.etatSite = IdEtatSite.livraison;
-        stock.apiLivraison.commandes.forEach(c => c.livraisonNo = stock.livraisonNo);
-        this.fixeStock(stock);
-        this._siteService.changeEtatOk(this.navigation.litSiteEnCours(), IdEtatSite.livraison);
+//        this._siteService.changeEtatOk(site, IdEtatSite.livraison);
     }
 
     /**
@@ -359,7 +387,7 @@ export class LivraisonService extends CommandeService {
      */
     envoieBon(): Observable<ApiResult> {
         const keySite = this.keySiteEnCours;
-        return this.post(ApiController.livraison, ApiAction.livraison.termine, null, KeyUidRnoCréeParams(keySite));
+        return this.post(ApiController.livraison, ApiAction.livraison.termine, null, KeyUidRno.créeParams(keySite));
     }
     /** actionSiOk de envoieBon */
     siEnvoieBonOk() {
@@ -368,8 +396,7 @@ export class LivraisonService extends CommandeService {
         stock.etatSite = IdEtatSite.ouvert;
         stock.apiLivraison.commandes = stock.apiLivraison.commandes.filter(c => c.details.length > 0);
         stock.apiLivraison.commandes.forEach(c => {
-            const créésParClient = c.details.filter(d => !!d.date);
-            c.date = créésParClient.length === 0 ? null : undefined;
+            c.date = undefined;
         });
         this.fixeStock(stock);
     }

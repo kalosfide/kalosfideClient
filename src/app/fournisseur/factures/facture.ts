@@ -1,6 +1,6 @@
 import { Catalogue } from 'src/app/modeles/catalogue/catalogue';
 import { IKeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/i-key-uid-rno';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 import { ApiFacture } from './facture-api';
 import { FactureCommande } from './facture-commande';
 import { ApiDétailCommandeData } from 'src/app/commandes/api-commande';
@@ -55,7 +55,15 @@ export class Facture implements IKeyUidRno {
 
     produits: FactureProduit[];
 
-    factureNo: number;
+    protected _apiFacture: ApiFacture;
+
+    get apiFacture(): ApiFacture {
+        return this._apiFacture;
+    }
+    get factureNo(): number {
+        return this.apiFacture.factureNo;
+
+    }
 
     static classeDefsEtat(): (string | ((t: Facture) => string) | KfNgClasseDefDe<Facture>)[] {
         return [
@@ -66,14 +74,13 @@ export class Facture implements IKeyUidRno {
         ];
     }
 
-    constructor(apiFacture: ApiFacture, client: Client, catalogue: Catalogue) {
+    constructor(apiFacture: ApiFacture, client: Client, catalogue?: Catalogue) {
         this.client = client;
         this.commandes = apiFacture.commandes.map(apiCommande => {
             apiCommande.uid = apiFacture.uid;
             apiCommande.rno = apiFacture.rno;
             return new FactureCommande(apiCommande, this.client, catalogue);
         });
-        this.factureNo = apiFacture.factureNo;
     }
 
     créeFactureProduits(apiFacture: ApiFacture, catalogue: Catalogue) {

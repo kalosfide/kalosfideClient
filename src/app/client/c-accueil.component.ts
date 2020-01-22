@@ -8,7 +8,7 @@ import { KfComposant } from '../commun/kf-composants/kf-composant/kf-composant';
 import { KfEtiquette } from '../commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
 import { KfTypeDeBaliseHTML } from '../commun/kf-composants/kf-composants-types';
 import { PageBaseComponent } from '../disposition/page-base/page-base.component';
-import { Site } from '../modeles/site';
+import { Site } from '../modeles/site/site';
 import { KfSuperGroupe } from '../commun/kf-composants/kf-groupe/kf-super-groupe';
 
 @Component({

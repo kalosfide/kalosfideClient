@@ -6,6 +6,9 @@ import { CatalogueService } from './catalogue.service';
 import { ApiRequêteService } from 'src/app/services/api-requete.service';
 import { CatalogueUtile } from './catalogue-utile';
 import { CategorieUtile } from './categorie-utile';
+import { Observable } from 'rxjs';
+import { Catalogue } from './catalogue';
+import { map, switchMap } from 'rxjs/operators';
 
 
 @Injectable({
@@ -29,6 +32,21 @@ export class CategorieService extends KeyUidRnoNoService<Categorie> {
 
     get utile(): CategorieUtile {
         return this._utile as CategorieUtile;
+    }
+
+    catégories$(): Observable<Categorie[]> {
+        return this._catalogueService.catalogue$().pipe(
+            map((catalogue: Catalogue) => {
+                catalogue.catégories.forEach(c => c.nbProduits = catalogue.produits.filter(p => p.categorieNo === c.no).length);
+                return catalogue.catégories;
+            })
+        );
+    }
+
+    catégorie$(no: number): Observable<Categorie> {
+        return this._catalogueService.catalogue$().pipe(
+            map((catalogue: Catalogue) => catalogue.catégories.find(c => c.no === no))
+        );
     }
 
     nomPris(nom: string): boolean {

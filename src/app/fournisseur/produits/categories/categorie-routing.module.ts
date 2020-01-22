@@ -8,6 +8,7 @@ import { CategorieEditeComponent } from './categorie-edite.component';
 import { CategorieResolverService } from '../../../modeles/catalogue/categorie-resolver.service';
 import { CategoriesResolverService } from 'src/app/modeles/catalogue/categories-resolver.service';
 import { CategorieSitePasCatalogueGarde } from './categorie-site-pas-catalogue-garde';
+import { CategorieSupprimeComponent } from './categorie-supprime.component';
 
 const routes: Routes = [
     {
@@ -35,6 +36,16 @@ const routes: Routes = [
             {
                 path: CategoriePages.edite.urlSegment + '/:no',
                 component: CategorieEditeComponent,
+                canActivate: [
+                    CategorieSitePasCatalogueGarde,
+                ],
+                resolve: {
+                    valeur: CategorieResolverService,
+                }
+            },
+            {
+                path: CategoriePages.supprime.urlSegment + '/:no',
+                component: CategorieSupprimeComponent,
                 canActivate: [
                     CategorieSitePasCatalogueGarde,
                 ],

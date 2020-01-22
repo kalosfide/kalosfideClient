@@ -1,7 +1,4 @@
-import { Catalogue } from 'src/app/modeles/catalogue/catalogue';
 import { KeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno';
-import { IKeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/i-key-uid-rno';
-import { Client } from 'src/app/modeles/clientele/client';
 import { ApiCommande } from 'src/app/commandes/api-commande';
 
 export class ApiFacture extends KeyUidRno {

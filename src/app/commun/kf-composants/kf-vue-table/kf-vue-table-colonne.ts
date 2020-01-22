@@ -4,7 +4,7 @@ import { KfVueTableCelluleDef } from './kf-vue-table-cellule';
 import { KfVueTable } from './kf-vue-table';
 import { KfNgClasseDef, KfNgClasse, KfNgClasseDefDe } from '../kf-partages/kf-gere-css-classe';
 import { KfTexteDef } from '../kf-partages/kf-texte-def';
-import { KfGèreCss } from '../kf-partages/kf-gere-css';
+import { KfGéreCss } from '../kf-partages/kf-gere-css';
 import { KfGèreCssDe } from '../kf-partages/kf-gere-css-de-t';
 import { IKfVueTableColonneDef } from './i-kf-vue-table-colonne-def';
 import { IKfVueTableBilanDef } from './i-kf-vue-table-bilan-def';
@@ -15,9 +15,9 @@ export class KfVueTableColonne<T> {
     private _vueTable: KfVueTable<T>;
     private _index: number;
     private _colonneDef: IKfVueTableColonneDef<T>;
-    private _gereCssEntete: KfGèreCss;
+    private _gereCssEntete: KfGéreCss;
     private _gereCssItem: KfGèreCssDe<T>;
-    private _gereCssBilan: KfGèreCss;
+    private _gereCssBilan: KfGéreCss;
 
     nePasAfficher: boolean;
 
@@ -73,7 +73,7 @@ export class KfVueTableColonne<T> {
      */
     ajouteClasseEntete(...classeDefs: (KfTexteDef | KfNgClasseDef)[]) {
         if (!this._gereCssEntete) {
-            this._gereCssEntete = new KfGèreCss();
+            this._gereCssEntete = new KfGéreCss();
         }
         this._gereCssEntete.ajouteClasseDefArray(classeDefs);
     }
@@ -108,7 +108,7 @@ export class KfVueTableColonne<T> {
      */
     ajouteClasseBilan(...classeDefs: (KfTexteDef | KfNgClasseDef)[]) {
         if (!this._gereCssBilan) {
-            this._gereCssBilan = new KfGèreCss();
+            this._gereCssBilan = new KfGéreCss();
         }
         this._gereCssBilan.ajouteClasseDefArray(classeDefs);
     }

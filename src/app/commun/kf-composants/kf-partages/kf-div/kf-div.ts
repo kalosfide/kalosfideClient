@@ -1,7 +1,7 @@
-import { KfGèreCss } from '../kf-gere-css';
+import { KfGéreCss } from '../kf-gere-css';
 import { KfComposant } from '../../kf-composant/kf-composant';
 
-export class KfDiv extends KfGèreCss {
+export class KfDiv extends KfGéreCss {
     private _enfant: KfDiv | KfComposant;
     private _avecDiv: boolean;
 

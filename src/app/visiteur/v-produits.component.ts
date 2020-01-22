@@ -22,9 +22,9 @@ export class VProduitsComponent extends ProduitIndexBaseComponent implements OnI
 
     constructor(
         protected route: ActivatedRoute,
-        protected service: ProduitService,
+        protected _service: ProduitService,
     ) {
-        super(route, service);
+        super(route, _service);
     }
 
     créePageTableDef() {

@@ -1,7 +1,7 @@
 import { Menu } from '../disposition/menu/menu';
 import { PageDef } from '../commun/page-def';
 import { ISiteRoutes } from './site-pages';
-import { Site } from '../modeles/site';
+import { Site } from '../modeles/site/site';
 import { NavItemLien } from '../disposition/navbars/nav-item-lien';
 
 export abstract class SiteMenu extends Menu {

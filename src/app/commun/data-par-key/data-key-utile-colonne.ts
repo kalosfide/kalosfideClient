@@ -1,8 +1,8 @@
-import { DataKey } from './data-key';
+import { IDataKey } from './data-key';
 import { DataKeyUtile } from './data-key-utile';
 import { IKfVueTableColonneDef } from 'src/app/commun/kf-composants/kf-vue-table/i-kf-vue-table-colonne-def';
 
-export class DataKeyUtileColonne<T extends DataKey> {
+export class DataKeyUtileColonne<T extends IDataKey> {
     protected _utile: DataKeyUtile<T>;
 
     constructor(utile: DataKeyUtile<T>) {

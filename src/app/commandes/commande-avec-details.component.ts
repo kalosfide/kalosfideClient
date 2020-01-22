@@ -1,12 +1,12 @@
 import { ActivatedRoute } from '@angular/router';
 
-import { Site } from '../modeles/site';
+import { Site } from '../modeles/site/site';
 import { PageTableComponent } from '../disposition/page-table/page-table.component';
 import { Identifiant } from '../securite/identifiant';
 import { RouteurService } from 'src/app/services/routeur.service';
 import { DetailCommande } from './detail-commande';
 import { Commande } from './commande';
-import { Client } from '../modeles/clientele/client';
+import { Client } from '../modeles/client/client';
 import { ICommandeComponent } from './i-commande-component';
 import { CommandeUtile } from './commande-utile';
 import { IKeyUidRnoNo } from '../commun/data-par-key/key-uid-rno-no/i-key-uid-rno-no';
@@ -37,4 +37,5 @@ export abstract class CommandeAvecDetailComponent extends PageTableComponent<Det
     get _utile(): CommandeUtile { return this._service.utile; }
 
     abstract créeDétails(produits: Produit[]): DetailCommande[];
+
 }

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PageDef } from 'src/app/commun/page-def';
 import { ProduitPages, ProduitRoutes } from './produit-pages';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { ProduitALESComponent } from './produit-ales.component';
 import { ProduitService } from 'src/app/modeles/catalogue/produit.service';
 import { IdEtatProduit } from 'src/app/modeles/catalogue/etat-produit';

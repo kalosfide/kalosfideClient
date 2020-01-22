@@ -15,7 +15,7 @@ import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-g
 import { Commande } from 'src/app/commandes/commande';
 import { ICommandeStock } from './i-commande-stock';
 import { CommandeService } from './commande.service';
-import { Client } from '../modeles/clientele/client';
+import { Client } from '../modeles/client/client';
 import { ICommandeComponent } from './i-commande-component';
 import { IKeyUidRno } from '../commun/data-par-key/key-uid-rno/i-key-uid-rno';
 import { IKfVueTableColonneDef } from 'src/app/commun/kf-composants/kf-vue-table/i-kf-vue-table-colonne-def';
@@ -27,7 +27,7 @@ import { EtatTableType } from '../disposition/page-table/etat-table';
 import { IGroupeTableDef, GroupeTable } from '../disposition/page-table/groupe-table';
 import { ModeAction } from './condition-action';
 import { IBoutonDef } from '../disposition/fabrique/fabrique-bouton';
-import { BootstrapNom } from '../disposition/fabrique/fabrique-bootstrap';
+import { BootstrapNom, FabriqueBootstrap } from '../disposition/fabrique/fabrique-bootstrap';
 import { KfComposant } from '../commun/kf-composants/kf-composant/kf-composant';
 import { ModeTable } from '../commun/data-par-key/condition-table';
 import { KfTexte } from '../commun/kf-composants/kf-elements/kf-texte/kf-texte';
@@ -56,6 +56,8 @@ export abstract class CommandeComponent extends CommandeAvecDetailComponent impl
     btSupprime: KfBouton;
 
     modeTableInitial: ModeTable;
+
+    doitRecharger: boolean;
 
     constructor(
         protected route: ActivatedRoute,
@@ -117,11 +119,11 @@ export abstract class CommandeComponent extends CommandeAvecDetailComponent impl
         const apiRequêteAction: ApiRequêteAction = {
             formulaire: this.superGroupe,
             demandeApi: (): Observable<ApiResult> => {
-                return this._service.supprimeOuRefuse$(this._commande.apiCommande);
+                return this._service.supprimeOuRefuse$(this._commande);
             },
             actionSiOk: (): void => {
                 const estLeClient = !this.client;
-                this._service.siSupprimeOuRefuseOk(this._commande.apiCommande, estLeClient);
+                this._service.siSupprimeOuRefuseOk(this._commande, estLeClient);
                 const url = this.client
                     ? this._utile.url.desClients()
                     : this._utile.lien.url.commande();
@@ -156,10 +158,33 @@ export abstract class CommandeComponent extends CommandeAvecDetailComponent impl
             colonnesDef: this.créeColonneDefs(),
             outils: outils,
             superGroupe: (ligne: DetailCommande) => {
-                if (!ligne.superGroupe) {
-                    ligne.créeSuperGroupe();
-                }
-                return ligne.superGroupe;
+                if (!ligne.editeur) {
+                    ligne.créeEditeur(this);
+                    ligne.editeur.créeSuperGroupe();
+                    const apiRequêteAction: ApiRequêteAction = {
+                        formulaire: this.superGroupe,
+                        demandeApi: (): Observable<ApiResult> => {
+                            return this.service.editeDétail(ligne);
+                        },
+                        actionSiOk: (): void => {
+                            this.service.siEditeDétailOk(ligne);
+                        },
+                    };
+                    if (this.service.redirigeSiErreur400) {
+                        apiRequêteAction.traiteErreur400 = this.service.redirigeSiErreur400;
+                    }
+                    if (this.service.actionSiErreur) {
+                        apiRequêteAction.actionSiErreur = () => {
+                            this.service.actionSiErreur(this.superGroupe);
+                        };
+                    }
+                    [ligne.editeur.kfDemande, ligne.editeur.kfALivrer, ligne.editeur.kfAFacturer].forEach(kf => {
+                        if (kf) {
+                            Fabrique.input.prépareSuitValeurEtFocus(kf, apiRequêteAction, this.service);
+                        }
+                    });
+                            }
+                return ligne.editeur.superGroupe;
             },
             id: (t: DetailCommande) => {
                 return this._utile.url.id('' + t.produit.no);
@@ -184,7 +209,7 @@ export abstract class CommandeComponent extends CommandeAvecDetailComponent impl
     }
 
     private rafraichitEtatDernièreCommande() {
-        if (!ApiCommande.terminée(this._commande.apiCommande)) {
+        if (!this._commande.préparé) {
             if (!this.client) {
                 this.etEtatDernièreCommande.fixeTexte(`La commande numéro ${this._commande.no} est en cours de préparation.`);
             }
@@ -193,14 +218,14 @@ export abstract class CommandeComponent extends CommandeAvecDetailComponent impl
             let texte: KfTexte;
             texte = new KfTexte('', `La commande n° ${this._commande.no} du ${Fabrique.texte.date(this._commande.date)}  a été `);
             contenus.push(texte);
-            if (ApiCommande.refusée(this._commande.apiCommande)) {
+            if (this._commande.refusée) {
                 texte = new KfTexte('', 'refusée');
                 texte.ajouteClasseDef('text-danger');
             } else {
                 texte = new KfTexte('', 'traitée');
             }
             contenus.push(texte);
-            texte = new KfTexte('', `dans la livraison n° ${this._commande.apiCommande.livraisonNo}. `);
+            texte = new KfTexte('', `dans la livraison n° ${this._commande.livraisonNo}. `);
             contenus.push(texte);
             this.etEtatDernièreCommande.contenuPhrase.contenus = contenus;
         }
@@ -216,12 +241,18 @@ export abstract class CommandeComponent extends CommandeAvecDetailComponent impl
         this.superGroupe.ajoute(groupe);
     }
 
+    protected ajouteBoutonRafraichit(groupe: KfGroupe) {
+    }
+
     private ajouteGroupeActionImpossible() {
         const groupe = new KfGroupe('actionImpossible');
         let etiquette: KfEtiquette;
         groupe.ajouteClasseDef('alert alert-warning');
         etiquette = new KfEtiquette('', 'Vous ne pouvez pas commander actuellement.');
         groupe.ajoute(etiquette);
+
+        this.ajouteBoutonRafraichit(groupe);
+
         this.etActionImpossible = etiquette;
         this.grActionImpossible = groupe;
         this.superGroupe.ajoute(groupe);
@@ -231,9 +262,7 @@ export abstract class CommandeComponent extends CommandeAvecDetailComponent impl
         const cause: string = !this.client
             ? this._utile.conditionSite.catalogue.valeur
                 ? 'Le site est fermé pendant la mise à jour du catalogue.'
-                : this._utile.conditionSite.livraison.valeur
-                    ? 'Une livraison est en cours de préparation.'
-                    : undefined
+                : undefined
             : this._utile.conditionSite.catalogue.valeur
                 ? 'Une modification du catalogue est en cours.'
                 : undefined;
@@ -351,10 +380,10 @@ export abstract class CommandeComponent extends CommandeAvecDetailComponent impl
     get commandeOuverteQuandExiste(): boolean {
         if (!this.client) {
             // l'utilisateur est le client
-            return ApiCommande.ouverte(this._commande.apiCommande);
+            return this._commande.ouverte;
         } else {
             // l'utilisateur est le fournisseur
-            return !ApiCommande.terminée(this._commande.apiCommande);
+            return !this._commande.préparé;
         }
     }
 
@@ -365,20 +394,7 @@ export abstract class CommandeComponent extends CommandeAvecDetailComponent impl
             return this.site.etat === IdEtatSite.ouvert;
         } else {
             // l'utilisateur est le fournisseur
-            return this.site.etat === IdEtatSite.livraison || (this.site.etat === IdEtatSite.ouvert && !this.client.avecCompte);
-        }
-    }
-
-    get commandeOuverte(): boolean {
-        if (!this._commande) {
-            return false; // la dernière commande n'existe pas
-        }
-        if (!this.client) {
-            // l'utilisateur est le client
-            return ApiCommande.ouverte(this._commande.apiCommande);
-        } else {
-            // l'utilisateur est le fournisseur
-            return !ApiCommande.terminée(this._commande.apiCommande);
+            return this.site.etat === IdEtatSite.ouvert && !this.client.avecCompte;
         }
     }
 
@@ -386,7 +402,12 @@ export abstract class CommandeComponent extends CommandeAvecDetailComponent impl
         return this.peutAgir && (this.commandeNExistePas || !this.commandeOuverteQuandExiste);
     }
 
-    private rafraichit() {
+    get commandeCopiable(): boolean {
+        return this.commandeExiste && !this._commande.refusée && this._commande.détails.length > 0;
+    }
+
+    protected rafraichit() {
+        this.site = this.service.navigation.litSiteEnCours();
         this.rafraichitActionImpossible();
         const mode = this.service.modeAction;
 
@@ -401,7 +422,7 @@ export abstract class CommandeComponent extends CommandeAvecDetailComponent impl
 
         if (mode === ModeAction.doitCréer) {
             this.grCréer.groupe.nePasAfficher = false;
-            if (this.commandeExiste) {
+            if (this.commandeCopiable) {
                 this.etCopier.visible = true;
                 this.btCopier.visible = true;
                 const dateCatalogue = new Date(this.commandeStock.catalogue.date);
@@ -445,9 +466,11 @@ export abstract class CommandeComponent extends CommandeAvecDetailComponent impl
     abstract créeUnDétail(apiCommande: ApiCommande, produit: Produit, client: Client): DetailCommande;
 
     créeDétails(produits: Produit[]): DetailCommande[] {
-        const apiCommande = this._commande.apiCommande;
-        const détails = apiCommande.details
-            .map(d => this.créeUnDétail(apiCommande, produits.find(p => p.no === d.no), this.client));
+        const détails: DetailCommande[] = [];
+        this._commande.apiCommande.details.forEach(d => {
+            const produit = produits.find(p => p.no === d.no);
+                détails.push(this.créeUnDétail(this._commande.apiCommande, produit, this.client));
+        });
         return détails;
     }
 

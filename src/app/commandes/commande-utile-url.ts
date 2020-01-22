@@ -2,16 +2,16 @@ import { Commande } from 'src/app/commandes/commande';
 import { PageDef } from 'src/app/commun/page-def';
 import { IUrlDef } from 'src/app/disposition/fabrique/fabrique-url';
 import { DetailCommande } from 'src/app/commandes/detail-commande';
-import { texteKeyUidRno } from 'src/app/commun/data-par-key/data-key';
 import { ISiteRoutes, SiteRoutes } from 'src/app/site/site-pages';
 import { LivraisonRoutes, LivraisonPages } from '../fournisseur/livraisons/livraison-pages';
 import { LivraisonProduit } from '../fournisseur/livraisons/livraison-produit';
-import { CommandeRoutes } from '../client/commandes/commander-pages';
+import { CommanderRoutes } from '../client/commandes/commander-pages';
 import { CommandePages } from './commande-pages';
 import { CommandeUtile } from './commande-utile';
-import { Client } from '../modeles/clientele/client';
+import { Client } from '../modeles/client/client';
 import { Produit } from '../modeles/catalogue/produit';
 import { DataUtileUrl } from '../commun/data-par-key/data-utile-url';
+import { KeyUidRno } from '../commun/data-par-key/key-uid-rno/key-uid-rno';
 
 export class CommandeUtileUrl extends DataUtileUrl {
     protected get _commandeUtile(): CommandeUtile { return this._parent as CommandeUtile; }
@@ -28,11 +28,11 @@ export class CommandeUtileUrl extends DataUtileUrl {
     initialiseRouteDétail(parent: { client?: Client, produit?: Produit | LivraisonProduit }) {
         if (parent.produit) {
             this._routesDétails = LivraisonRoutes.produitRoutes(parent.produit.no);
-            this._texteKey = (détail: DetailCommande) => détail ? texteKeyUidRno(détail.client) : undefined;
+            this._texteKey = (détail: DetailCommande) => détail ? KeyUidRno.texteDeKey(détail.client) : undefined;
         } else {
             this._texteKey = (détail: DetailCommande) => détail ? '' + détail.produit.no : undefined;
             this._routesDétails = !parent.client
-                ? CommandeRoutes
+                ? CommanderRoutes
                 : LivraisonRoutes.commandeRoutes(parent.client);
         }
     }
@@ -42,14 +42,14 @@ export class CommandeUtileUrl extends DataUtileUrl {
     }
 
     private _urlDefCommande(pageDef: PageDef, commande: Commande): IUrlDef {
-        const urlDef: IUrlDef = this.__urlDef(LivraisonRoutes, pageDef, texteKeyUidRno(commande));
+        const urlDef: IUrlDef = this.__urlDef(LivraisonRoutes, pageDef, KeyUidRno.texteDeKey(commande));
         return urlDef;
     }
 
     private _urlDefProduit(livraisonProduit: LivraisonProduit, détail?: DetailCommande): IUrlDef {
         const keys: string[] = ['' + livraisonProduit.no];
         if (détail) {
-            keys.push(texteKeyUidRno(détail.client));
+            keys.push(KeyUidRno.texteDeKey(détail.client));
         }
         const urlDef: IUrlDef = this._urlDefLivraison(LivraisonPages.produit);
         urlDef.keys = keys;
@@ -76,7 +76,7 @@ export class CommandeUtileUrl extends DataUtileUrl {
     retourDUnClient(commande: Commande): IUrlDef {
         const urlDef = this._urlDefLivraison(LivraisonPages.commandes);
         if (commande) {
-            urlDef.fragment = this.id(texteKeyUidRno(commande.client));
+            urlDef.fragment = this.id(KeyUidRno.texteDeKey(commande.client));
         }
         return urlDef;
     }
@@ -91,7 +91,7 @@ export class CommandeUtileUrl extends DataUtileUrl {
         return this._urlDefCommande(LivraisonPages.commande, commande);
     }
     supprimeCommande(commande: Commande): IUrlDef {
-        const urlDef = this._urlDefCommande(LivraisonPages.efface, commande);
+        const urlDef = this._urlDefCommande(LivraisonPages.annule, commande);
         return urlDef;
     }
 

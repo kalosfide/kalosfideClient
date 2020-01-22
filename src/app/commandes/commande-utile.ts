@@ -4,16 +4,47 @@ import { CommandeUtileLien } from './commande-utile-lien';
 import { CommandeUtileBouton } from './commande-utile-bouton';
 import { CommandeUtileOutils } from './commande-utile-outils';
 import { CommandeUtileColonne } from './commande-utile-colonne';
-import { CommandeService } from './commande.service';
 import { ConditionAction, ModeAction } from './condition-action';
 import { KfInitialObservable } from '../commun/kf-composants/kf-partages/kf-initial-observable';
 import { DataKeyUtile } from '../commun/data-par-key/data-key-utile';
 import { ApiCommande } from './api-commande';
 import { DataKeyService } from '../commun/data-par-key/data-key.service';
+import { Conditions } from '../commun/condition/condition';
+
+class ConditionsComposées extends Conditions<string> {
+    constructor(utile: CommandeUtile) {
+        super();
+        this.ajoute('catalogueOuPasDeClients', KfInitialObservable.ou(utile.conditionSite.catalogue,
+            KfInitialObservable.nouveau(utile.site.nbClients === 0)));
+        this.ajoute('editeOuAperçu', KfInitialObservable.ou(utile.conditionAction.edite, utile.conditionAction.aperçu));
+    }
+
+    /**
+     * vrai si le site est dans l'état Catalogue ou n'a pas de client
+     */
+    get catalogueOuPasDeClients(): KfInitialObservable<boolean> {
+        return this.conditionIO('catalogueOuPasDeClients');
+    }
+
+    /**
+     * vrai si le site n'est pas dans l'état Catalogue et a des clients
+     */
+    get non_catalogueOuPasDeClients(): KfInitialObservable<boolean> {
+        return this.pas_conditionIO('catalogueOuPasDeClients');
+    }
+
+    /**
+     * vrai si le site n'est pas dans l'état Livraison ou si l'action est Edite ou Aperçu
+     */
+    get editeOuAperçu(): KfInitialObservable<boolean> {
+        return this.conditionIO('editeOuAperçu');
+    }
+}
 
 export class CommandeUtile extends DataKeyUtile<ApiCommande> {
 
     private _conditionAction: ConditionAction;
+    private _condition: ConditionsComposées;
 
     constructor(service: DataKeyService<ApiCommande>) {
         super(service);
@@ -43,7 +74,7 @@ export class CommandeUtile extends DataKeyUtile<ApiCommande> {
     }
 
     inactivité(ligne: DetailCommande): boolean {
-        return ligne.crééParLeClient && !this.conditionSite.livraison.valeur;
+        return ligne.commandeCrééParLeClient && !ligne.apiCommande.livraisonNo;
     }
 
     retourneALaCommande() {
@@ -54,10 +85,15 @@ export class CommandeUtile extends DataKeyUtile<ApiCommande> {
         this._conditionAction = new ConditionAction(modeActioIO);
     }
 
-    créeAutresConditions() {
-    }
-
     get conditionAction(): ConditionAction {
         return this._conditionAction;
+    }
+
+    créeAutresConditions() {
+        this._condition = new ConditionsComposées(this);
+    }
+
+    get condition(): ConditionsComposées {
+        return this._condition;
     }
 }

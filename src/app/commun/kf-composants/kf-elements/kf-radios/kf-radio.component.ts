@@ -9,8 +9,8 @@ import { KfRadio } from './kf-radio';
     styleUrls: ['../../kf-composants.scss']
 })
 export class KfRadioComponent extends KfComposantComponent implements OnInit, AfterViewInit {
-    @ViewChild('inputElement') inputElement: ElementRef;
-    @ViewChild('labelElement') labelElement: ElementRef;
+    @ViewChild('inputElement', {static: false}) inputElement: ElementRef;
+    @ViewChild('labelElement', {static: false}) labelElement: ElementRef;
 
     constructor() {
         super();

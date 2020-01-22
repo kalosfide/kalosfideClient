@@ -28,9 +28,9 @@ export class CProduitsComponent extends ProduitIndexBaseComponent implements OnI
 
     constructor(
         protected route: ActivatedRoute,
-        protected service: ProduitService,
+        protected _service: ProduitService,
     ) {
-        super(route, service);
+        super(route, _service);
     }
 
     créeBarreTitre = (): BarreTitre => {
@@ -65,7 +65,7 @@ export class CProduitsComponent extends ProduitIndexBaseComponent implements OnI
         this.pageTableDef = this.créePageTableDefBase();
         this.pageTableDef.avantChargeData = () => this.avantChargeData();
         this.pageTableDef.aprèsChargeData = () => {
-            this.barre.site = this.service.navigation.litSiteEnCours();
+            this.barre.site = this._service.navigation.litSiteEnCours();
             this.barre.rafraichit();
         };
     }

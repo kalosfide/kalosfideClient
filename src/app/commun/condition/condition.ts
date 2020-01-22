@@ -5,6 +5,8 @@ export class Conditions<T extends string | number> {
     private _condition: KfInitialObservable<boolean>[];
     private _pas_condition: KfInitialObservable<boolean>[];
 
+    nom: string;
+
     /**
      * index de la valeur actuelle
      */
@@ -29,9 +31,14 @@ export class Conditions<T extends string | number> {
      */
     observe(valeurs: T[], observéIO: KfInitialObservable<T>) {
         this._valeurs = valeurs;
+        const nom = this.nom ? this.nom + ' ' : '';
         valeurs.forEach(v => {
-            this._condition.push(KfInitialObservable.nouveau(v === observéIO.valeur));
-            this._pas_condition.push(KfInitialObservable.nouveau(v !== observéIO.valeur));
+            let o = KfInitialObservable.nouveau(v === observéIO.valeur);
+            o.nom = nom + `cond_${v.toString()}`;
+            this._condition.push(o);
+            o = KfInitialObservable.nouveau(v !== observéIO.valeur);
+            o.nom = nom + `pas_cond_${v.toString()}`;
+            this._pas_condition.push(o);
         });
         this._index = this._valeurs.findIndex(v => v === observéIO.valeur);
 

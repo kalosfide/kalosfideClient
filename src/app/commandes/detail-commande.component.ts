@@ -1,7 +1,7 @@
 import { OnDestroy, OnInit, AfterViewInit } from '@angular/core';
 
 import { ActivatedRoute, Data } from '@angular/router';
-import { Site } from '../modeles/site';
+import { Site } from '../modeles/site/site';
 import { Identifiant } from '../securite/identifiant';
 import { Observable } from 'rxjs';
 import { ApiResult } from '../commun/api-results/api-result';
@@ -13,7 +13,7 @@ import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-g
 import { DetailCommande } from './detail-commande';
 import { CommandeService } from './commande.service';
 import { ICommandeComponent } from './i-commande-component';
-import { Client } from '../modeles/clientele/client';
+import { Client } from '../modeles/client/client';
 import { CommandeUtile } from './commande-utile';
 import { IKeyUidRnoNo } from '../commun/data-par-key/key-uid-rno-no/i-key-uid-rno-no';
 import { PageBaseComponent } from '../disposition/page-base/page-base.component';
@@ -21,8 +21,9 @@ import { ApiRequêteAction } from '../services/api-requete-action';
 import { AfficheResultat } from '../disposition/affiche-resultat/affiche-resultat';
 import { RouteurService } from '../services/routeur.service';
 import { KfComposant } from '../commun/kf-composants/kf-composant/kf-composant';
-import { FabriqueBootstrap } from '../disposition/fabrique/fabrique-bootstrap';
+import { FabriqueBootstrap, BootstrapType } from '../disposition/fabrique/fabrique-bootstrap';
 import { GroupeBoutonsMessages } from '../disposition/fabrique/fabrique-formulaire';
+import { DATE_NULLE } from '../modeles/date-nulle';
 
 export abstract class DetailCommandeComponent extends PageBaseComponent implements OnInit, OnDestroy, AfterViewInit, ICommandeComponent {
 
@@ -106,43 +107,73 @@ export abstract class DetailCommandeComponent extends PageBaseComponent implemen
     }
 
     private créeGroupeSupprime(afficheResultat: AfficheResultat): KfGroupe {
+
+        let peutSupprimer: boolean;
+        let texteDemande: string;
+        let bootstrapType: BootstrapType;
+        let textes: string[];
+        let texte: string;
+        let demandeApi: () => Observable<ApiResult>;
+        let actionSiOk: () => void;
+        if (!this.client) {
+            // l'utilisateur est le client
+            peutSupprimer = this._détail.apiCommande.date === undefined;
+            texteDemande = this.produit.nom;
+        } else {
+            // l'utilisateur est le fournisseur
+            peutSupprimer = this._détail.apiCommande.date === DATE_NULLE;
+            texteDemande = this.produit.nom + ' par ' + this.client.nom;
+        }
+
+        if (peutSupprimer) {
+            bootstrapType = 'danger';
+            textes = [
+                `La demande de ${texteDemande} va être supprimée.`,
+                'Cette action ne pourra pas être annulée.'
+            ];
+            texte = 'Supprimer';
+            demandeApi = () => this.service.supprimeDétail(this.détail);
+            actionSiOk = () => this.service.siSupprimeDétailOk(this.détail);
+        } else {
+            bootstrapType = 'warning';
+            textes = [
+                `La demande de ${texteDemande} va être refusée et exclue de la livraison.`,
+                'Vous pourrez annuler cette action en fixant à nouveau la quantité à livrer.'
+            ];
+            texte = 'Refuser';
+            demandeApi = () => {
+                this.détail.aLivrer = 0;
+                return this.service.editeDétail(this.détail);
+            };
+            actionSiOk = () => this.service.siEditeDétailOk(this.détail);
+        }
         const groupe = new KfGroupe('');
+        FabriqueBootstrap.ajouteClasse(groupe, 'alert', bootstrapType);
         const etiquettes: KfComposant[] = [];
         Fabrique.ajouteEtiquetteP(etiquettes, 'text-center');
         Fabrique.ajouteEtiquetteP(etiquettes, 'text-center');
         etiquettes.forEach(e => groupe.ajoute(e));
 
-        const apiRequêteAction = this.apiRequêteActionSupprime(afficheResultat);
+        const apiRequêteAction: ApiRequêteAction = {
+            formulaire: this.superGroupe,
+            demandeApi: demandeApi,
+            actionSiOk: (): void => {
+                actionSiOk();
+                this.routeur.navigueUrlDef(this.utile.lien.url.commande());
+            },
+            afficheResultat: afficheResultat,
+        };
+        if (this.service.redirigeSiErreur400) {
+            apiRequêteAction.traiteErreur400 = this.service.redirigeSiErreur400;
+        }
         const boutonAnnuler = Fabrique.lien.boutonAnnuler(this.utile.url.retourDétail(this._détail));
         const btSupprime = Fabrique.bouton.boutonAction('supprime', 'Supprimer', apiRequêteAction, this.service);
         const btn_msg = new GroupeBoutonsMessages('supprimme');
         btn_msg.créeBoutons([boutonAnnuler, btSupprime]);
         groupe.ajoute(btn_msg.groupe);
-
-        let peutSupprimer: boolean;
-        let texteDemande: string;
-        if (!this.client) {
-            // l'utilisateur est le client
-            peutSupprimer = true;
-            texteDemande = this.produit.nom;
-        } else {
-            // l'utilisateur est le fournisseur
-            peutSupprimer = !this._détail.crééParLeClient;
-            texteDemande = this.produit.nom + ' par ' + this.client.nom;
-        }
-
-        if (peutSupprimer) {
-            FabriqueBootstrap.ajouteClasse(groupe, 'alert', 'danger');
             etiquettes[0].fixeTexte(`La demande de ${texteDemande} va être supprimée.`);
             etiquettes[1].fixeTexte('Cette action ne pourra pas être annulée.');
             btSupprime.fixeTexte('Supprimer');
-        } else {
-            FabriqueBootstrap.ajouteClasse(groupe, 'alert', 'warning');
-            groupe.ajouteClasseDef('alert alert-primary');
-            etiquettes[0].fixeTexte(`La demande de ${texteDemande} va être refusée et exclue de la livraison.`);
-            etiquettes[1].fixeTexte('Vous pourrez annuler cette action en fixant à nouveau la quantité à livrer.');
-            btSupprime.fixeTexte('Refuser');
-        }
 
         return groupe;
     }
@@ -154,7 +185,9 @@ export abstract class DetailCommandeComponent extends PageBaseComponent implemen
         this.superGroupe.neSoumetPasSiPristine = true;
         this.superGroupe.avecInvalidFeedback = true;
 
-        const edition = this._détail.créeEdition(this.suppression ? '-' : this.ajout ? '+' : undefined);
+        this._détail.créeEditeur(this);
+        this._détail.editeur.créeEdition(this.pageDef);
+        const edition = this._détail.editeur.edition;
         this.superGroupe.ajoute(edition);
 
         this._afficheRésultat = Fabrique.formulaire.ajouteResultat(edition);

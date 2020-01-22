@@ -1,13 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
-import { Site } from '../../modeles/site';
+import { Site } from '../../modeles/site/site';
 import { LivraisonService } from './livraison.service';
 import { IdEtatSite } from 'src/app/modeles/etat-site';
 import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
 import { PageDef } from 'src/app/commun/page-def';
 import { FournisseurPages } from '../fournisseur-pages';
-import { SiteService } from 'src/app/modeles/site.service';
+import { SiteService } from 'src/app/modeles/site/site.service';
 import { KfEtiquette } from 'src/app/commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
 import { KfTypeDeBaliseHTML } from 'src/app/commun/kf-composants/kf-composants-types';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
@@ -289,6 +289,7 @@ export class LivraisonComponent extends PageBaseComponent implements OnInit, OnD
                 defVérifier = this.boutonDefs.vérifier;
                 inactifVérifier = true;
                 break;
+            /*
             case IdEtatSite.livraison:
                 etiquette = Fabrique.ajouteEtiquetteP(infos);
                 Fabrique.ajouteTexte(etiquette,
@@ -323,6 +324,7 @@ export class LivraisonComponent extends PageBaseComponent implements OnInit, OnD
                     }
                 }
                 break;
+            */
             case IdEtatSite.ouvert:
                 titre = this.utile.texte.titre_Commencer;
                 defCommencer = this.créeBoutonDefCommencer();

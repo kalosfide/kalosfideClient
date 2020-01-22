@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { Subject, Observable } from 'rxjs';
 import { JwtIdentifiant, Identifiant } from './identifiant';
-import { Site } from '../modeles/site';
+import { Site } from '../modeles/site/site';
 import { Stockage } from '../services/stockage/stockage';
 import { StockageService } from '../services/stockage/stockage.service';
 

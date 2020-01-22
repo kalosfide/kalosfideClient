@@ -1,5 +1,5 @@
 import { LivraisonProduit } from './livraison-produit';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 import { LivraisonCommandes } from './livraison-commandes';
 import { LivraisonStock } from './livraison-stock';
 import { IDemandeCopiable } from 'src/app/commandes/i-demande-copiable';
@@ -11,8 +11,8 @@ export class LivraisonProduits extends LivraisonCommandes implements IDemandeCop
 
     produits: LivraisonProduit[];
 
-    constructor(stock: LivraisonStock, clients: Client[]) {
-        super(stock, clients);
+    constructor(stock: LivraisonStock) {
+        super(stock);
         const nosProduits: number[] = [];
         stock.apiCommandesATraiter.forEach(c => {
             c.details.forEach(d => {
@@ -22,7 +22,7 @@ export class LivraisonProduits extends LivraisonCommandes implements IDemandeCop
             });
         });
         const produits = nosProduits.map(no => stock.catalogue.produits.find(p => p.no === no));
-        this.produits = produits.map(p => new LivraisonProduit(stock, clients, p));
+        this.produits = produits.map(p => new LivraisonProduit(stock, p));
     }
 
     get produitsParEtat(): {
@@ -34,7 +34,7 @@ export class LivraisonProduits extends LivraisonCommandes implements IDemandeCop
             pret: []
         };
         this.produits.forEach(p => {
-            if (p.prêt) {
+            if (p.préparé) {
                 produitsParEtat.pret.push(p);
             } else {
                 produitsParEtat.aPreparer.push(p);
@@ -43,11 +43,11 @@ export class LivraisonProduits extends LivraisonCommandes implements IDemandeCop
         return produitsParEtat;
     }
 
-    get demandeCopiable(): boolean {
-        return this.produits.findIndex(p => p.demandeCopiable) !== -1;
+    get àCopier(): LivraisonProduit[] {
+        return this.produits.filter(p => p.àCopier.length > 0);
     }
-    get prêt(): boolean {
-        return this.produits.findIndex(p => !p.prêt) === -1;
+    get préparé(): boolean {
+        return this.produits.findIndex(p => !p.préparé) === -1;
     }
     copieDemande() {
         this.produits.forEach(p => p.copieDemande());

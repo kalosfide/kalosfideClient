@@ -14,7 +14,7 @@ import { KfComposantComponent } from '../kf-composant/kf-composant.component';
     styleUrls: ['../kf-composants.scss']
 })
 export class KfMenuComponent extends KfComposantComponent implements OnInit, AfterViewInit {
-    @ViewChild('divElement') divElementRef: ElementRef;
+    @ViewChild('divElement', {static: false}) divElementRef: ElementRef;
 
     constructor() {
         super();

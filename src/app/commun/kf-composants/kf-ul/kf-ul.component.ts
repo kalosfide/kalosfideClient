@@ -9,7 +9,7 @@ import { KfNgClasse } from '../kf-partages/kf-gere-css-classe';
 })
 
 export class KfUlComponent extends KfComposantComponent implements OnInit, AfterViewInit {
-    @ViewChild('htmlElement') domElementRef: ElementRef;
+    @ViewChild('htmlElement', {static: false}) domElementRef: ElementRef;
 
     ngOnInit() {
     }

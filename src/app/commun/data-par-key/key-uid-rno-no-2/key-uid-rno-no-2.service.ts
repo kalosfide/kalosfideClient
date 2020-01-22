@@ -1,14 +1,14 @@
 
 
 import { DataKeyService } from '../data-key.service';
-import { DataKey } from '../data-key';
+import { IDataKey } from '../data-key';
 import { IKeyUidRnoNo2 } from './i-key-uid-rno-no-2';
 import { KeyUidRnoNo2 } from './key-uid-rno-no-2';
 import { KeyUidRnoNo } from '../key-uid-rno-no/key-uid-rno-no';
 
 export abstract class KeyUidRnoNo2Service<T extends IKeyUidRnoNo2> extends DataKeyService<T> {
 
-    get keyDeAjoute(): DataKey {
+    get keyDeAjoute(): IDataKey {
         const key = new KeyUidRnoNo2();
         const enCours = this.keyIdentifiant;
         key.uid = enCours.uid;
@@ -21,7 +21,7 @@ export abstract class KeyUidRnoNo2Service<T extends IKeyUidRnoNo2> extends DataK
         envoyé.no = reçu.no;
     }
 
-    créeParams(objet: DataKey): { [param: string]: string } {
+    créeParams(objet: IDataKey): { [param: string]: string } {
         const key = objet as IKeyUidRnoNo2;
         return key.no ? {
             'uid': key.uid,
@@ -35,7 +35,7 @@ export abstract class KeyUidRnoNo2Service<T extends IKeyUidRnoNo2> extends DataK
         };
     }
 
-    créeParams2(objet: DataKey): { [param: string]: string } {
+    créeParams2(objet: IDataKey): { [param: string]: string } {
         const key = objet as IKeyUidRnoNo2;
         return {
             'uid': key.uid2,

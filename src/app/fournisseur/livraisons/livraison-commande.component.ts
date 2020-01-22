@@ -7,7 +7,7 @@ import { LivraisonUtile } from './livraison-utile';
 import { ILivraisonComponent } from './i-livraison-component';
 import { ApiCommande } from 'src/app/commandes/api-commande';
 import { Produit } from 'src/app/modeles/catalogue/produit';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 import { DetailCommande } from 'src/app/commandes/detail-commande';
 import { IdEtatSite } from 'src/app/modeles/etat-site';
 import { IKfVueTableColonneDef } from 'src/app/commun/kf-composants/kf-vue-table/i-kf-vue-table-colonne-def';
@@ -64,7 +64,6 @@ export abstract class LivraisonCommandeComponent extends CommandeComponent imple
     créeUnDétail(apiCommande: ApiCommande, produit: Produit, client: Client): DetailCommande {
         return new DetailCommande(apiCommande, produit, {
             client: client,
-            étatSiteLivraison: this.site.etat === IdEtatSite.livraison,
             estDansListeParProduit: false,
         });
     }

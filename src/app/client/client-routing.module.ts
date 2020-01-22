@@ -40,6 +40,10 @@ const routes: Routes = [
         loadChildren: () => import('./commandes/commander.module').then(mod => mod.CommanderModule),
     },
     {
+        path: ClientPages.documents.urlSegment,
+        loadChildren: () => import('./documents/c-document.module').then(mod => mod.CDocumentModule),
+    },
+    {
         path: AppPages.compte.urlSegment,
         loadChildren: () => import('../compte/compte.module').then(mod => mod.CompteModule)
     },

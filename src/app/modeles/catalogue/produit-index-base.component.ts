@@ -3,7 +3,6 @@ import { OnDestroy } from '@angular/core';
 import { ActivatedRoute, Data } from '@angular/router';
 import { ProduitService } from 'src/app/modeles/catalogue/produit.service';
 import { Produit } from 'src/app/modeles/catalogue/produit';
-import { Site } from '../site';
 import { KeyUidRnoNoIndexComponent } from '../../commun/data-par-key/key-uid-rno-no/key-uid-rno-no-index.component';
 import { Categorie } from './categorie';
 import { IdEtatProduit, EtatsProduits, EtatProduit } from './etat-produit';
@@ -21,6 +20,7 @@ import { BootstrapType } from 'src/app/disposition/fabrique/fabrique-bootstrap';
 import { IUrlDef } from 'src/app/disposition/fabrique/fabrique-url';
 import { IGroupeTableDef } from 'src/app/disposition/page-table/groupe-table';
 import { EtatTableType } from 'src/app/disposition/page-table/etat-table';
+import { Site } from '../site/site';
 
 
 export abstract class ProduitIndexBaseComponent extends KeyUidRnoNoIndexComponent<Produit> implements OnDestroy {
@@ -33,24 +33,28 @@ export abstract class ProduitIndexBaseComponent extends KeyUidRnoNoIndexComponen
 
     constructor(
         protected route: ActivatedRoute,
-        protected service: ProduitService,
+        protected _service: ProduitService,
     ) {
-        super(route, service);
+        super(route, _service);
+    }
+
+    get service(): ProduitService {
+        return this._service;
     }
 
     protected _créeVueTableDef(): IKfVueTableDef<Produit> {
         let colonnesDef: IKfVueTableColonneDef<Produit>[];
         const outils = Fabrique.vueTable.outils<Produit>(this.nom);
-        outils.ajoute(this.service.utile.outils.produit());
-        outils.ajoute(this.service.utile.outils.catégorie());
+        outils.ajoute(this._service.utile.outils.produit());
+        outils.ajoute(this._service.utile.outils.catégorie());
         if (this._identifiantEstFournisseur) {
-            colonnesDef = this.service.utile.colonne.colonnesFournisseur();
-            outils.ajoute(this.service.utile.outils.état());
-            const outilAjoute = this.service.utile.outils.ajoute();
-            outilAjoute.bbtnGroup.nePasAfficherSi(this.service.utile.conditionSite.pas_catalogue);
+            colonnesDef = this._service.utile.colonne.colonnesFournisseur();
+            outils.ajoute(this._service.utile.outils.état());
+            const outilAjoute = this._service.utile.outils.ajoute();
+            outilAjoute.bbtnGroup.nePasAfficherSi(this._service.utile.conditionSite.pas_catalogue);
             outils.ajoute(outilAjoute);
         } else {
-            colonnesDef = this.service.utile.colonne.colonnes();
+            colonnesDef = this._service.utile.colonne.colonnes();
         }
         outils.texteRienPasseFiltres = `Il n\'a pas de produits correspondant aux critères de recherche.`;
 
@@ -87,10 +91,10 @@ export abstract class ProduitIndexBaseComponent extends KeyUidRnoNoIndexComponen
     }
 
     protected chargeGroupe() {
-        let filtre = this.vueTable.outils.outil(this.service.utile.outils.nomOutil.catégorie);
+        let filtre = this.vueTable.outils.outil(this._service.utile.outils.nomOutil.catégorie);
         const listeCatégories: KfListeDeroulanteNombre = filtre.composant as KfListeDeroulanteNombre;
         this.categories.forEach((c: Categorie) => listeCatégories.créeEtAjouteOption(c.nom, c.no));
-        filtre = this.vueTable.outils.outil(this.service.utile.outils.nomOutil.état);
+        filtre = this.vueTable.outils.outil(this._service.utile.outils.nomOutil.état);
         if (filtre) {
             const listeEtats: KfListeDeroulanteTexte = filtre.composant as KfListeDeroulanteTexte;
             EtatsProduits.etats.forEach((e: EtatProduit) => listeEtats.créeEtAjouteOption(e.texte, e.valeur));

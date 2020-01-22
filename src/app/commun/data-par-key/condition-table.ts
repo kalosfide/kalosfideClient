@@ -13,6 +13,7 @@ export class ConditionTable extends Conditions<ModeTable> {
     constructor(modeTableIo: KfInitialObservable<ModeTable>) {
         super();
         this.observe([ModeTable.aperçu, ModeTable.bilan, ModeTable.edite], modeTableIo);
+        this.nom = 'table';
     }
 
     get edition(): KfInitialObservable<boolean> {

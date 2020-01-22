@@ -3,7 +3,7 @@ import { KeyUidRnoNoIndexComponent } from 'src/app/commun/data-par-key/key-uid-r
 import { Categorie } from 'src/app/modeles/catalogue/categorie';
 import { PageDef } from 'src/app/commun/page-def';
 import { CategoriePages, CategorieRoutes } from './categorie-pages';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { Identifiant } from 'src/app/securite/identifiant';
 import { ActivatedRoute } from '@angular/router';
 import { CategorieService } from 'src/app/modeles/catalogue/categorie.service';
@@ -44,9 +44,9 @@ export class CategorieIndexComponent extends KeyUidRnoNoIndexComponent<Categorie
 
     constructor(
         protected route: ActivatedRoute,
-        protected service: CategorieService,
+        protected _service: CategorieService,
     ) {
-        super(route, service);
+        super(route, _service);
     }
 
     protected get barreTitreDef(): IBarreDef {
@@ -78,14 +78,14 @@ export class CategorieIndexComponent extends KeyUidRnoNoIndexComponent<Categorie
 
     créeGroupeTableDef(): IGroupeTableDef<Categorie> {
         const outils = Fabrique.vueTable.outils<Categorie>(this.nom);
-        outils.ajoute(this.service.utile.outils.catégorie());
-        const outilAjoute = this.service.utile.outils.ajoute();
-        outilAjoute.bbtnGroup.afficherSi(this.service.utile.conditionTable.edition);
+        outils.ajoute(this._service.utile.outils.catégorie());
+        const outilAjoute = this._service.utile.outils.ajoute();
+        outilAjoute.bbtnGroup.afficherSi(this._service.utile.conditionTable.edition);
         outils.ajoute(outilAjoute);
 
         const vueTableDef: IKfVueTableDef<Categorie> = {
             outils: outils,
-            colonnesDef: this.service.utile.colonne.colonnes(),
+            colonnesDef: this._service.utile.colonne.colonnes(),
             id: (catégorie: Categorie) => '' + catégorie.no,
         };
 
@@ -100,12 +100,12 @@ export class CategorieIndexComponent extends KeyUidRnoNoIndexComponent<Categorie
     }
 
     rafraichit() {
-        this.service.changeModeTable(this.calculeModeTable());
+        this._service.changeModeTable(this.calculeModeTable());
     }
 
     aprèsChargeData() {
         this.subscriptions.push(
-            this.service.navigation.siteObs().subscribe(() => this.rafraichit())
+            this._service.navigation.siteObs().subscribe(() => this.rafraichit())
         );
     }
 
@@ -122,7 +122,7 @@ export class CategorieIndexComponent extends KeyUidRnoNoIndexComponent<Categorie
     créePageTableDef() {
         this.pageTableDef = this.créePageTableDefBase();
         this.pageTableDef.avantChargeData = () => this.avantChargeData();
-        this.pageTableDef.initialiseUtile = () => this.service.initialiseModeTable(this.calculeModeTable());
+        this.pageTableDef.initialiseUtile = () => this._service.initialiseModeTable(this.calculeModeTable());
         this.pageTableDef.chargeGroupe = () => this.chargeGroupe();
         this.pageTableDef.aprèsChargeData = () => this.aprèsChargeData();
     }

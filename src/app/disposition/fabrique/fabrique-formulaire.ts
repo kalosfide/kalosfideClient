@@ -143,12 +143,4 @@ export class FabriqueFormulaire extends FabriqueMembre {
         return afficheResultat;
     }
 
-    sauveQuandFocusChange(formulaire: KfComposant, sauve: () => void) {
-        formulaire.gereHtml.suitLeFocus = true;
-        formulaire.gereHtml.ajouteTraiteur(KfTypeDEvenement.valeurChange,
-            (evenement: KfEvenement) => {
-                sauve();
-            });
-    }
-
 }

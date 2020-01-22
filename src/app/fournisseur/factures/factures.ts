@@ -1,7 +1,7 @@
 import { Facture } from './facture';
 import { ApiFacture } from './facture-api';
 import { Catalogue } from 'src/app/modeles/catalogue/catalogue';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 
 export class Factures {
     factures: Facture[];

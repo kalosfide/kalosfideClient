@@ -1,5 +1,5 @@
 <ng-template #labelTemplate>
-    <label #labelElement [attr.for]="composant.nom" [ngClass]="composant.classeLabel">
+    <label #labelElement *ngIf="composant.classeLabel" [attr.for]="composant.nom" [ngClass]="composant.classeLabel">
         <app-kf-contenu-phrase [contenuPhrase]="composant.contenuPhrase"></app-kf-contenu-phrase>
     </label>
 </ng-template>

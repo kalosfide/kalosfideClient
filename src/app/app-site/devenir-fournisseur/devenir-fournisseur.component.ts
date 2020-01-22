@@ -14,12 +14,12 @@ import { DevenirFournisseurPages, DevenirFournisseurRoutes } from './devenir-fou
 import { ReglesDeMotDePasse } from 'src/app/securite/mot-de-passe/mot-de-passe';
 import { ComponentAAutoriserAQuitter } from 'src/app/commun/peut-quitter/peut-quitter-garde.service';
 import { AppSite } from 'src/app/app-site/app-site';
-import { SiteEditeur } from 'src/app/fournisseur/f-site/site-editeur';
 import { AppSitePages } from '../app-site-pages';
 import { DevenirConnectionEditeur } from 'src/app/compte/devenir/devenir-connection-model';
 import { FournisseurRoutes, FournisseurPages } from 'src/app/fournisseur/fournisseur-pages';
 import { PeutQuitterService } from 'src/app/commun/peut-quitter/peut-quitter.service';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
+import { SiteEditeur } from 'src/app/modeles/site/site-editeur';
 
 @Component({
     templateUrl: '../../disposition/formulaire/formulaire-a-etapes.component.html',
@@ -63,7 +63,7 @@ export class DevenirFournisseurComponent extends FormulaireAEtapesComponent impl
         this.titreRésultatSucces = 'Enregistrement réussi.';
         this.ajouteEtape(DevenirFournisseurPages.connection, new DevenirConnectionEditeur(_service));
         this.ajouteEtape(DevenirFournisseurPages.profil, new FournisseurEditeur());
-        this.ajouteEtape(DevenirFournisseurPages.site, new SiteEditeur());
+        this.ajouteEtape(DevenirFournisseurPages.site, new SiteEditeur(this));
         const contenus = this.contenusValidationParDéfaut();
         this.ajouteEtape(DevenirFournisseurPages.validation, { créeContenus() { return contenus; } });
     }

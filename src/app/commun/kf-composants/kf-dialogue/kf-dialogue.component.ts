@@ -1,9 +1,6 @@
 import { Component, HostBinding, OnInit, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
 
 import { KfDialogueService } from './kf-dialogue.service';
-import { KfComposantComponent } from '../kf-composant/kf-composant.component';
-import { KfGroupe } from '../kf-groupe/kf-groupe';
-import { KfComposant } from '../kf-composant/kf-composant';
 
 @Component({
     selector: 'app-kf-dialogue',
@@ -16,13 +13,13 @@ export class KfDialogueComponent implements OnInit, AfterViewInit {
     @HostBinding('style.display') display = 'block';
     @HostBinding('style.position') position = 'absolute';
 
-    @ViewChild('dialogElement') dialogElementRef: ElementRef;
-    @ViewChild('dialogueBarreDeTitre') divBarreDeTitreRef: ElementRef;
-    @ViewChild('dialogueTitre') pTitreRef: ElementRef;
-    @ViewChild('dialogueFermer') spanFermerRef: ElementRef;
-    @ViewChild('dialogueMessage') divMessageRef: ElementRef;
-    @ViewChild('dialogueOk') buttonOkRef: ElementRef;
-    @ViewChild('dialogueAnnuler') buttonAnnulerRef: ElementRef;
+    @ViewChild('dialogElement', {static: false}) dialogElementRef: ElementRef;
+    @ViewChild('dialogueBarreDeTitre', {static: false}) divBarreDeTitreRef: ElementRef;
+    @ViewChild('dialogueTitre', {static: false}) pTitreRef: ElementRef;
+    @ViewChild('dialogueFermer', {static: false}) spanFermerRef: ElementRef;
+    @ViewChild('dialogueMessage', {static: false}) divMessageRef: ElementRef;
+    @ViewChild('dialogueOk', {static: false}) buttonOkRef: ElementRef;
+    @ViewChild('dialogueAnnuler', {static: false}) buttonAnnulerRef: ElementRef;
 
     dansDialogElement: boolean;
 

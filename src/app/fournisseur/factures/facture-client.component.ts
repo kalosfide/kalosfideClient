@@ -2,12 +2,12 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { PageDef } from 'src/app/commun/page-def';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { Identifiant } from 'src/app/securite/identifiant';
 import { ActivatedRoute, Data } from '@angular/router';
 import { FacturePages } from './facture-pages';
 import { FactureService } from './facture.service';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 import { KfEtiquette } from 'src/app/commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
 import { FactureUtile } from './facture-utile';
 import { RouteurService } from 'src/app/services/routeur.service';

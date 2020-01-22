@@ -1,4 +1,4 @@
-import { KfGèreCss } from 'src/app/commun/kf-composants/kf-partages/kf-gere-css';
+import { KfGéreCss } from 'src/app/commun/kf-composants/kf-partages/kf-gere-css';
 
 export type BootstrapType = 'success' | 'info' | 'warning' | 'danger' | 'primary' | 'secondary' | 'light' | 'dark' | 'link';
 export enum BootstrapNom {
@@ -39,7 +39,7 @@ export class FabriqueBootstrap {
         return classes;
     }
 
-    static ajouteClasse(gèreCss: KfGèreCss, préfixe: string, nom: BootstrapType, outline?: 'outline' | null) {
+    static ajouteClasse(gèreCss: KfGéreCss, préfixe: string, nom: BootstrapType, outline?: 'outline' | null) {
         gèreCss.ajouteClasseDef(préfixe);
         gèreCss.supprimeClasseDefArray(FabriqueBootstrap.classes(préfixe));
         gèreCss.ajouteClasseDef(FabriqueBootstrap.classe(préfixe, nom, outline));

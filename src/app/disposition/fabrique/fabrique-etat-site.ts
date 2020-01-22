@@ -108,37 +108,6 @@ export class FabriqueEtatSite extends FabriqueMembre {
         return état;
     }
 
-    private créeLivraison(): EtatSite {
-        const état = new EtatSite(this.fabrique);
-        état.id = IdEtatSite.livraison;
-        état.pageDef = FournisseurPages.livraison;
-        état.nom = 'Livraison';
-        état.article = 'le';
-        état.titre = 'Traitement des commandes';
-        état.description = () => {
-            const description: KfComposant[] = [];
-            let etiquette: KfEtiquette;
-                etiquette = this.fabrique.ajouteEtiquetteP(description);
-                this.fabrique.ajouteTexte(etiquette,
-                    `Le `,
-                    { t: this.livraison.titre, b: KfTypeDeBaliseHTML.i },
-                    ` ne peut pas commencer si une `,
-                    { t: this.catalogue.titre, b: KfTypeDeBaliseHTML.i },
-                    ` est en cours.`
-                );
-
-                etiquette = this.fabrique.ajouteEtiquetteP(description);
-                this.fabrique.ajouteTexte(etiquette,
-                    `Pendant le `,
-                    { t: this.livraison.titre, b: KfTypeDeBaliseHTML.i },
-                    `, les clients qui se connectent ne peuvent pas commander.`
-                );
-
-            return description;
-        };
-        return état;
-    }
-
     private créeOuvert(): EtatSite {
         const état = new EtatSite(this.fabrique);
         état.id = IdEtatSite.ouvert;
@@ -150,10 +119,8 @@ export class FabriqueEtatSite extends FabriqueMembre {
             let etiquette: KfEtiquette;
             etiquette = this.fabrique.ajouteEtiquetteP(description);
             this.fabrique.ajouteTexte(etiquette,
-                `Le site est dans cet état quand il n'y a ni `,
+                `Le site est dans cet état quand il n'y a pas `,
                 { t: this.catalogue.titre, b: KfTypeDeBaliseHTML.i },
-                ` ni `,
-                { t: this.livraison.titre, b: KfTypeDeBaliseHTML.i },
                 ` en cours.`
             );
 
@@ -169,7 +136,6 @@ export class FabriqueEtatSite extends FabriqueMembre {
     private créeEtats() {
         this._états = [
             this.créeCatalogue(),
-            this.créeLivraison(),
             this.créeOuvert(),
         ];
     }
@@ -177,11 +143,8 @@ export class FabriqueEtatSite extends FabriqueMembre {
     get catalogue(): EtatSite {
         return this._états[0];
     }
-    get livraison(): EtatSite {
-        return this._états[1];
-    }
     get ouvert(): EtatSite {
-        return this._états[2];
+        return this._états[1];
     }
 
     get états(): EtatSite[] {
@@ -194,8 +157,6 @@ export class FabriqueEtatSite extends FabriqueMembre {
                 return this.ouvert;
             case IdEtatSite.catalogue:
                 return this.catalogue;
-            case IdEtatSite.livraison:
-                return this.livraison;
             default:
                 return undefined;
         }

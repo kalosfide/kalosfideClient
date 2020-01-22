@@ -4,11 +4,10 @@ import { ClientPages } from './client-pages';
 import { ClientIndexComponent } from './client-index.component';
 import { ClientAjouteComponent } from './client-ajoute.component';
 import { ClientEditeComponent } from './client-edite.component';
-import { ClientResolverService } from '../../modeles/clientele/client-resolver.service';
-import { ClientsResolverService } from '../../modeles/clientele/clients-resolver.service';
+import { ClientResolverService } from '../../modeles/client/client-resolver.service';
+import { ClientsResolverService } from '../../modeles/client/clients-resolver.service';
 import { ClientAccepteComponent } from './client-accepte.component';
 import { ClientExclutComponent } from './client-exclut.component';
-import { ClientSiteLivraisonGarde } from './client-site-livraison-garde';
 import { ClientComponent } from './client.component';
 
 const routes: Routes = [
@@ -31,9 +30,6 @@ const routes: Routes = [
             {
                 path: ClientPages.ajoute.urlSegment,
                 component: ClientAjouteComponent,
-                canActivate: [
-                    ClientSiteLivraisonGarde
-                ],
             },
             {
                 path: ClientPages.edite.urlSegment + '/:key',
@@ -41,9 +37,6 @@ const routes: Routes = [
                 resolve: {
                     valeur: ClientResolverService,
                 },
-                canActivate: [
-                    ClientSiteLivraisonGarde
-                ],
             },
             {
                 path: ClientPages.accepte.urlSegment + '/:key',
@@ -51,9 +44,6 @@ const routes: Routes = [
                 resolve: {
                     valeur: ClientResolverService,
                 },
-                canActivate: [
-                    ClientSiteLivraisonGarde
-                ],
             },
             {
                 path: ClientPages.exclut.urlSegment + '/:key',
@@ -61,9 +51,6 @@ const routes: Routes = [
                 resolve: {
                     valeur: ClientResolverService,
                 },
-                canActivate: [
-                    ClientSiteLivraisonGarde
-                ],
             },
         ]
     }

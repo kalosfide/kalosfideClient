@@ -3,7 +3,7 @@ import { NavItemLien } from './nav-item-lien';
 import { NavItemDropdown } from './nav-item-dropdown';
 import { NavItemUlLi } from './nav-item-ul-li';
 import { NavItemFormulaire } from './nav-item-formulaire';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { Identifiant } from 'src/app/securite/identifiant';
 
 export class NavBar {

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Router, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Observable, of, EMPTY } from 'rxjs';
-import { Site } from 'src/app/modeles/site';
-import { SiteService } from 'src/app/modeles/site.service';
+import { Site } from 'src/app/modeles/site/site';
+import { SiteService } from 'src/app/modeles/site/site.service';
 import { DataResolverService } from 'src/app/services/data-resolver.service';
 import { RouteurService } from '../services/routeur.service';
 

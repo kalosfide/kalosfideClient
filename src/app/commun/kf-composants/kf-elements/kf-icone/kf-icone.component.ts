@@ -8,7 +8,7 @@ import { KfIcone } from './kf-icone';
     styleUrls: ['../../kf-composants.scss']
 })
 export class KfIconeComponent extends KfComposantComponent implements OnInit, AfterViewInit {
-    @ViewChild('htmlElement') htmlElement: ElementRef;
+    @ViewChild('htmlElement', {static: false}) htmlElement: ElementRef;
 
     ngOnInit() {
     }

@@ -339,13 +339,20 @@ export class KfComposantGereValeur {
         }
     }
 
-    private _attribueErreurs(composant: KfComposant, champ: string, distribution: {
+    private _distribueErreurs(composant: KfComposant, champ: string, distribution: {
         apiErreurs: { champ: string, code: string }[],
         messages: string[]
     }): {
         apiErreurs: { champ: string, code: string }[],
         messages: string[]
     } {
+        if (composant.type === KfTypeDeComposant.groupe) {
+            const groupe = composant as KfGroupe;
+
+            groupe.contenus.forEach(c => distribution = this._distribueErreurs(c, c.nom.toLowerCase(), distribution));
+
+        }
+
         if (!composant.gereValeur) {
             return distribution;
         }
@@ -371,25 +378,9 @@ export class KfComposantGereValeur {
                 }
             }
         });
-        distribution.apiErreurs = distribution.apiErreurs.filter(e => traitées.find(t => t.champ === e.champ && t.code === e.code));
+        distribution.apiErreurs = distribution.apiErreurs.filter(e => !traitées.find(t => t.champ === e.champ && t.code === e.code));
         return distribution;
 
-    }
-
-    private _distribueErreurs(composant: KfComposant, champ: string, distribution: {
-        apiErreurs: { champ: string, code: string }[],
-        messages: string[]
-    }): {
-        apiErreurs: { champ: string, code: string }[],
-        messages: string[]
-    } {
-        if (composant.type === KfTypeDeComposant.groupe) {
-            const groupe = composant as KfGroupe;
-
-            groupe.contenus.forEach(c => distribution = this._distribueErreurs(c, c.nom.toLowerCase(), distribution));
-
-        }
-        return this._attribueErreurs(composant, champ, distribution);
     }
 
     distribueErreurs(apiErreurs: { champ: string, code: string }[]): {

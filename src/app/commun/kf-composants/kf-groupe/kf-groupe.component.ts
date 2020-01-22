@@ -10,7 +10,7 @@ import { FormGroup } from '@angular/forms';
     styleUrls: ['../kf-composants.scss']
 })
 export class KfGroupeComponent extends KfComposantComponent implements OnInit, AfterViewInit {
-    @ViewChild('htmlElement') domElementRef: ElementRef;
+    @ViewChild('htmlElement', {static: false}) domElementRef: ElementRef;
 
     type = KfTypeDeComposant;
     typeDeValeur = KfTypeDeValeur;

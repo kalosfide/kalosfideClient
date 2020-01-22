@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { SiteALESComponent } from './site-ales.component';
-import { SiteService } from 'src/app/modeles/site.service';
+import { SiteService } from 'src/app/modeles/site/site.service';
 import { PageDef } from 'src/app/commun/page-def';
 import { FSitePages } from './f-site-pages';
 

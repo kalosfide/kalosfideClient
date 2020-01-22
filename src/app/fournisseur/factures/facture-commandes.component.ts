@@ -2,23 +2,22 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { PageDef } from 'src/app/commun/page-def';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { Identifiant } from 'src/app/securite/identifiant';
 import { IKfVueTableDef } from 'src/app/commun/kf-composants/kf-vue-table/i-kf-vue-table-def';
 import { ActivatedRoute, Data } from '@angular/router';
 import { FacturePages } from './facture-pages';
 import { FactureService } from './facture.service';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 import { KfGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-groupe';
 import { KfEtiquette } from 'src/app/commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
 import { FactureUtile } from './facture-utile';
 import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-groupe';
 import { RouteurService } from 'src/app/services/routeur.service';
-import { SiteService } from 'src/app/modeles/site.service';
+import { SiteService } from 'src/app/modeles/site/site.service';
 import { PageTableComponent } from 'src/app/disposition/page-table/page-table.component';
 import { IGroupeTableDef, GroupeTable } from 'src/app/disposition/page-table/groupe-table';
 import { EtatTableType } from 'src/app/disposition/page-table/etat-table';
-import { texteKeyUidRno } from 'src/app/commun/data-par-key/data-key';
 import { BarreTitre } from 'src/app/disposition/fabrique/fabrique-barre-titre/fabrique-barre-titre';
 import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
 import { KfTypeDeBaliseHTML } from 'src/app/commun/kf-composants/kf-composants-types';
@@ -26,6 +25,7 @@ import { Facture } from './facture';
 import { FactureCommande } from './facture-commande';
 import { FactureStock } from './facture-stock';
 import { ModeAction } from 'src/app/commandes/condition-action';
+import { KeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno';
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',
@@ -95,7 +95,7 @@ export class FactureCommandesComponent extends PageTableComponent<FactureCommand
         const vueTableDef: IKfVueTableDef<FactureCommande> = {
             colonnesDef: this.utile.colonne.factureCommande(this.facture),
             id: (t: FactureCommande) => {
-                return this.utile.url.id(texteKeyUidRno(t));
+                return this.utile.url.id(KeyUidRno.texteDeKey(t));
             },
         };
         return {

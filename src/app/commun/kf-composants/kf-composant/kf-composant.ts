@@ -28,7 +28,7 @@ import { KfTexteDef } from '../kf-partages/kf-texte-def';
 import { KfImageDef } from '../kf-partages/kf-image-def';
 import { IKfVueTable } from '../kf-vue-table/kf-vue-table';
 import { FANomIcone } from '../kf-partages/kf-icone-def';
-import { KfGèreCss } from '../kf-partages/kf-gere-css';
+import { KfGéreCss } from '../kf-partages/kf-gere-css';
 import { Subscription, Observable } from 'rxjs';
 import { KfInitialObservable } from '../kf-partages/kf-initial-observable';
 import { KfDiv } from '../kf-partages/kf-div/kf-div';
@@ -36,7 +36,7 @@ import { KfDiv } from '../kf-partages/kf-div/kf-div';
 export interface IKfComposant {
     composant: KfComposant;
 }
-export abstract class KfComposant extends KfGèreCss implements IKfComposant {
+export abstract class KfComposant extends KfGéreCss implements IKfComposant {
     // GENERAL
     /**
      * nom: string

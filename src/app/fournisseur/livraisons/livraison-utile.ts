@@ -9,58 +9,11 @@ import { CommandeUtile } from 'src/app/commandes/commande-utile';
 import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-groupe';
 import { KfEtiquette } from 'src/app/commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
 import { KfTypeDeBaliseHTML } from 'src/app/commun/kf-composants/kf-composants-types';
-import { Conditions } from 'src/app/commun/condition/condition';
 import { BilanLivraison } from './livraison-etat';
 import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
 import { GroupeBoutonsMessages } from 'src/app/disposition/fabrique/fabrique-formulaire';
 
-class ConditionsComposées extends Conditions<string> {
-    constructor(utile: LivraisonUtile) {
-        super();
-        this.ajoute('catalogueOuPasDeClients', KfInitialObservable.ou(utile.conditionSite.catalogue,
-            KfInitialObservable.nouveau(utile.site.nbClients === 0)));
-        this.ajoute('livraisonOuEdite', KfInitialObservable.ou(utile.conditionSite.livraison, utile.conditionAction.edite));
-        this.ajoute('livraisonEtEdite', KfInitialObservable.et(utile.conditionSite.livraison, utile.conditionAction.edite));
-        this.ajoute('non_livraisonEtEdite', KfInitialObservable.ou(utile.conditionSite.pas_livraison, utile.conditionAction.pas_edite));
-        this.ajoute('pasLivraisonEtEdite', KfInitialObservable.et(utile.conditionSite.pas_livraison, utile.conditionAction.edite));
-    }
-
-    get catalogueOuPasDeClients(): KfInitialObservable<boolean> {
-        return this.conditionIO('catalogueOuPasDeClients');
-    }
-
-    get non_catalogueOuPasDeClients(): KfInitialObservable<boolean> {
-        return this.pas_conditionIO('catalogueOuPasDeClients');
-    }
-
-    get livraisonOuEdite(): KfInitialObservable<boolean> {
-        return this.conditionIO('livraisonOuEdite');
-    }
-
-    get non_livraisonOuEdite(): KfInitialObservable<boolean> {
-        return this.pas_conditionIO('livraisonOuEdite');
-    }
-
-    get non_livraisonEtEdite(): KfInitialObservable<boolean> {
-        return this.conditionIO('non_livraisonEtEdite');
-    }
-
-    get non_non_livraisonEtEdite(): KfInitialObservable<boolean> {
-        return this.pas_conditionIO('non_livraisonEtEdite');
-    }
-
-    get pasLivraisonEtEdite(): KfInitialObservable<boolean> {
-        return this.conditionIO('pasLivraisonEtEdite');
-    }
-
-    get livraisonEtEdite(): KfInitialObservable<boolean> {
-        return this.conditionIO('livraisonEtEdite');
-    }
-}
-
 export class LivraisonUtile extends CommandeUtile {
-    private _condition: ConditionsComposées;
-
     constructor(service: LivraisonService) {
         super(service);
         this._bouton = new LivraisonUtileBouton(this);
@@ -78,14 +31,6 @@ export class LivraisonUtile extends CommandeUtile {
         titre_AnnulerVérifier: 'Reprendre',
         titre_Terminer: 'Valider',
     };
-
-    créeAutresConditions() {
-        this._condition = new ConditionsComposées(this);
-    }
-
-    get condition(): ConditionsComposées {
-        return this._condition;
-    }
 
     get bouton(): LivraisonUtileBouton {
         return this._bouton as LivraisonUtileBouton;

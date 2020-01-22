@@ -3,9 +3,9 @@ import { ActivatedRoute, Data } from '@angular/router';
 import { ProduitRoutes, ProduitPages } from './produit-pages';
 import { Produit } from 'src/app/modeles/catalogue/produit';
 import { OnInit } from '@angular/core';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { ProduitService } from 'src/app/modeles/catalogue/produit.service';
-import { ProduitEditeur } from './produit-editeur';
+import { ProduitEditeur } from '../../modeles/catalogue/produit-editeur';
 import { IdEtatProduit } from 'src/app/modeles/catalogue/etat-produit';
 import { KeyUidRnoNoALESComponent } from 'src/app/commun/data-par-key/key-uid-rno-no/key-uid-rno-no-ales.component';
 import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
@@ -57,7 +57,7 @@ export abstract class ProduitALESComponent extends KeyUidRnoNoALESComponent<Prod
     }
 
     créeDataEditeur() {
-        this.dataEditeur = new ProduitEditeur();
+        this.dataEditeur = new ProduitEditeur(this);
     }
 
     get editeur(): ProduitEditeur {

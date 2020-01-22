@@ -1,29 +1,21 @@
 import { Produit } from 'src/app/modeles/catalogue/produit';
 import { TypeMesure } from 'src/app/modeles/type-mesure';
-import { TypeCommande, IdTypeCommande } from 'src/app/modeles/type-commande';
-import { KfInputNombre } from 'src/app/commun/kf-composants/kf-elements/kf-input/kf-input-nombre';
-import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-groupe';
 import { ApiCommande, ApiDétailCommande, ApiDétailCommandeData } from './api-commande';
-import { Client } from '../modeles/clientele/client';
-import { EtatClient } from '../modeles/clientele/etat-client';
-import { CommandeUtileEditeDétail } from './commande-utile-edite-detail';
-import { KfGroupe } from '../commun/kf-composants/kf-groupe/kf-groupe';
-import { KfListeDeroulanteTexte } from '../commun/kf-composants/kf-elements/kf-liste-deroulante/kf-liste-deroulante-texte';
+import { Client } from '../modeles/client/client';
+import { EtatClient } from '../modeles/client/etat-client';
 import { IDemandeCopiable } from './i-demande-copiable';
-import { Fabrique } from '../disposition/fabrique/fabrique';
 import { IAvecDemandeProduit } from './i-avec-demande-produit';
-import { KfInputTexte } from '../commun/kf-composants/kf-elements/kf-input/kf-input-texte';
+import { DetailCommandeEditeur } from './detail-commande-editeur';
+import { IDataKeyComponent } from '../commun/data-par-key/i-data-key-component';
+import { TypeCommande } from '../modeles/type-commande';
+import { IALivrerCopiable } from './i-a-livrer-copiable';
+import { DATE_NULLE } from '../modeles/date-nulle';
 
 export interface ContexteDetailCommande {
     /**
      * présent si l'utilisateur est le fournisseur
      */
     client?: Client;
-
-    /**
-     * présent et vrai si le site est d'état Livraison
-     */
-    étatSiteLivraison?: boolean;
 
     /**
      * présent et vrai si dans une page de préparation de livraison par produit
@@ -36,20 +28,20 @@ export interface ContexteDetailCommande {
     estDansFacture?: boolean;
 }
 
+export const DetailCommandeTitre = {
+    categorie: 'Catégorie',
+    produit: 'Produit',
+    prix: 'Prix',
+    typeCommande: { choixProduit: 'Se commande', client: 'Unité', fournisseur: 'U. C.' },
+    typeMesure: { commande: 'U. V.', livraison: 'Unité', facture: 'Unité' },
+    demande: { client: 'Quantité', fournisseur: 'Demandé' },
+    aLivrer: { commande: 'A livrer', livraison: 'Quantité', facture: 'Livrés' }
+};
+
 /**
  * permet de représenter une ligne de détail d'une commande
  */
-export class DetailCommande implements IDemandeCopiable, IAvecDemandeProduit {
-
-    static titreChamp = {
-        categorie: 'Catégorie',
-        produit: 'Produit',
-        prix: 'Prix',
-        typeCommande: 'Type de commande',
-        quantité: 'Quantité',
-        demande: 'Demandé',
-        aLivrer: 'Préparé'
-    };
+export class DetailCommande implements IDemandeCopiable, IAvecDemandeProduit, IALivrerCopiable {
 
     private _apiCommande: ApiCommande;
     /** ApiCommande contenant le détail */
@@ -70,9 +62,6 @@ export class DetailCommande implements IDemandeCopiable, IAvecDemandeProduit {
     /** présent si dans préparation de livraison */
     get client(): Client { return this._contexte && this._contexte.client; }
 
-    /** vrai si dans préparation de livraison */
-    get étatSiteLivraison(): boolean { return this._contexte && this._contexte.étatSiteLivraison; }
-
     /** vrai si dans préparation de livraison par produit */
     get estDansListeParProduit(): boolean { return this._contexte && this._contexte.estDansListeParProduit; }
 
@@ -85,18 +74,7 @@ export class DetailCommande implements IDemandeCopiable, IAvecDemandeProduit {
      */
     public get ajout(): boolean { return this._ajout; }
 
-    private _optionsTypeCommande: { texte: string, valeur: string }[] = [];
-    /** liste des types de commande du produit (à l'unité, au poids) */
-    get optionsTypeCommande(): { texte: string, valeur: string }[] { return this._optionsTypeCommande; }
-
-    private _superGroupe: KfSuperGroupe;
-    typeCommandeListe: KfListeDeroulanteTexte;
-    demandeTexte: KfInputTexte;
-    demandeNombre: KfInputNombre;
-    aLivrerTexte: KfInputTexte;
-    aLivrerNombre: KfInputNombre;
-    aFacturerTexte: KfInputTexte;
-    aFacturerNombre: KfInputNombre;
+    editeur: DetailCommandeEditeur;
 
     /**
      * permet de représenter une ligne de détail d'une commande
@@ -115,13 +93,6 @@ export class DetailCommande implements IDemandeCopiable, IAvecDemandeProduit {
 
         const apiDétailData = apiCommande.details.find(d => d.no === produit.no);
 
-        if (this._produit.typeCommande === IdTypeCommande.ALUnitéOuEnVrac || this._produit.typeCommande === IdTypeCommande.ALUnité) {
-            this._optionsTypeCommande.push(this.option(IdTypeCommande.ALUnité));
-        }
-        if (this._produit.typeCommande === IdTypeCommande.ALUnitéOuEnVrac || this._produit.typeCommande === IdTypeCommande.EnVrac) {
-            this._optionsTypeCommande.push(this.option(IdTypeCommande.EnVrac));
-        }
-
         this._apiDétail = new ApiDétailCommande();
         this._apiDétail.uid = apiCommande.uid;
         this._apiDétail.rno = apiCommande.rno;
@@ -132,9 +103,6 @@ export class DetailCommande implements IDemandeCopiable, IAvecDemandeProduit {
         if (apiDétailData) {
             // édition
             this._ajout = false;
-            if (apiDétailData.date) {
-                this._apiDétail.date = new Date(apiDétailData.date);
-            }
             this._apiDétail.typeCommande = apiDétailData.typeCommande;
             this._apiDétail.demande = apiDétailData.demande;
             this._apiDétail.aLivrer = apiDétailData.aLivrer;
@@ -142,7 +110,6 @@ export class DetailCommande implements IDemandeCopiable, IAvecDemandeProduit {
         } else {
             // ajout
             this._ajout = true;
-            this._apiDétail.typeCommande = this._optionsTypeCommande ? this._optionsTypeCommande[0].valeur : this._produit.typeCommande;
         }
 
     }
@@ -168,19 +135,25 @@ export class DetailCommande implements IDemandeCopiable, IAvecDemandeProduit {
      */
     apiDetailAEnvoyer(): ApiDétailCommande {
         // sauve les valeurs éditées pour qu'elles survivent aux controls
-        this._apiDétail.typeCommande = this.typeCommandeListe.valeur;
-        this._apiDétail.demande = this.demandeNombre.valeur;
-        if (this.roleFournisseur) {
-            if (this.étatSiteLivraison) {
-                this._apiDétail.aLivrer = this.aLivrerNombre.valeur;
+        if (this.editeur.kfTypeCommande) {
+            const typeCommande = this.editeur.kfTypeCommande.valeur;
+            if (typeCommande !== TypeMesure.typeCommandeParDéfaut(this.produit.typeMesure)) {
+                this._apiDétail.typeCommande = typeCommande;
             }
-        } else {
-            // l'utilisateur est un client donc avec compte
-            if (this.ajout) {
-                this._apiDétail.date = new Date(Date.now());
-            }
-
         }
+        if (this.editeur.kfALivrer) {
+            this._apiDétail.aLivrer = this.editeur.kfALivrer.valeur;
+            if (this.editeur.kfDemande && !this.editeur.kfDemande.valeur) {
+                this.editeur.kfDemande.valeur = this._apiDétail.aLivrer;
+            }
+        }
+        if (this.editeur.kfDemande) {
+            this._apiDétail.demande = this.editeur.kfDemande.valeur;
+        }
+        if (this.editeur.kfAFacturer) {
+            this._apiDétail.aFacturer = this.editeur.kfAFacturer.valeur;
+        }
+
         return this._apiDétail;
     }
 
@@ -188,7 +161,6 @@ export class DetailCommande implements IDemandeCopiable, IAvecDemandeProduit {
         apiDétailCommandeData.typeCommande = this._apiDétail.typeCommande;
         apiDétailCommandeData.demande = this._apiDétail.demande;
         apiDétailCommandeData.aLivrer = this._apiDétail.aLivrer;
-        apiDétailCommandeData.date = this._apiDétail.date;
     }
 
     apiDétailDataAStocker(): ApiDétailCommandeData {
@@ -205,13 +177,12 @@ export class DetailCommande implements IDemandeCopiable, IAvecDemandeProduit {
     get noCategorie(): number { return this._produit.categorieNo; }
     get nomCategorie(): string { return this._produit.nomCategorie; }
     get typeMesure(): string { return this._produit.typeMesure; }
-    get prix(): number { return this._produit.prix; }
 
     /**
      * vrai si le détail a été créé par le client
      */
-    get crééParLeClient(): boolean {
-        return this._apiDétail.date !== undefined;
+    get commandeCrééParLeClient(): boolean {
+        return this._apiCommande.date !== DATE_NULLE;
     }
 
     get nomClient(): string { return this.client ? this.client.nom : undefined; }
@@ -225,36 +196,44 @@ export class DetailCommande implements IDemandeCopiable, IAvecDemandeProduit {
         return TypeMesure.texteSeCommande(this.typeMesure, typeCommande);
     }
 
-    private option(typeCommande: string): { texte: string, valeur: string } {
-        return {
-            texte: this._texteTypeDemande(typeCommande),
-            valeur: typeCommande
-        };
-    }
-
     get typeCommande(): string {
-        return (this.typeCommandeListe && this.typeCommandeListe.valeur)
-            ? this.typeCommandeListe.valeur
+        return (this.editeur && this.editeur.kfTypeCommande && this.editeur.kfTypeCommande.aUneValeur)
+            ? this.editeur.kfTypeCommande.valeur
             : this._apiDétail.typeCommande
                 ? this._apiDétail.typeCommande
-                : this._produit.typeCommande;
+                : TypeMesure.typeCommandeParDéfaut(this._produit.typeMesure);
     }
     get demande(): number {
-        return (this.demandeNombre && this.demandeNombre.valeur) ? this.demandeNombre.valeur : this._apiDétail.demande;
+        return (this.editeur && this.editeur.kfDemande && this.editeur.kfDemande.aUneValeur)
+            ? this.editeur.kfDemande.valeur
+            : this._apiDétail.demande;
     }
 
     get aLivrer(): number {
-        return (this.aLivrerNombre && this.aLivrerNombre.valeur) ? this.aLivrerNombre.valeur : this._apiDétail.aLivrer;
+        return (this.editeur && this.editeur.kfALivrer && this.editeur.kfALivrer.aUneValeur)
+            ? this.editeur.kfALivrer.valeur
+            : this._apiDétail.aLivrer;
+    }
+    set aLivrer(valeur: number) {
+        this._apiDétail.aLivrer = valeur;
+        if (this.editeur && this.editeur.kfALivrer) {
+            this.editeur.kfALivrer.valeur = valeur;
+        }
     }
 
     get aFacturer(): number {
-        return (this.aFacturerNombre) ? this.aFacturerNombre.valeur : this._apiDétail.aFacturer;
+        return (this.editeur && this.editeur.kfAFacturer && this.editeur.kfAFacturer.aUneValeur)
+            ? this.editeur.kfAFacturer.valeur
+            : this._apiDétail.aFacturer;
     }
     set aFacturer(valeur: number) {
         this._apiDétail.aFacturer = valeur;
-        if (this.aFacturerNombre) {
-            this.aFacturerNombre.valeur = valeur;
+        if (this.editeur && this.editeur.kfAFacturer) {
+            this.editeur.kfAFacturer.valeur = valeur;
         }
+    }
+    copieALivrer() {
+        this.aFacturer = this.aLivrer;
     }
 
     get texteTypeDemande(): string {
@@ -266,69 +245,39 @@ export class DetailCommande implements IDemandeCopiable, IAvecDemandeProduit {
         return this._produit.prix * aFacturer;
     }
 
-    /** vrai si l'utilisateur est le fournisseur */
-    get roleFournisseur(): boolean { return !!this.client; }
-
-    get prêt(): boolean {
+    get préparé(): boolean {
         return this.aLivrer !== undefined && this.aLivrer !== null;
     }
     get refusé(): boolean {
         return this.aLivrer === 0;
     }
 
-    get estFacturé(): boolean {
+    get facturée(): boolean {
         return this.aFacturer !== undefined && this.aFacturer !== null;
     }
 
-    get demandeNonCopiable(): boolean {
-        return this.produit.typeCommande === IdTypeCommande.ALUnitéOuEnVrac && this.typeCommande === IdTypeCommande.ALUnité;
+    get annulé(): boolean {
+        return this.aFacturer === 0;
     }
 
-    get demandeCopiable(): boolean {
+    get demandeNonCopiable(): boolean {
+        return this.produit.typeCommande === TypeCommande.id.ALUnitéOuEnVrac && this.typeCommande === TypeCommande.id.ALUnité;
+    }
+
+    get copiable(): boolean {
         return !this.demandeNonCopiable;
     }
 
     copieDemande() {
-        this._apiDétail.aLivrer = this._apiDétail.demande;
-        if (this.aLivrerNombre) {
-            this.aLivrerNombre.valeur = this._apiDétail.aLivrer;
-        }
+        this.aLivrer = this.demande;
     }
 
     /// FIN SECTION: Propriétés
 
     /// SECTION: Editeur
 
-    get typeCommandeLectureSeule(): boolean {
-        return this._optionsTypeCommande.length <= 1 // il n'a pas à choisir
-            || (this.roleFournisseur && this.crééParLeClient); // détail créé par le client
-    }
-
-    get demandeLectureSeule(): boolean {
-        return this.roleFournisseur && this.crééParLeClient; // détail créé par le client
-    }
-
-    créeSuperGroupe() {
-        this._superGroupe = new KfSuperGroupe('');
-        this._superGroupe.créeGereValeur();
-        if (this.estDansFacture) {
-            this._superGroupe.avecInvalidFeedback = true;
-        }
-        const champs = new CommandeUtileEditeDétail(this);
-        champs.prépareGroupe(this._superGroupe);
-        this._superGroupe.quandTousAjoutés();
-    }
-
-    créeEdition(type: '+' | '-'): KfGroupe {
-        const groupe = new KfGroupe('detail');
-        groupe.créeGereValeur();
-        const champs = new CommandeUtileEditeDétail(this);
-        champs.prépareGroupe(groupe, type);
-        return groupe;
-    }
-
-    get superGroupe(): KfSuperGroupe {
-        return this._superGroupe;
+    créeEditeur(component: IDataKeyComponent) {
+        this.editeur = new DetailCommandeEditeur(this, component);
     }
 
     /// FIN SECTION: Editeur

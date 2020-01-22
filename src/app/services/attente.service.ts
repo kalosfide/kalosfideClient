@@ -69,7 +69,7 @@ export class AttenteService {
         this._attentes.push(attente);
         debug = debug ? debug : 'sans nom';
         this._debugs.push(debug);
-        console.log('commence', this.debugs);
+//        console.log('commence', this.debugs);
         if (this._nb === 1) {
             this.créeTimeOut();
         }
@@ -81,9 +81,8 @@ export class AttenteService {
             if (this.IdTimeOut) {
                 this.détruitTimeOut();
             }
-            const debug = this._debugs[0];
             this.initialise();
-            console.log('finit et emet', this.debugs);
+//            console.log('finit et emet', this.debugs);
             this._enCoursIO.changeValeur(false);
         } else {
             const index = this._attentes.findIndex(id => id === attente);
@@ -92,7 +91,7 @@ export class AttenteService {
             }
             this._attentes.splice(index, 1);
             const debug = this._debugs.splice(index, 1)[0];
-            console.log('finit', this.debugs);
+//            console.log('finit', this.debugs);
         }
     }
 

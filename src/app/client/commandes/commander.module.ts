@@ -6,14 +6,15 @@ import { CommanderRoutingModule } from './commander-routing.module';
 import { CommanderService } from './commander.service';
 import { CommanderAccueilComponent } from './commander-accueil.component';
 import { CommanderChoixProduitComponent } from './commander-choix-produit.component';
-import { CommanderCommandeComponent } from './commander-commande.component';
 import { CommanderProduitResolverService } from './commander-produit-resolver.service';
 import { CommanderDetailAjouteComponent } from './commander-detail-ajoute.component';
 import { CommanderDetailEditeComponent } from './commander-detail-edite.component';
 import { CommanderDetailSupprimeComponent } from './commander-detail-supprime.component';
-import { CommanderSupprimeComponent } from './commander-supprime.component';
-import { EffaceStockSiContexteChangé, RedirigeSiContexteChangé } from './contexte-change-garde';
-import { CommanderStockResolverService } from './commander-stock-resolver.service';
+import { RedirigeSiContexteChangé } from './contexte-change-garde';
+import { CommanderStockResolverService, CommanderStockBonResolverService } from './commander-stock-resolver.service';
+import { CommanderCommandeBonComponent } from './commander-commande-bon.component copy';
+import { CommanderCommandeContexteComponent } from './commander-commande-contexte.component';
+import { CommanderCommandeAnnuleComponent } from './commander-commande-annule.component';
 
 @NgModule({
     imports: [
@@ -24,8 +25,9 @@ import { CommanderStockResolverService } from './commander-stock-resolver.servic
     ],
     declarations: [
         CommanderAccueilComponent,
-        CommanderCommandeComponent,
-        CommanderSupprimeComponent,
+        CommanderCommandeBonComponent,
+        CommanderCommandeContexteComponent,
+        CommanderCommandeAnnuleComponent,
         CommanderChoixProduitComponent,
         CommanderDetailAjouteComponent,
         CommanderDetailEditeComponent,
@@ -33,9 +35,9 @@ import { CommanderStockResolverService } from './commander-stock-resolver.servic
     ],
     providers: [
         CommanderService,
-        EffaceStockSiContexteChangé,
         RedirigeSiContexteChangé,
         CommanderStockResolverService,
+        CommanderStockBonResolverService,
         CommanderProduitResolverService,
     ],
 })

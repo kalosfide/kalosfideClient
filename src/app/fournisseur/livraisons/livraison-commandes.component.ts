@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { PageDef } from 'src/app/commun/page-def';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { Identifiant } from 'src/app/securite/identifiant';
 import { IKfVueTableDef } from 'src/app/commun/kf-composants/kf-vue-table/i-kf-vue-table-def';
 import { ActivatedRoute, Data } from '@angular/router';
@@ -10,7 +10,7 @@ import { KfBouton } from 'src/app/commun/kf-composants/kf-elements/kf-bouton/kf-
 import { KfCaseACocher } from 'src/app/commun/kf-composants/kf-elements/kf-case-a-cocher/kf-case-a-cocher';
 import { LivraisonPages } from './livraison-pages';
 import { LivraisonService } from './livraison.service';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 import { LivraisonCommandes } from './livraison-commandes';
 import { Commande } from 'src/app/commandes/commande';
 import { LivraisonStock } from './livraison-stock';
@@ -22,19 +22,20 @@ import { LivraisonUtile } from './livraison-utile';
 import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-groupe';
 import { KfInitialObservable } from 'src/app/commun/kf-composants/kf-partages/kf-initial-observable';
 import { RouteurService } from 'src/app/services/routeur.service';
-import { SiteService } from 'src/app/modeles/site.service';
+import { SiteService } from 'src/app/modeles/site/site.service';
 import { PageTableComponent } from 'src/app/disposition/page-table/page-table.component';
 import { IGroupeTableDef, GroupeTable } from 'src/app/disposition/page-table/groupe-table';
 import { EtatTableType } from 'src/app/disposition/page-table/etat-table';
 import { ModeAction } from 'src/app/commandes/condition-action';
-import { texteKeyUidRno } from 'src/app/commun/data-par-key/data-key';
 import { BarreTitre } from 'src/app/disposition/fabrique/fabrique-barre-titre/fabrique-barre-titre';
 import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
 import { KfTypeDeBaliseHTML } from 'src/app/commun/kf-composants/kf-composants-types';
 import { concatMap, map } from 'rxjs/operators';
-import { ClientService } from 'src/app/modeles/clientele/client.service';
+import { ClientService } from 'src/app/modeles/client/client.service';
 import { IContenuPhraseDef } from 'src/app/disposition/fabrique/fabrique-contenu-phrase';
 import { Couleur } from 'src/app/disposition/fabrique/fabrique-couleurs';
+import { KeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno';
+import { IdEtatSite } from 'src/app/modeles/etat-site';
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',
@@ -77,7 +78,6 @@ export class LivraisonCommandesComponent extends PageTableComponent<Commande> im
         protected route: ActivatedRoute,
         protected _service: LivraisonService,
         protected _siteService: SiteService,
-        private _clientService: ClientService,
     ) {
         super(route, _service);
     }
@@ -95,7 +95,16 @@ export class LivraisonCommandesComponent extends PageTableComponent<Commande> im
         const rafraichit = Fabrique.barreTitre.boutonRafraichit('rafraichit');
         Fabrique.bouton.fixeActionBouton(rafraichit, () => this.recharge());
         groupe.ajoute(rafraichit);
-        groupe.nePasAfficherSi(this.utile.conditionSite.livraison);
+
+        const site = this.service.navigation.litSiteEnCours();
+/*
+        const o0 = KfInitialObservable.nouveau(site, this.service.navigation.siteObs());
+        o0.nom = 'site';
+        const o1 = KfInitialObservable.transforme(o0, (s: Site): IdEtatSite => s ? s.etat : IdEtatSite.aucun);
+        const io = KfInitialObservable.nouveau(site.etat === IdEtatSite.livraison,
+            this.utile.service.navigation.siteObs().pipe(map(s => s.etat === IdEtatSite.livraison)));
+        groupe.nePasAfficherSi(io);
+*/
         barre.ajoute({
             groupe: groupe,
             rafraichit: () => {
@@ -131,7 +140,7 @@ export class LivraisonCommandesComponent extends PageTableComponent<Commande> im
         etiquette = Fabrique.ajouteEtiquetteP(infos);
         Fabrique.ajouteTexte(etiquette,
             `Ceci est `,
-            { t: 'à faire', b: KfTypeDeBaliseHTML.b},
+            { t: 'à faire', b: KfTypeDeBaliseHTML.b },
             '.'
         );
 
@@ -150,7 +159,7 @@ export class LivraisonCommandesComponent extends PageTableComponent<Commande> im
             colonnesDef: this.utile.colonne.commande.defsCommandes(),
             outils: outils,
             id: (t: Commande) => {
-                return this.utile.url.id(texteKeyUidRno(t));
+                return this.utile.url.id(KeyUidRno.texteDeKey(t));
             },
         };
         return {
@@ -181,10 +190,9 @@ export class LivraisonCommandesComponent extends PageTableComponent<Commande> im
 
     chargeData(data: Data) {
         const stock: LivraisonStock = data.stock;
-        const clients: Client[] = data.clients;
         this.termine = data.termine;
-        this.livraisonCommandes = new LivraisonCommandes(stock, clients);
-        this.date = new Date(Date.now());
+        this.livraisonCommandes = new LivraisonCommandes(stock);
+        this.date = new Date(stock.apiLivraison.date);
     }
 
     protected get modeActionInitial(): ModeAction {
@@ -225,7 +233,7 @@ export class LivraisonCommandesComponent extends PageTableComponent<Commande> im
         this.subscriptions.push(
             this.service.modeActionIO.observable.subscribe(() => {
                 this.rafraichit();
-            })
+            }),
         );
     }
 
@@ -240,25 +248,17 @@ export class LivraisonCommandesComponent extends PageTableComponent<Commande> im
         };
     }
 
+    rechargeStock(stock: LivraisonStock) {
+        this.livraisonCommandes = new LivraisonCommandes(stock);
+        this.date = new Date(stock.apiLivraison.date);
+        this._chargeVueTable(this.livraisonCommandes.commandes);
+        this.rafraichit();
+    }
+
     recharge() {
-        const subscription = this.service.rechargeStock().pipe(
-            concatMap((stock: LivraisonStock) => {
-                return this._clientService.rechargeClients().pipe(
-                    map((clients: Client[]) => {
-                        const data = {
-                            stock: stock,
-                            clients: clients
-                        };
-                        return data;
-                    })
-                );
-            })
-        ).subscribe(data => {
+        const subscription = this.service.rafraichitStock(this.site).subscribe(stock => {
             subscription.unsubscribe();
-            this.livraisonCommandes = new LivraisonCommandes(data.stock, data.clients);
-            this.date = new Date(Date.now());
-            this._chargeVueTable(this.livraisonCommandes.commandes);
-            this.rafraichit();
+            this.rechargeStock(stock);
         });
     }
 }

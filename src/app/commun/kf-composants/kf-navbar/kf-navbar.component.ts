@@ -9,7 +9,7 @@ import { KfNavbar } from './kf-navbar';
     styleUrls: ['../kf-composants.scss']
 })
 export class KfNavbarComponent extends KfComposantComponent implements OnInit, AfterViewInit {
-    @ViewChild('htmlElement') domElementRef: ElementRef;
+    @ViewChild('htmlElement', {static: false}) domElementRef: ElementRef;
 
     constructor() {
         super();

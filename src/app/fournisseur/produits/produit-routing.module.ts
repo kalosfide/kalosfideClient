@@ -5,20 +5,18 @@ import { ProduitIndexComponent } from './produit-index.component';
 import { ProduitAjouteComponent } from './produit-ajoute.component';
 import { ProduitEditeComponent } from './produit-edite.component';
 import { ProduitResolverService } from '../../modeles/catalogue/produit-resolver.service';
-import { ProduitPrixComponent } from './produit-prix.component';
 import { CategoriesResolverService } from 'src/app/modeles/catalogue/categories-resolver.service';
 import { ProduitPages } from './produit-pages';
-import { CatalogueResolverService, CatalogueRésoluResolverService } from 'src/app/modeles/catalogue/catalogue-resolver.service';
+import { CatalogueResolverService } from 'src/app/modeles/catalogue/catalogue-resolver.service';
 import { ProduitSitePasCatalogueGarde } from './produit-site-pas-catalogue-garde';
 import { CatalogueComponent } from './catalogue.component';
-import { NbCommandesOuvertesResolverService } from 'src/app/modeles/nb-commandes-ouvertes-resolver.service';
+import { ProduitSupprimeComponent } from './produit-supprime.component';
 
 const routes: Routes = [
     {
         path: '',
         component: CatalogueComponent,
         resolve: {
-            nbCommandesOuvertes: NbCommandesOuvertesResolverService,
             catalogue: CatalogueResolverService,
         },
         children: [
@@ -31,7 +29,7 @@ const routes: Routes = [
                 path: ProduitPages.index.urlSegment,
                 component: ProduitIndexComponent,
                 resolve: {
-                    catalogue: CatalogueRésoluResolverService,
+                    catalogue: CatalogueResolverService,
                 }
             },
             {
@@ -56,8 +54,8 @@ const routes: Routes = [
                 }
             },
             {
-                path: ProduitPages.prix.urlSegment + '/:no',
-                component: ProduitPrixComponent,
+                path: ProduitPages.supprime.urlSegment + '/:no',
+                component: ProduitSupprimeComponent,
                 canActivate: [
                     ProduitSitePasCatalogueGarde,
                 ],

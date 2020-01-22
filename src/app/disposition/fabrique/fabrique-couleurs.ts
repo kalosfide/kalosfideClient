@@ -1,4 +1,4 @@
-import { KfGèreCss } from 'src/app/commun/kf-composants/kf-partages/kf-gere-css';
+import { KfGéreCss } from 'src/app/commun/kf-composants/kf-partages/kf-gere-css';
 
 export enum Couleur {
     blue = '#007bff',
@@ -57,7 +57,7 @@ export class FabriqueCouleur {
         return `${préfixe}-${icouleur.nom}`;
     }
 
-    private _ajouteClasse(gèreCss: KfGèreCss, préfixe: string, couleur: Couleur, active?: () => boolean) {
+    private _ajouteClasse(gèreCss: KfGéreCss, préfixe: string, couleur: Couleur, active?: () => boolean) {
         const classeCouleur = this._classe(préfixe, couleur);
         gèreCss.supprimeClasseAPréfixe(préfixe);
         gèreCss.ajouteClasseDef({ nom: classeCouleur, active: active });
@@ -67,11 +67,11 @@ export class FabriqueCouleur {
         return this._classe(this._préfixe, couleur);
     }
 
-    ajouteClasseCouleur(gèreCss: KfGèreCss, couleur: Couleur, active?: () => boolean) {
+    ajouteClasseCouleur(gèreCss: KfGéreCss, couleur: Couleur, active?: () => boolean) {
         this._ajouteClasse(gèreCss, this._préfixe, couleur, active);
     }
 
-    supprimeClasseCouleur(gèreCss: KfGèreCss) {
+    supprimeClasseCouleur(gèreCss: KfGéreCss) {
         gèreCss.supprimeClasseAPréfixe(this._préfixe + '-');
     }
 
@@ -79,11 +79,11 @@ export class FabriqueCouleur {
         return this._classe(this._préfixe_fond, couleur);
     }
 
-    ajouteClasseCouleurFond(gèreCss: KfGèreCss, couleur: Couleur, active?: () => boolean) {
+    ajouteClasseCouleurFond(gèreCss: KfGéreCss, couleur: Couleur, active?: () => boolean) {
         this._ajouteClasse(gèreCss, this._préfixe_fond, couleur, active);
     }
 
-    supprimeClasseCouleurFond(gèreCss: KfGèreCss) {
+    supprimeClasseCouleurFond(gèreCss: KfGéreCss) {
         gèreCss.supprimeClasseAPréfixe(this._préfixe_fond + '-');
     }
 

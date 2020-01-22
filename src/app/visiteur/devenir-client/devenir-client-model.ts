@@ -1,4 +1,4 @@
-import { ClientData } from 'src/app/modeles/clientele/client';
+import { ClientData } from 'src/app/modeles/client/client';
 
 export class DevenirClientModel extends ClientData {
     email: string;

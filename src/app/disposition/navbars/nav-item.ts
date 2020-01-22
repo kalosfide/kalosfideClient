@@ -1,6 +1,6 @@
 import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
 import { NavBar } from './navbar';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { Identifiant } from 'src/app/securite/identifiant';
 
 export abstract class NavItem {

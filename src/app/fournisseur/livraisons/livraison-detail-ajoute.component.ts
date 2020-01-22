@@ -5,11 +5,9 @@ import { ComponentAAutoriserAQuitter } from 'src/app/commun/peut-quitter/peut-qu
 import { PageDef } from 'src/app/commun/page-def';
 import { ActivatedRoute } from '@angular/router';
 import { LivraisonService } from './livraison.service';
-import { CommandePages } from 'src/app/commandes/commande-pages';
 import { LivraisonDetailCommandeComponent } from './livraison-detail-commande.component';
-import { KfLien } from 'src/app/commun/kf-composants/kf-elements/kf-lien/kf-lien';
-import { ITitrePage } from 'src/app/disposition/titre-page/titre-page';
-import { BarreTitre, IBarreDef } from 'src/app/disposition/fabrique/fabrique-barre-titre/fabrique-barre-titre';
+import { IBarreDef } from 'src/app/disposition/fabrique/fabrique-barre-titre/fabrique-barre-titre';
+import { LivraisonPages } from './livraison-pages';
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',
@@ -17,8 +15,8 @@ import { BarreTitre, IBarreDef } from 'src/app/disposition/fabrique/fabrique-bar
 })
 export class LivraisonDetailAjouteComponent extends LivraisonDetailCommandeComponent
     implements OnInit, OnDestroy, ComponentAAutoriserAQuitter {
-    static _pageDef: PageDef = CommandePages.ajoute;
-    pageDef: PageDef = CommandePages.ajoute;
+    static _pageDef: PageDef = LivraisonPages.ajoute;
+    pageDef: PageDef = LivraisonPages.ajoute;
 
     constructor(
         protected route: ActivatedRoute,

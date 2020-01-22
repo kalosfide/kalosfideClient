@@ -1,12 +1,12 @@
 import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
 import { NavBar } from './navbar';
 import { NavItem } from './nav-item';
-import { KfGèreCss } from 'src/app/commun/kf-composants/kf-partages/kf-gere-css';
+import { KfGéreCss } from 'src/app/commun/kf-composants/kf-partages/kf-gere-css';
 import { KfNgClasse } from 'src/app/commun/kf-composants/kf-partages/kf-gere-css-classe';
 import { NavItemContenu } from './nav-item-contenu';
 
 export class NavItemUlLi extends NavItem {
-    private _gèreCss: KfGèreCss;
+    private _gèreCss: KfGéreCss;
     private _items: NavItemContenu[];
 
     constructor(nom: string, parent: NavBar) {
@@ -25,9 +25,9 @@ export class NavItemUlLi extends NavItem {
         return this._items;
     }
 
-    get gèreCss(): KfGèreCss {
+    get gèreCss(): KfGéreCss {
         if (!this._gèreCss) {
-            this._gèreCss = new KfGèreCss();
+            this._gèreCss = new KfGéreCss();
         }
         return this._gèreCss;
     }

@@ -21,6 +21,7 @@
             </ng-container>
         </tr>
     </thead>
+    <!-- corps -->
     <tbody [ngClass]="vueTable.classeCorps">
         <!-- remplace les lignes quand les filtres ne laissent rien passer -->
         <tr *ngIf="vueTable.rienPasseFiltres">
@@ -28,7 +29,9 @@
             </td>
         </tr>
 
-        <ng-container *ngIf="vueTable.avecValeur; then avecValeurTemplate; else autreTemplate"></ng-container>
+        <ng-container *ngIf="!vueTable.avecValeur; else avecValeurTemplate">
+            <ng-container *ngIf="vueTable.avecClic; then avecClicTemplate; else autreTemplate"></ng-container>
+        </ng-container>
 
     </tbody>
     <tfoot *ngIf="vueTable.lignesBilan" [ngClass]="vueTable.classeBilan">
@@ -47,6 +50,14 @@
     </ng-container>
 </ng-template>
 
+<ng-template #avecClicTemplate>
+    <ng-container *ngFor="let ligne of vueTable.ilignes">
+        <tr [attr.id]="ligne.id" [ngClass]="ligne.classe" [ngStyle]="ligne.style" (click)="vueTable.quandClic(ligne)">
+            <ng-container *ngTemplateOutlet="ligneTemplate; context: { ligne1: ligne }"></ng-container>
+        </tr>
+    </ng-container>
+</ng-template>
+
 <ng-template #autreTemplate>
     <ng-container *ngFor="let ligne of vueTable.ilignes">
         <tr [attr.id]="ligne.id" [ngClass]="ligne.classe" [ngStyle]="ligne.style">
@@ -59,7 +70,8 @@
 <ng-template #ligneTemplate let-ligne="ligne1">
     <ng-container *ngFor="let cellule of ligne.cellules">
         <ng-container *ngIf="cellule.th_scope; else tdTemplate">
-            <th [attr.scope]="cellule.th_scope" [ngClass]="cellule.classe" [colSpan]="cellule.colSpan" [attr.rowspan]="cellule.rowSpan">
+            <th [attr.scope]="cellule.th_scope" [ngClass]="cellule.classe" [colSpan]="cellule.colSpan"
+                [attr.rowspan]="cellule.rowSpan">
                 <app-kf-composant [composant]="cellule.composant" (output)="transmet($event)"></app-kf-composant>
             </th>
         </ng-container>

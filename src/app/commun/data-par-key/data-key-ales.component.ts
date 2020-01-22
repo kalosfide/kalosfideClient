@@ -5,26 +5,20 @@ import { Observable } from 'rxjs';
 import { FormulaireComponent } from '../../disposition/formulaire/formulaire.component';
 import { DataKeyService } from './data-key.service';
 import { ApiResult } from '../api-results/api-result';
-import { DataTexteSoumettre, IDataPages } from './data-pages';
+import { DataTexteSoumettre } from './data-pages';
 import { KfGroupe } from '../kf-composants/kf-groupe/kf-groupe';
-import { DataKey } from './data-key';
-import { DataKeyEditeur } from './data-key-editeur';
+import { IDataKey } from './data-key';
 import { ApiAction } from '../api-route';
-import { ISiteRoutes } from 'src/app/site/site-pages';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { KfTexteDef } from '../kf-composants/kf-partages/kf-texte-def';
 import { KfSuperGroupe } from '../kf-composants/kf-groupe/kf-super-groupe';
-import { ILienDef } from 'src/app/disposition/fabrique/fabrique-lien';
-import { IUrlDef } from 'src/app/disposition/fabrique/fabrique-url';
 import { OnInit } from '@angular/core';
-import { ITitrePage } from 'src/app/disposition/titre-page/titre-page';
 import { KfLien } from '../kf-composants/kf-elements/kf-lien/kf-lien';
 import { KfBouton } from '../kf-composants/kf-elements/kf-bouton/kf-bouton';
 import { BarreTitre, IBarreDef } from 'src/app/disposition/fabrique/fabrique-barre-titre/fabrique-barre-titre';
 import { KfComposant } from '../kf-composants/kf-composant/kf-composant';
-import { KfEtiquette } from '../kf-composants/kf-elements/kf-etiquette/kf-etiquette';
-import { KfTypeDeBaliseHTML } from '../kf-composants/kf-composants-types';
+import { DataKeyEditeur } from './data-key editeur';
 
 export class ActionAles {
     nom: string;
@@ -33,7 +27,7 @@ export class ActionAles {
     actionSiOk?: () => void;
 }
 
-export abstract class DataKeyALESComponent<T extends DataKey> extends FormulaireComponent implements OnInit {
+export abstract class DataKeyALESComponent<T extends IDataKey> extends FormulaireComponent implements OnInit {
 
     abstract site: Site;
     get nomSiteDef(): KfTexteDef {
@@ -102,13 +96,13 @@ export abstract class DataKeyALESComponent<T extends DataKey> extends Formulaire
 
     créeEdition = (): KfGroupe => {
         this.créeDataEditeur();
-        this.dataEditeur.créeEdition(this);
+        this.dataEditeur.créeEdition(this.pageDef);
         return this.dataEditeur.edition;
     }
 
     private prépareKeyAjout() {
         const key = this._service.keyDeAjoute;
-        this.dataEditeur.fixeChampsKeys(key);
+        this.dataEditeur.fixeKfKey(key);
     }
 
     ngOnInit() {

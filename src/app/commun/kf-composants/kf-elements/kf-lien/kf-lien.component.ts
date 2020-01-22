@@ -8,7 +8,7 @@ import { KfLien } from './kf-lien';
     styleUrls: ['../../kf-composants.scss']
 })
 export class KfLienComponent extends KfComposantComponent implements OnInit, AfterViewInit {
-    @ViewChild('baliseElement') baliseElementRef: ElementRef;
+    @ViewChild('baliseElement', {static: false}) baliseElementRef: ElementRef;
 
     constructor(
             ) {

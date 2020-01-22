@@ -21,18 +21,16 @@ export abstract class CommandeProduitResolverService {
     }
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<never> | Produit | Observable<Produit> {
+        const noString: string = route.paramMap.get('no');
         return this._service.stock$().pipe(
             map((stock: ICommandeStock) => {
-                const noString: string = route.paramMap.get('no');
-                if (noString) {
-                    const produit: Produit = stock.catalogue.produits.find(p => p.no === +noString);
-                    if (produit) {
-                        produit.nomCategorie = stock.catalogue.catégories.find(c => produit.categorieNo === c.no).nom;
-                        return produit;
-                    }
+                const produit: Produit = this._service.produit(stock, noString);
+                if (produit) {
+                    return produit;
                 }
                 const site = this._service.navigation.litSiteEnCours();
                 this._routeur.naviguePageDef(this.pageDefErreur, this.routesErreur, site.nomSite);
+                return;
             })
         );
     }

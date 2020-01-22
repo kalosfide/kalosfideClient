@@ -24,8 +24,8 @@ import { KfTypeDEvenement, KfStatutDEvenement, KfEvenement } from '../../kf-part
     styleUrls: ['../../kf-composants.scss']
 })
 export class KfFichierComponent extends KfComposantComponent implements OnInit, AfterViewInit {
-    @ViewChild('inputElement') inputElement: ElementRef;
-    @ViewChild('labelElement') labelElement: ElementRef;
+    @ViewChild('inputElement', {static: false}) inputElement: ElementRef;
+    @ViewChild('labelElement', {static: false}) labelElement: ElementRef;
 
     test: any;
 

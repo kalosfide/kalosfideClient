@@ -1,10 +1,11 @@
 import { DataUtileColonne } from 'src/app/commun/data-par-key/data-utile-colonne';
 import { IKfVueTableColonneDef } from 'src/app/commun/kf-composants/kf-vue-table/i-kf-vue-table-colonne-def';
 import { Tri } from 'src/app/commun/outils/trieur';
-import { Produit, CompareProduits } from './produit';
+import { Produit } from './produit';
 import { ProduitUtile } from './produit-utile';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { EtatsProduits } from './etat-produit';
+import { Compare } from '../compare';
 
 export class ProduitUtileColonne extends DataUtileColonne {
     constructor(utile: ProduitUtile) {
@@ -20,7 +21,7 @@ export class ProduitUtileColonne extends DataUtileColonne {
         const def: IKfVueTableColonneDef<Produit> = {
             nom: 'catégorie',
             enTeteDef: { titreDef: 'Catégorie' },
-            tri: new Tri('catégorie', CompareProduits.nomCategorie),
+            tri: new Tri('catégorie', (p1: Produit, p2: Produit) => Compare.nomCatégorie(p1, p2)),
             créeContenu: (produit: Produit) => produit.nomCategorie
         };
         return def;
@@ -30,7 +31,7 @@ export class ProduitUtileColonne extends DataUtileColonne {
         const def: IKfVueTableColonneDef<Produit> = {
             nom: 'produit',
             enTeteDef: { titreDef: 'Nom' },
-            tri: new Tri('produit', CompareProduits.nom),
+            tri: new Tri('produit', (p1: Produit, p2: Produit) => Compare.nomProduit(p1, p2)),
             créeContenu: (produit: Produit) => produit.nom
         };
         return def;
@@ -57,8 +58,19 @@ export class ProduitUtileColonne extends DataUtileColonne {
     prix(): IKfVueTableColonneDef<Produit> {
         const def: IKfVueTableColonneDef<Produit> = {
             nom: 'prix',
+            enTeteDef: { titreDef: 'Prix' },
+            créeContenu: (produit: Produit) => Fabrique.texte.prix(produit.prix),
+            nePasAfficherSi: this.utile.conditionTable.edition
+        };
+        return def;
+    }
+
+    prix_edite(): IKfVueTableColonneDef<Produit> {
+        const def: IKfVueTableColonneDef<Produit> = {
+            nom: 'prix',
             enTeteDef: { titreDef: 'Prix en €' },
-            créeContenu: (produit: Produit) => Fabrique.texte.prix(produit.prix)
+            créeContenu: (produit: Produit) => ({ composant: produit.editeur.kfPrix }),
+            nePasAfficherSi: this.utile.conditionSite.pas_catalogue
         };
         return def;
     }
@@ -67,24 +79,30 @@ export class ProduitUtileColonne extends DataUtileColonne {
         const def: IKfVueTableColonneDef<Produit> = {
             nom: 'état',
             enTeteDef: { titreDef: 'Etat' },
-            créeContenu: (produit: Produit) => EtatsProduits.etat(produit.etat).texte
+            créeContenu: (produit: Produit) => EtatsProduits.etat(produit.etat).texte,
+            nePasAfficherSi: this.utile.conditionTable.edition
         };
         return def;
     }
 
-    edite(): IKfVueTableColonneDef<Produit> {
+    etat_edite(): IKfVueTableColonneDef<Produit> {
         const def: IKfVueTableColonneDef<Produit> = {
-            nom: 'edite',
-            créeContenu: (produit: Produit) => this.utile.lien.edite(produit),
+            nom: 'état',
+            enTeteDef: { titreDef: 'Etat' },
+            créeContenu: (produit: Produit) => ({ composant: produit.editeur.kfEtat }),
             nePasAfficherSi: this.utile.conditionSite.pas_catalogue
         };
         return def;
     }
 
-    editePrix(): IKfVueTableColonneDef<Produit> {
+    supprime(): IKfVueTableColonneDef<Produit> {
         const def: IKfVueTableColonneDef<Produit> = {
-            nom: 'prix',
-            créeContenu: (produit: Produit) => this.utile.lien.prix(produit),
+            nom: 'supprime',
+            créeContenu: (produit: Produit) => {
+                const lien = this.utile.lien.supprime(produit);
+                lien.inactivité = produit.nbDétails > 0;
+                return lien;
+            },
             nePasAfficherSi: this.utile.conditionSite.pas_catalogue
         };
         return def;
@@ -101,11 +119,17 @@ export class ProduitUtileColonne extends DataUtileColonne {
     }
 
     colonnesFournisseur(): IKfVueTableColonneDef<Produit>[] {
-        return this.colonnes().concat([
+        return [
+            this.catégorie(),
+            this.produit(),
+            this.typeCommande(),
+            this.typeMesure(),
+            this.prix(),
+            this.prix_edite(),
             this.etat(),
-            this.edite(),
-            this.editePrix(),
-        ]);
+            this.etat_edite(),
+            this.supprime(),
+        ];
     }
 
 }

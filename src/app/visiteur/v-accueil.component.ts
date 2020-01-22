@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Site } from '../modeles/site';
+import { Site } from '../modeles/site/site';
 import { NavigationService } from '../services/navigation.service';
 import { PageDef } from '../commun/page-def';
 import { VisiteurPages } from './visiteur-pages';

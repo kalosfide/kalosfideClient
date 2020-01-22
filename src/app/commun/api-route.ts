@@ -15,6 +15,7 @@ export const ApiController = {
     livraison: 'livraison',
     peuple: 'peuple',
     facture: 'facture',
+    document: 'document',
 };
 
 export const ApiAction = {
@@ -118,12 +119,25 @@ export const ApiAction = {
         edite: 'edite',
 
         /**
-         * change l'état d'une commande
+         * change l'état d'un client
          *  nouveau -> actif (fournisseur)
          *  actif <-> inactif (client)
          *  nouveau ou actif ou inactif -> exclu (fournisseur)
          */
         etat: 'etat',
+
+        /**
+         * charge la liste des clients
+         * param: keySite
+         */
+        liste: 'liste',
+
+        /**
+         * charge la liste des clients qui ont ouvert un compte depuis une date
+         * param: keySite
+         * param: date du stock
+         */
+        rafraichit: 'depuis',
     },
 
     commande: {
@@ -225,10 +239,15 @@ export const ApiAction = {
 
         /**
          * retourne un ApiLivraison de la dernière livraison
-         * si l'état du site est Livraison,
          * param: key du Site
          */
         encours: 'enCours',
+
+        /**
+         * retourne un ApiLivraison contenant les dernières commandes ouvertes des clients avec compte
+         * param: key du Site
+         */
+        avecCompte: 'avecCompte',
 
         /**
          * change en Livraison l'état du site
@@ -259,5 +278,13 @@ export const ApiAction = {
         copieCommande: 'copieCommande',
         copieCommandes: 'copieCommandes',
         facture: 'facture',
-    }
+    },
+
+    document: {
+        client: 'listeC',
+        listeF: 'listeF',
+        commande: 'commande',
+        livraison: 'livraison',
+        facture: 'facture',
+    },
 };

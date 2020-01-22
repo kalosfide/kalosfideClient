@@ -11,7 +11,8 @@ import { FactureProduit } from './facture-produit';
 import { FactureDétail } from './facture-detail';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { Factures } from './factures';
-import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
+import { DetailCommandeTitre } from 'src/app/commandes/detail-commande';
+import { DetailCommandeCoût, CommandeCoût, ICoût, FactureCoût } from 'src/app/commandes/detail-commande-cout';
 
 export class FactureUtileColonne extends CommandeUtileColonne {
 
@@ -74,8 +75,7 @@ export class FactureUtileColonne extends CommandeUtileColonne {
             bilanDef: {
                 titreDef: 'Total',
                 valeurDef: ({ texteDef: () => Fabrique.texte.prix(factures.total) }),
-                agrégation: (agrégé: number, facture: Facture) => facture.montant + (agrégé ? agrégé : 0),
-                formate: (valeur: number) => Fabrique.texte.prix(valeur),
+                texteAgrégé: (fs: Facture[]) => FactureCoût.aFacturer().texteAgrégé(fs),
                 titreVisiblesSeulement: 'Total des affichés'
             }
         };
@@ -137,13 +137,14 @@ export class FactureUtileColonne extends CommandeUtileColonne {
         };
     }
     commande_montant(facture: Facture): IKfVueTableColonneDef<FactureCommande> {
+        const coûtDef = CommandeCoût.aFacturer();
         return {
             nom: 'montant',
-            créeContenu: (factureCommande: FactureCommande) => ({ texteDef: () => Fabrique.texte.prix(factureCommande.coût) }),
+            créeContenu: (factureCommande: FactureCommande) => ({ texteDef: () => coûtDef.texte(factureCommande) }),
             enTeteDef: { titreDef: 'Montant' },
             bilanDef: {
                 titreDef: 'Total',
-                valeurDef: ({ texteDef: () => Fabrique.texte.prix(facture.montant) }),
+                texteAgrégé: (commandes: FactureCommande[]) => coûtDef.texteAgrégé(commandes),
             }
         };
     }
@@ -164,7 +165,7 @@ export class FactureUtileColonne extends CommandeUtileColonne {
             nePasAfficherSi: this.factureUtile.conditionTable.pasEdition,
         };
     }
-    commande_annule(facture: Facture): IKfVueTableColonneDef<FactureCommande> {
+    commande_annule(): IKfVueTableColonneDef<FactureCommande> {
         return {
             nom: 'annuler',
             enTeteDef: { titreDef: 'Annuler' },
@@ -199,44 +200,6 @@ export class FactureUtileColonne extends CommandeUtileColonne {
         ];
     }
 
-    détail_aFacturer(): IKfVueTableColonneDef<FactureDétail> {
-        return {
-            nom: 'aFacturer',
-            créeContenu: (détail: FactureDétail) => ({ composant: détail.aLivrerTexte }), // '' + Fabrique.texte.aFacturerAvecUnité(détail),
-            enTeteDef: { titreDef: 'A facturer' }
-        };
-    }
-    détail_facturé(): IKfVueTableColonneDef<FactureDétail> {
-        return {
-            nom: 'facturés',
-            créeContenu: (détail: FactureDétail) => ({ composant: détail.aFacturerNombre }),
-            enTeteDef: { titreDef: 'Facturés' }
-        };
-    }
-    détail_prix(): IKfVueTableColonneDef<FactureDétail> {
-        return {
-            nom: 'prixUnitaire',
-            créeContenu: (détail: FactureProduit) => Fabrique.texte.prix(détail.produit.prix),
-            enTeteDef: { titreDef: 'P.U.' }
-        };
-    }
-    détail_coût(factureCommande: FactureCommande): IKfVueTableColonneDef<FactureDétail> {
-        return {
-            nom: 'coût',
-            créeContenu: (détail: FactureDétail) => {
-                return ({ texteDef: () => Fabrique.texte.coûtFacturés(détail) });
-            },
-            enTeteDef: { titreDef: 'Coût' },
-            bilanDef: {
-                titreDef: 'Total',
-                valeurDef: '',
-                agrégation: (agrégé: number, détail: FactureDétail) => détail.coût + agrégé,
-                valeur0: 0,
-                formate: (valeur: number) => Fabrique.texte.prix(valeur),
-                titreVisiblesSeulement: 'Total des affichés'
-            }
-        };
-    }
     détail_copie(factureCommande: FactureCommande): IKfVueTableColonneDef<FactureDétail> {
         return {
             nom: 'copier',
@@ -275,11 +238,12 @@ export class FactureUtileColonne extends CommandeUtileColonne {
         return [
             this._détail.catégorie(),
             this._détail.produit(),
-            this.détail_aFacturer(),
-            this.détail_facturé(),
-            this.détail_toolbarDétail(factureCommande),
-            this.détail_prix(),
-            this.détail_coût(factureCommande),
+            this._détail.aLivrer(DetailCommandeTitre.aLivrer.facture, true),
+            this.détail_copie(factureCommande),
+            this.détail.aFacturer(),
+            this.détail.aFacturer_edite(),
+            this._détail.prix(),
+            this._détail.coût(DetailCommandeCoût.aFacturer()),
         ];
     }
 

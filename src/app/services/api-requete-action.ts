@@ -14,5 +14,5 @@ export class ApiRequêteAction {
     actionSiErreur?: (resultat: ResultatAction) => void;
     titreErreur?: string;
     titreSucces?: string;
-    avecAttenteGlobale?: boolean;
+    attente?: { commence: () => void; finit: () => void };
 }

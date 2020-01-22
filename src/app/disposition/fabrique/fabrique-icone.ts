@@ -5,6 +5,8 @@ import { FANomIcone } from 'src/app/commun/kf-composants/kf-partages/kf-icone-de
 import { FabriqueMembre } from './fabrique-membre';
 import { FabriqueClasse } from './fabrique';
 import { KfIconeTaille, KfIconePositionTexte } from 'src/app/commun/kf-composants/kf-elements/kf-icone/kf-icone-types';
+import { KfGéreCss } from 'src/app/commun/kf-composants/kf-partages/kf-gere-css';
+import { ApiRequêteAction } from 'src/app/services/api-requete-action';
 
 export class FabriqueIcone extends FabriqueMembre {
     n: FANomIcone = 'plus';
@@ -23,7 +25,7 @@ export class FabriqueIcone extends FabriqueMembre {
         refuser: 'ban',
         modifier: 'edit',
         supprimer: 'trash',
-        copier: 'clone',
+        copier: 'arrow-right',
         filtre: 'filter',
         cherche: 'search',
         effacer: 'eraser',
@@ -54,7 +56,7 @@ export class FabriqueIcone extends FabriqueMembre {
         refuser: 'ban',
         modifier: 'edit',
         supprimer: 'trash',
-        copier: 'clone',
+        copier: 'arrow-right',
         filtre: 'filter',
         cherche: 'search',
         effacer: 'eraser',
@@ -117,6 +119,26 @@ export class FabriqueIcone extends FabriqueMembre {
         if (taille) {
             icone.taille(taille);
         }
+        return icone;
+    }
+
+    préparePourAttente(gèreCss: KfGéreCss, apiAction: ApiRequêteAction): KfIcone {
+        const icone = this.iconeAttente();
+        icone.créeGèreCssFond();
+        icone.gèreCssFond.ajouteClasseDef('survol-centre');
+        icone.gèreCssFond.fixeStyleDef('font-size', '1.25em');
+        icone.fondVisible = false;
+
+        apiAction.attente = {
+            commence: () => {
+                icone.fondVisible = true;
+                gèreCss.fixeStyleDef('opacity', '.33');
+            },
+            finit: () => {
+                icone.fondVisible = false;
+                gèreCss.supprimeStyleDef('opacity');
+            }
+        };
         return icone;
     }
 

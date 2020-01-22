@@ -6,7 +6,7 @@ import { DetailCommande } from './detail-commande';
 import { Commande } from './commande';
 import { ICommandeStock } from './i-commande-stock';
 import { CommandeService } from './commande.service';
-import { Client } from '../modeles/clientele/client';
+import { Client } from '../modeles/client/client';
 import { ICommandeComponent } from './i-commande-component';
 import { IKfVueTableColonneDef } from 'src/app/commun/kf-composants/kf-vue-table/i-kf-vue-table-colonne-def';
 import { CommandeAvecDetailComponent } from './commande-avec-details.component';
@@ -44,17 +44,11 @@ export abstract class CommandeChoixProduitComponent extends CommandeAvecDetailCo
         outils.ajoute(this._utile.outils.catégorie());
         outils.ajoute(this._utile.outils.produit());
 
-        const colonnesDefs: IKfVueTableColonneDef<DetailCommande>[] = [
-            this._utile.colonne.détail.catégorie(),
-            this._utile.colonne.détail.produit(),
-            this._utile.colonne.détail.prix(),
-            this._utile.colonne.détail.typeCommande(),
-            this._utile.colonne.détail.choisit(),
-        ];
         const vueTableDef: IKfVueTableDef<DetailCommande> = {
-            colonnesDef: colonnesDefs,
+            colonnesDef: this._utile.colonne.détail.defsChoixProduit(),
             outils: outils,
             id: (détail: DetailCommande) => this._utile.url.id('' + détail.produit.no),
+            quandClic: (détail: DetailCommande) => (() => this.routeur.navigueUrlDef(this._utile.url.ajoute(détail))).bind(this)
         };
         return {
             vueTableDef: vueTableDef

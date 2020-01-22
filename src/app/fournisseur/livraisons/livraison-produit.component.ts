@@ -6,14 +6,14 @@ import { ValeurTexteDef } from 'src/app/commun/kf-composants/kf-partages/kf-text
 import { ComponentAAutoriserAQuitter } from 'src/app/commun/peut-quitter/peut-quitter-garde.service';
 import { PageDef } from 'src/app/commun/page-def';
 import { LivraisonPages, LivraisonRoutes } from './livraison-pages';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { Identifiant } from 'src/app/securite/identifiant';
 import { LivraisonProduit } from './livraison-produit';
 import { ActivatedRoute, RouterStateSnapshot, Data } from '@angular/router';
 import { LivraisonService } from './livraison.service';
 import { Observable } from 'rxjs';
 import { IKfVueTableDef } from 'src/app/commun/kf-composants/kf-vue-table/i-kf-vue-table-def';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 import { Produit } from 'src/app/modeles/catalogue/produit';
 import { DetailCommande } from 'src/app/commandes/detail-commande';
 import { LivraisonStock } from './livraison-stock';
@@ -25,11 +25,12 @@ import { PageTableComponent } from 'src/app/disposition/page-table/page-table.co
 import { IGroupeTableDef } from 'src/app/disposition/page-table/groupe-table';
 import { EtatTableType } from 'src/app/disposition/page-table/etat-table';
 import { KfLien } from 'src/app/commun/kf-composants/kf-elements/kf-lien/kf-lien';
-import { texteKeyUidRno } from 'src/app/commun/data-par-key/data-key';
 import { BarreTitre } from 'src/app/disposition/fabrique/fabrique-barre-titre/fabrique-barre-titre';
 import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
 import { KfEtiquette } from 'src/app/commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
 import { KfTypeDeBaliseHTML } from 'src/app/commun/kf-composants/kf-composants-types';
+import { KeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/key-uid-rno';
+import { ApiRequêteAction } from 'src/app/services/api-requete-action';
 
 
 @Component({
@@ -126,13 +127,20 @@ export class LivraisonProduitComponent extends PageTableComponent<DetailCommande
             colonnesDef: this.utile.colonne.détail.defsDUnProduit(this.livraisonProduit),
             outils: outils,
             superGroupe: (ligne: DetailCommande) => {
-                if (!ligne.superGroupe) {
-                    ligne.créeSuperGroupe();
+                if (!ligne.editeur) {
+                    ligne.créeEditeur(this);
+                    ligne.editeur.créeSuperGroupe();
+                    const apiAction: ApiRequêteAction = {
+                        demandeApi: () => this.service.editeDétail(ligne),
+                        actionSiOk: () => this.service.siEditeDétailOk(ligne),
+                        formulaire: ligne.editeur.superGroupe
+                    };
+                    Fabrique.input.prépareSuitValeurEtFocus(ligne.editeur.kfALivrer, apiAction, this.service);
                 }
-                return ligne.superGroupe;
+                return ligne.editeur.superGroupe;
             },
             id: (t: DetailCommande) => {
-                return this.utile.url.id(texteKeyUidRno(t.client));
+                return this.utile.url.id(KeyUidRno.texteDeKey(t.client));
             },
         };
 
@@ -152,9 +160,8 @@ export class LivraisonProduitComponent extends PageTableComponent<DetailCommande
 
     chargeData(data: Data) {
         const stock: LivraisonStock = data.stock;
-        const clients: Client[] = data.clients;
         const produit: Produit = data.produit;
-        this.livraisonProduit = new LivraisonProduit(stock, clients, produit);
+        this.livraisonProduit = new LivraisonProduit(stock, produit);
     }
 
     protected chargeGroupe() {

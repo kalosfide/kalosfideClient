@@ -1,4 +1,4 @@
-import { DataKey } from './data-key';
+import { IDataKey } from './data-key';
 import { DataKeyUtile } from './data-key-utile';
 import { KfLien } from '../kf-composants/kf-elements/kf-lien/kf-lien';
 import { ILienDef } from 'src/app/disposition/fabrique/fabrique-lien';
@@ -6,7 +6,7 @@ import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { IContenuPhraseDef } from 'src/app/disposition/fabrique/fabrique-contenu-phrase';
 import { IUrlDef } from 'src/app/disposition/fabrique/fabrique-url';
 
-export class DataKeyUtileLien<T extends DataKey> {
+export class DataKeyUtileLien<T extends IDataKey> {
     protected _utile: DataKeyUtile<T>;
 
     constructor(utile: DataKeyUtile<T>) {

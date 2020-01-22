@@ -60,6 +60,9 @@ i.kf-popover-icone {
     text-align: center;
     vertical-align: middle;
 }
+.avec-survol {
+    position: relative;
+}
 
 .retour-en-haut {
     position: fixed;
@@ -85,6 +88,14 @@ tr.kf-vue-table-choisi {
 .sous-page .container-fluid {
     padding-left: inherit;
     padding-right: inherit;
+}
+
+table .nombre {
+    width: 120px;
+}
+
+table .unite {
+    width: 120px;
 }
 
 // surcharge de bootstrap pour qu'un clic force le collapse

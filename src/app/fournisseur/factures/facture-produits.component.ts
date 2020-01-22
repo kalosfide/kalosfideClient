@@ -2,19 +2,19 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { PageDef } from 'src/app/commun/page-def';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { Identifiant } from 'src/app/securite/identifiant';
 import { KfVueTable } from 'src/app/commun/kf-composants/kf-vue-table/kf-vue-table';
 import { ActivatedRoute, Data } from '@angular/router';
 import { FacturePages } from './facture-pages';
 import { FactureService } from './facture.service';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 import { KfGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-groupe';
 import { KfEtiquette } from 'src/app/commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
 import { FactureUtile } from './facture-utile';
 import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-groupe';
 import { RouteurService } from 'src/app/services/routeur.service';
-import { SiteService } from 'src/app/modeles/site.service';
+import { SiteService } from 'src/app/modeles/site/site.service';
 import { PageTableComponent } from 'src/app/disposition/page-table/page-table.component';
 import { IGroupeTableDef, GroupeTable } from 'src/app/disposition/page-table/groupe-table';
 import { BarreTitre } from 'src/app/disposition/fabrique/fabrique-barre-titre/fabrique-barre-titre';
@@ -103,7 +103,8 @@ export class FactureProduitsComponent extends PageTableComponent<FactureProduit>
                 nom: 'client',
                 titre: 'Client',
                 texteDef: () => this.client.nom
-            }, {
+            },
+            {
                 nom: 'commandes',
                 titre: 'Commandes',
                 texteDef: () => {

@@ -4,7 +4,7 @@ import { KfTexteDef } from '../../kf-partages/kf-texte-def';
 import { KfBouton } from '../kf-bouton/kf-bouton';
 import { KfLien } from '../kf-lien/kf-lien';
 import { KfComposant } from '../../kf-composant/kf-composant';
-import { KfGèreCss } from '../../kf-partages/kf-gere-css';
+import { KfGéreCss } from '../../kf-partages/kf-gere-css';
 import { KfNgClasseDef, KfNgClasse } from '../../kf-partages/kf-gere-css-classe';
 import { KfContenuPhrase } from '../../kf-partages/kf-contenu-phrase/kf-contenu-phrase';
 
@@ -16,7 +16,7 @@ export class KfNgbDropdown extends KfElement {
     placement: TypePlacement | TypePlacement[];
     ouvert: boolean;
     estADroiteDansMenu: boolean;
-    private _gereCssMenu: KfGèreCss;
+    private _gereCssMenu: KfGéreCss;
 
     // pour la classe et le contenu phrasé
     bouton: KfBouton;
@@ -26,7 +26,7 @@ export class KfNgbDropdown extends KfElement {
         this.ajouteClasseDef('dropdown');
         this.bouton = new KfBouton('', texte);
         this.bouton.ajouteClasseDef('btn', 'dropdown-toggle');
-        this._gereCssMenu = new KfGèreCss();
+        this._gereCssMenu = new KfGéreCss();
         this._gereCssMenu.ajouteClasseDef('dropdown-menu', {
             nom: 'dropdown-menu-right',
             active: () => this.estADroiteDansMenu

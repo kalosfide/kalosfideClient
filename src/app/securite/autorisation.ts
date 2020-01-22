@@ -1,5 +1,5 @@
 import { Identifiant, IdentifiantRole } from './identifiant';
-import { Site } from '../modeles/site';
+import { Site } from '../modeles/site/site';
 
 export enum TypeAutorisation {
     fournisseur = 'fournisseur',

@@ -200,7 +200,9 @@ export class ApiRequêteService {
                 details = distribution.messages;
                 apiErreurs = distribution.apiErreurs;
             }
-            details = details.concat(apiErreurs.map(e => `Erreur: { champ: ${e.champ}, code: ${e.code}}`));
+            details = details.concat(apiErreurs.map(e => {
+                return `Erreur: { champ: ${e.champ}, code: ${e.code}}`;
+            }));
         }
         const resultat = ResultatAction.afficheErreur(requêteDef.titreErreur, details);
         return resultat;
@@ -233,11 +235,12 @@ export class ApiRequêteService {
                         const apiErreurs = (result as ApiResult400BadRequest).apiErreurs;
                         // les erreurs BadRequest peuvent être redirigées si le contexte a changé
                         if (requêteDef.traiteErreur400) {
-                            const àTraiter = requêteDef.traiteErreur400().find(
+                            const traiteur = requêteDef.traiteErreur400().find(
                                 r => apiErreurs.find(e => r.code.toLowerCase() === e.code.toLowerCase()) !== undefined);
-                            if (àTraiter) {
+                            if (traiteur) {
                                 const apiResult = new ApiResult(400);
-                                apiResult.traite = àTraiter.traite;
+                                apiResult.traite = traiteur.traite;
+                                apiResult.traiteObs = traiteur.traiteObs;
                                 return ResultatAction.traiteErreur(apiResult);
                             }
                         }
@@ -251,10 +254,15 @@ export class ApiRequêteService {
     }
 
     public action(requêteDef: ApiRequêteAction) {
-        let attente: number;
-        if (requêteDef.avecAttenteGlobale) {
-            attente = this.attenteService.commence('action');
-        }
+        let noAttente: number;
+        const attente = requêteDef.attente
+            ? requêteDef.attente
+            : {
+                commence: () => noAttente = this.attenteService.commence('action'),
+                finit: () => this.attenteService.finit(noAttente)
+            };
+
+        attente.commence();
         const formGroup = requêteDef.formulaire ? requêteDef.formulaire.formGroup : undefined;
         if (formGroup) {
             if (requêteDef.afficheResultat) {
@@ -265,9 +273,7 @@ export class ApiRequêteService {
         const subscription = this.résultat(requêteDef).subscribe(
             resultat => {
                 subscription.unsubscribe();
-                if (requêteDef.avecAttenteGlobale) {
-                    this.attenteService.finit(attente);
-                }
+                attente.finit();
                 if (resultat.ok) {
                     if (requêteDef.afficheResultat) {
                         requêteDef.afficheResultat.affiche();
@@ -275,7 +281,16 @@ export class ApiRequêteService {
                     requêteDef.actionSiOk();
                 } else {
                     if (resultat.apiResultTraite) {
-                        resultat.apiResultTraite.traite();
+                        if (resultat.apiResultTraite.traite) {
+                            resultat.apiResultTraite.traite();
+                        }
+                        if (resultat.apiResultTraite.traiteObs) {
+                            const subscription1 = resultat.apiResultTraite.traiteObs().subscribe(
+                                ok => {
+                                    subscription1.unsubscribe();
+                                }
+                            );
+                        }
                     }
                     if (resultat.apiResultRedirige) {
                         this._routeur.navigueVersErreur(resultat.apiResultRedirige);
@@ -292,10 +307,15 @@ export class ApiRequêteService {
     }
 
     public actionOkObs(requêteDef: ApiRequêteAction): Observable<boolean> {
-        let attente: number;
-        if (requêteDef.avecAttenteGlobale) {
-            attente = this.attenteService.commence('action');
-        }
+        let noAttente: number;
+        const attente = requêteDef.attente
+            ? requêteDef.attente
+            : {
+                commence: () => noAttente = this.attenteService.commence('action'),
+                finit: () => this.attenteService.finit(noAttente)
+            };
+
+        attente.commence();
         const formGroup = requêteDef.formulaire ? requêteDef.formulaire.formGroup : undefined;
         if (formGroup) {
             if (requêteDef.afficheResultat) {
@@ -306,9 +326,7 @@ export class ApiRequêteService {
         return this.résultat(requêteDef).pipe(
             map(
             resultat => {
-                if (requêteDef.avecAttenteGlobale) {
-                    this.attenteService.finit(attente);
-                }
+                attente.finit();
                 if (resultat.ok) {
                     if (requêteDef.afficheResultat) {
                         requêteDef.afficheResultat.affiche();

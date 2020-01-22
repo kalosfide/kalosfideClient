@@ -84,7 +84,7 @@ export class CommandeUtileLien extends DataUtileLien {
         return Fabrique.lien.lien(this.def('edite', this.url.edite(détail), iconeDef));
     }
     supprime(détail: DetailCommande): KfLien {
-        const iconeDef = détail.client && détail.crééParLeClient ? Fabrique.contenu.exclure : Fabrique.contenu.supprime;
+        const iconeDef = détail.client && détail.commandeCrééParLeClient ? Fabrique.contenu.exclure : Fabrique.contenu.supprime;
         return Fabrique.lien.lien(this.def('supprime', this.url.supprime(détail), iconeDef));
     }
 }

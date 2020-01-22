@@ -4,7 +4,7 @@ export interface IKfVueTableBilanDef<T> {
     /**
      * Si présent et si la colonne est précédée de colonnes sans bilan, le titre s'étalera sur ces colonnes
      */
-    titreDef: KfVueTableCelluleDef;
+    titreDef?: KfVueTableCelluleDef;
 
     /**
      * Si agrégation des valeurs ne sert que pour la classe css
@@ -14,12 +14,7 @@ export interface IKfVueTableBilanDef<T> {
     /**
      * Si présent, une étiquette vide est crée pour afficher la valeur agrégée de la colonne
      */
-    agrégation?: (agrégé: any, item: T) => any;
-
-    /**
-     * Valeur initiale de l'agrégation
-     */
-    valeur0?: any;
+    texteAgrégé?: (items: T[]) => string;
 
     /**
      * Si vrai, seules les valeurs des lignes qui passent les filtres sont agrégées
@@ -31,9 +26,4 @@ export interface IKfVueTableBilanDef<T> {
      * où seules les valeurs des lignes qui passent les filtres sont agrégées
      */
     titreVisiblesSeulement?: KfVueTableCelluleDef;
-
-    /**
-     * Si présent, formate la valeur agrégée pour le texteDef à afficher
-     */
-    formate?: (agrégé: any) => string;
 }

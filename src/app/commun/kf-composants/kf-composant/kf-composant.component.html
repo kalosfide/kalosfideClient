@@ -62,6 +62,9 @@
                 <app-kf-vue-table *ngSwitchCase="type.vuetable" [composant]="composant"
                     (output)="traiteOuTransmet($event)"></app-kf-vue-table>
 
+                <app-kf-table *ngSwitchCase="type.table" [composant]="composant"
+                    (output)="traiteOuTransmet($event)"></app-kf-table>
+
                 <!-- éléments de formulaire -->
                 <app-kf-caseacocher *ngSwitchCase="type.caseacocher" [composant]="composant"
                     (output)="traiteOuTransmet($event)"></app-kf-caseacocher>

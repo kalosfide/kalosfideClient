@@ -1,7 +1,7 @@
 import { KfTypeDEvenement, KfEvenement, KfStatutDEvenement } from '../kf-partages/kf-evenements';
 import { KfInputTexte } from '../kf-elements/kf-input/kf-input-texte';
 import { KfListeDeroulanteBase } from '../kf-elements/kf-liste-deroulante/kf-liste-deroulante-base';
-import { KfGèreCss } from '../kf-partages/kf-gere-css';
+import { KfGéreCss } from '../kf-partages/kf-gere-css';
 import { KfVueTableOutils } from './kf-vue-table-outils';
 import { IKfVueTableOutil } from './kf-vue-table-outil';
 import { KfBBtnToolbarElement, KfBBtnToolbarInputGroup } from '../kf-b-btn-toolbar/kf-b-btn-toolbar';

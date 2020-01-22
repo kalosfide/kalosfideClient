@@ -14,13 +14,18 @@ export interface StockageOptions<T> {
     avecDate?: boolean;
 
     /**
-     * si 'déclenche', doitRéinitialiser est requis.
-     * si 'rafraichi', doitRéinitialiser est fixé à la création
+     * si 'déclenche', doitRéinitialiser est requis, le stockage déclenche la réinitialisation des stockages dépendants.
+     * si 'rafraichi', si dépendDe est absent, le stockage dépend de tous les déclencheurs.
      */
     rafraichit: TypeRafraichitStockage;
 
     /**
-     * à chaque émission, le stockage est initialisé
+     * Observable qui à chaque émission, déclenche la réinitialisation des stockages dépendants
      */
     doitRéinitialiser?: Observable<any>;
+
+    /**
+     * Noms des stockages dont les changements de valeur doivent déclencher la réinitialisation de ce stockage
+     */
+    dépendDe?: string[];
 }

@@ -4,8 +4,9 @@ import { KfOptionTexte } from '../commun/kf-composants/kf-elements/kf-liste-dero
 export enum IdEtatDetailCommande {
     tout = 'T',
     àPréparer = 'A',
-    prêt = 'P',
+    préparé = 'P',
     refusé = 'R',
+    facturé = 'F'
 }
 
 class EtatDetailCommandeDef {
@@ -23,19 +24,25 @@ const tout: EtatDetailCommandeDef = {
 const àPréparer: EtatDetailCommandeDef = {
     valeur: IdEtatDetailCommande.àPréparer,
     texte: 'à préparer',
-    vérifie: (c: DetailCommande) => !c.prêt
+    vérifie: (c: DetailCommande) => !c.préparé
 };
 
-const prêt: EtatDetailCommandeDef = {
-    valeur: IdEtatDetailCommande.prêt,
+const préparé: EtatDetailCommandeDef = {
+    valeur: IdEtatDetailCommande.préparé,
     texte: 'prêts',
-    vérifie: (c: DetailCommande) => c.prêt
+    vérifie: (c: DetailCommande) => c.préparé
 };
 
 const refusé: EtatDetailCommandeDef = {
     valeur: IdEtatDetailCommande.refusé,
     texte: 'refusés',
     vérifie: (c: DetailCommande) => c.refusé
+};
+
+const facturé: EtatDetailCommandeDef = {
+    valeur: IdEtatDetailCommande.facturé,
+    texte: 'facturés',
+    vérifie: (c: DetailCommande) => c.facturée
 };
 
 class CEtatDetailCommande {
@@ -49,13 +56,13 @@ class CEtatDetailCommande {
     àPréparer: EtatDetailCommandeDef = {
         valeur: IdEtatDetailCommande.àPréparer,
         texte: 'à préparer',
-        vérifie: (c: DetailCommande) => !c.prêt
+        vérifie: (c: DetailCommande) => !c.préparé
     };
 
     prêt: EtatDetailCommandeDef = {
-        valeur: IdEtatDetailCommande.prêt,
+        valeur: IdEtatDetailCommande.préparé,
         texte: 'prêts',
-        vérifie: (c: DetailCommande) => c.prêt
+        vérifie: (c: DetailCommande) => c.préparé
     };
 
     refusé: EtatDetailCommandeDef = {
@@ -65,7 +72,7 @@ class CEtatDetailCommande {
     };
 
     get liste(): EtatDetailCommandeDef[] {
-        return [tout, àPréparer, prêt, refusé];
+        return [tout, àPréparer, préparé, refusé];
     }
 
     étatDeId(id: IdEtatDetailCommande): EtatDetailCommandeDef {
@@ -74,8 +81,8 @@ class CEtatDetailCommande {
                 return tout;
             case IdEtatDetailCommande.àPréparer:
                 return àPréparer;
-            case IdEtatDetailCommande.prêt:
-                return prêt;
+            case IdEtatDetailCommande.préparé:
+                return préparé;
             case IdEtatDetailCommande.refusé:
                 return refusé;
             default:

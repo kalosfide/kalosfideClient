@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { Site } from '../modeles/site';
+import { Site } from '../modeles/site/site';
 import { Observable, Subject } from 'rxjs';
 import { Router, NavigationEnd, NavigationStart, ResolveEnd, ResolveStart } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -151,6 +151,10 @@ export class NavigationService implements OnDestroy {
 
     public siteObs(): Observable<Site> {
         return this._siteSubject.asObservable();
+    }
+
+    public keySiteObs(): Observable<KeyUidRno> {
+        return this._keySiteSubject.asObservable();
     }
 
     public changementDePageDef(): Observable<boolean> {

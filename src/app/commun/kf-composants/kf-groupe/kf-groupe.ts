@@ -4,7 +4,7 @@ import { FormGroup } from '@angular/forms';
 import { KfComposantGereValeur } from '../kf-composant/kf-composant-gere-valeur';
 import { KfEtiquette } from '../kf-elements/kf-etiquette/kf-etiquette';
 import { KfDivTable, KfDivTableLigne } from './kf-div-table';
-import { KfGèreCss } from '../kf-partages/kf-gere-css';
+import { KfGéreCss } from '../kf-partages/kf-gere-css';
 import { KfNgClasse } from '../kf-partages/kf-gere-css-classe';
 
 export class KfGroupe extends KfComposant {
@@ -59,7 +59,7 @@ export class KfGroupe extends KfComposant {
     /**
      * si existe, gère le css d'une div créée autour des contenus
      */
-    private _gèreCssSousDiv: KfGèreCss;
+    private _gèreCssSousDiv: KfGéreCss;
 
     private _masqué: boolean;
     legende: KfEtiquette;
@@ -95,7 +95,7 @@ export class KfGroupe extends KfComposant {
      * crée le gestionnaire css d'une div à ajouter autour des contenus
      */
     contenusDansDiv(classe: string) {
-        this._gèreCssSousDiv = new KfGèreCss();
+        this._gèreCssSousDiv = new KfGéreCss();
         this._gèreCssSousDiv.ajouteClasseDef(classe);
     }
     get classeSousDiv(): KfNgClasse {

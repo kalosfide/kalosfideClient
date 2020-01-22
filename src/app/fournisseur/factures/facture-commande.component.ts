@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { PageDef } from 'src/app/commun/page-def';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { Identifiant } from 'src/app/securite/identifiant';
 import { IKfVueTableDef } from 'src/app/commun/kf-composants/kf-vue-table/i-kf-vue-table-def';
 import { ActivatedRoute, Data } from '@angular/router';
@@ -13,7 +13,7 @@ import { KfEtiquette } from 'src/app/commun/kf-composants/kf-elements/kf-etiquet
 import { FactureUtile } from './facture-utile';
 import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-groupe';
 import { RouteurService } from 'src/app/services/routeur.service';
-import { SiteService } from 'src/app/modeles/site.service';
+import { SiteService } from 'src/app/modeles/site/site.service';
 import { PageTableComponent } from 'src/app/disposition/page-table/page-table.component';
 import { IGroupeTableDef, GroupeTable } from 'src/app/disposition/page-table/groupe-table';
 import { EtatTableType } from 'src/app/disposition/page-table/etat-table';
@@ -23,7 +23,6 @@ import { KfTypeDeBaliseHTML } from 'src/app/commun/kf-composants/kf-composants-t
 import { FactureDétail } from './facture-detail';
 import { FactureCommande } from './facture-commande';
 import { ApiRequêteAction } from 'src/app/services/api-requete-action';
-import { KfValidateurs } from 'src/app/commun/kf-composants/kf-partages/kf-validateur';
 import { FactureStock } from './facture-stock';
 
 @Component({
@@ -96,16 +95,17 @@ export class FactureCommandeComponent extends PageTableComponent<FactureDétail>
             colonnesDef: this.utile.colonne.détailFacture(this.factureCommande),
             outils: outils,
             superGroupe: (ligne: FactureDétail) => {
-                if (!ligne.superGroupe) {
-                    ligne.créeSuperGroupe();
+                if (!ligne.editeur) {
+                    ligne.créeEditeur(this);
+                    const superGroupe = ligne.editeur.créeSuperGroupe();
                     const apiAction: ApiRequêteAction = {
                         demandeApi: () => this.service.factureDétail(ligne),
                         actionSiOk: () => this.service.factureDétailOk(ligne),
-                        formulaire: ligne.superGroupe
+                        formulaire: ligne.editeur.superGroupe
                     };
-                    Fabrique.input.prépareSuitValeurEtFocus(ligne.aFacturerNombre, apiAction, this.service);
+                    Fabrique.input.prépareSuitValeurEtFocus(ligne.editeur.kfAFacturer, apiAction, this.service);
                 }
-                return ligne.superGroupe;
+                return ligne.editeur.superGroupe;
             },
             id: (t: FactureDétail) => {
                 return this.utile.url.id('' + t.produit.no);

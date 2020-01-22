@@ -1,31 +1,24 @@
-import { KeyUidRnoNoService } from '../commun/data-par-key/key-uid-rno-no/key-uid-rno-no.service';
 import { IKeyUidRno } from '../commun/data-par-key/key-uid-rno/i-key-uid-rno';
 import { ApiCommande, ApiDétailCommande, ApiDétailCommandeData } from './api-commande';
 import { DetailCommande } from './detail-commande';
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ApiAction, ApiController } from '../commun/api-route';
-import { copieKeyUidRno } from '../commun/data-par-key/data-key';
 import { KfGroupe } from '../commun/kf-composants/kf-groupe/kf-groupe';
 import { ApiResult } from '../commun/api-results/api-result';
-import { KeyUidRnoNo2CréeParams } from '../commun/data-par-key/key-uid-rno-no-2/key-uid-rno-no-2';
+import { KeyUidRnoNo2 } from '../commun/data-par-key/key-uid-rno-no-2/key-uid-rno-no-2';
 import { ICommandeStock } from './i-commande-stock';
 import { IKeyUidRnoNo } from '../commun/data-par-key/key-uid-rno-no/i-key-uid-rno-no';
 import { ApiRequêteService } from '../services/api-requete.service';
 import { IdEtatSite } from '../modeles/etat-site';
-import { CommandeUtile } from './commande-utile';
-import { Site } from '../modeles/site';
-import { ModeTable } from '../commun/data-par-key/condition-table';
-import { KfInitialObservable } from '../commun/kf-composants/kf-partages/kf-initial-observable';
-import { ModeAction } from './condition-action';
 import { ApiErreur400Traite } from '../commun/api-results/api-erreur-400';
+import { KeyUidRno } from '../commun/data-par-key/key-uid-rno/key-uid-rno';
+import { CommandeActionService } from './commande-action.service';
+import { Produit } from '../modeles/catalogue/produit';
+import { DATE_NULLE } from '../modeles/date-nulle';
 
-
-export abstract class CommandeService extends KeyUidRnoNoService<ApiCommande> {
+export abstract class CommandeService extends CommandeActionService {
 
     controllerUrl = 'commande';
-
-    private _modeActionIO: KfInitialObservable<ModeAction>;
-    private _subscriptionDeModeTableAModeAction: Subscription;
 
     constructor(
         protected _apiRequete: ApiRequêteService
@@ -45,6 +38,16 @@ export abstract class CommandeService extends KeyUidRnoNoService<ApiCommande> {
     abstract stockeCommande(stock: ICommandeStock, commande: ApiCommande): void;
     abstract déstockeCommande(stock: ICommandeStock, ikeyCommande: IKeyUidRnoNo): void;
 
+    public produit(stock: ICommandeStock, noString: string): Produit {
+        if (noString) {
+            const produit: Produit = stock.catalogue.produits.find(p => p.no === +noString);
+            if (produit) {
+                produit.nomCategorie = stock.catalogue.catégories.find(c => produit.categorieNo === c.no).nom;
+                return produit;
+            }
+        }
+    }
+
     /**
      * crée une nouvelle commande vide d'un client
      * @param ikeyClient tout objet ayant l'uid et le rno du client
@@ -60,83 +63,16 @@ export abstract class CommandeService extends KeyUidRnoNoService<ApiCommande> {
     /** actionSiOk de créeCopie */
     abstract siCréeCopieOk(ikeyClient: IKeyUidRno): void;
 
-    protected abstract get transformeSiteFnc(): (site: Site) => ModeAction;
-
-    private get transformeModeFnc(): (modeAction: ModeAction) => ModeTable {
-        return (modeAction: ModeAction) => {
-            switch (modeAction) {
-                case ModeAction.aperçu:
-                    return ModeTable.aperçu;
-                case ModeAction.aucun:
-                    return ModeTable.sans;
-                case ModeAction.envoi:
-                    return ModeTable.bilan;
-                case ModeAction.doitCréer:
-                    return ModeTable.aperçu;
-                case ModeAction.supprime:
-                    return ModeTable.aperçu;
-                default:
-                    return ModeTable.edite;
-            }
-        };
-    }
-
-    private modeTableSouscritAModeAction() {
-        this._subscriptionDeModeTableAModeAction = this._modeActionIO.observable.subscribe(modeAction => {
-            this._modeTableIO.changeValeur(this.transformeModeFnc(modeAction));
-        });
-    }
-
-    créeUtile() {
-        const site = this.navigation.litSiteEnCours();
-        this._modeActionIO = KfInitialObservable.nouveau<ModeAction>(this.transformeSiteFnc(site));
-        const siteObs = this.navigation.siteObs();
-        siteObs.subscribe(site1 => {
-            this._modeActionIO.changeValeur(this.transformeSiteFnc(site1));
-        });
-        this._modeTableIO = KfInitialObservable.nouveau<ModeTable>(this.transformeModeFnc(this._modeActionIO.valeur));
-        this.modeTableSouscritAModeAction();
-        this._créeUtile();
-        this._utile.observeModeTable(this._modeTableIO);
-        this.utile.observeModeAction(this._modeActionIO);
-        this.utile.créeAutresConditions();
-    }
-
-    initialiseModeAction(modeAction: ModeAction, modeTable?: ModeTable) {
-        if (modeAction) {
-            if (modeTable) {
-                this._subscriptionDeModeTableAModeAction.unsubscribe();
-            }
-            this.changeMode(modeAction);
-            if (modeTable) {
-                this.modeTableSouscritAModeAction();
-            }
-        }
-        if (modeTable) {
-            this._modeTableIO.changeValeur(modeTable);
-        }
-    }
-
-    get modeActionIO(): KfInitialObservable<ModeAction> {
-        return this._modeActionIO;
-    }
-
-    get modeAction(): ModeAction {
-        return this._modeActionIO.valeur;
-    }
-
-    changeMode(mode: ModeAction) {
-        this._modeActionIO.changeValeur(mode);
-    }
-
-    get utile(): CommandeUtile {
-        return this._utile as CommandeUtile;
-    }
-
     // Actions sur les détails
 
     protected paramsEditeDétail(): { [param: string]: string } {
         return undefined;
+    }
+    private _editeDétail(détail: DetailCommande, ajout?: boolean): Observable<ApiResult> {
+        const apiDétail = détail.apiDetailAEnvoyer();
+        return ajout
+            ? this.post<ApiDétailCommande>(ApiController.commande, ApiAction.commande.ajoute, apiDétail, this.paramsEditeDétail())
+            : this.put<ApiDétailCommande>(ApiController.commande, ApiAction.commande.edite, apiDétail, this.paramsEditeDétail());
     }
     /**
      * ajoute ou modifie un détail de commande
@@ -144,10 +80,7 @@ export abstract class CommandeService extends KeyUidRnoNoService<ApiCommande> {
      * @param ajout true pour un ajout
      */
     editeDétail(détail: DetailCommande, ajout?: boolean): Observable<ApiResult> {
-        const apiDétail = détail.apiDetailAEnvoyer();
-        return ajout
-            ? this.post<ApiDétailCommande>(ApiController.commande, ApiAction.commande.ajoute, apiDétail, this.paramsEditeDétail())
-            : this.put<ApiDétailCommande>(ApiController.commande, ApiAction.commande.edite, apiDétail, this.paramsEditeDétail());
+        return this._editeDétail(détail, ajout);
     }
     /** actionSiOk de editeDétail */
     siEditeDétailOk(détail: DetailCommande, ajout?: boolean) {
@@ -168,15 +101,18 @@ export abstract class CommandeService extends KeyUidRnoNoService<ApiCommande> {
     }
 
     protected paramsSupprimeDétail(apiDétail: ApiDétailCommande): { [param: string]: string } {
-        return KeyUidRnoNo2CréeParams(apiDétail);
+        return KeyUidRnoNo2.créeParams(apiDétail);
+    }
+    protected _supprimeDétail(détail: DetailCommande): Observable<ApiResult> {
+        const apiDétail = détail.créeApiDetailClé();
+        return this.delete(ApiController.commande, ApiAction.commande.supprime, this.paramsSupprimeDétail(apiDétail));
     }
     /**
      * supprime un détail de commande
      * @param détail détail à supprimer
      */
     supprimeDétail(détail: DetailCommande): Observable<ApiResult> {
-        const apiDétail = détail.créeApiDetailClé();
-        return this.delete(ApiController.commande, ApiAction.commande.supprime, this.paramsSupprimeDétail(apiDétail));
+        return this._supprimeDétail(détail);
     }
     /** actionSiOk de supprimeDétail */
     siSupprimeDétailOk(détail: DetailCommande) {
@@ -200,39 +136,30 @@ export abstract class CommandeService extends KeyUidRnoNoService<ApiCommande> {
         const stock = this.litStock();
         let commande = this.commandeStockée(stock, ikeyClient);
         const site = this.navigation.litSiteEnCours();
+        const identifiant = this.identification.litIdentifiant();
         if (commande) {
-            // mise à jour du numéro de commande et effacement de la date
+            // mise à jour du numéro de commande
             commande.no++;
-            commande.date = undefined;
-            // mise à jour des numéros de commande et de livraison
-            commande.livraisonNo = site.etat === IdEtatSite.livraison
-                ? stock.livraisonNo
-                : undefined;
+            if (identifiant.estFournisseur(site)) {
+                commande.date = DATE_NULLE;
+                commande.livraisonNo = stock.livraisonNo;
+            } else {
+                commande.date = undefined;
+            }
             if (copieDétails) {
-                const identifiant = this.identification.litIdentifiant();
-                if (identifiant.estFournisseur(site)) {
-                    commande.details = commande.details.map((d: ApiDétailCommande) => {
-                        d.aLivrer = undefined;
-                        d.date = undefined;
-                        return d;
-                    });
-                } else {
-                    const date = new Date(Date.now());
-                    commande.details = commande.details.map((d: ApiDétailCommande) => {
-                        d.aLivrer = undefined;
-                        d.date = date;
-                        return d;
-                    });
-                }
+                commande.details = commande.details.map((d: ApiDétailCommande) => {
+                    d.aLivrer = undefined;
+                    return d;
+                });
             } else {
                 commande.details = [];
             }
         } else {
             // c'est la première commande du client
             commande = new ApiCommande();
-            copieKeyUidRno(ikeyClient, commande);
+            KeyUidRno.copieKey(ikeyClient, commande);
             commande.no = 1;
-            if (site.etat === IdEtatSite.livraison) {
+            if (identifiant.estFournisseur(site)) {
                 commande.livraisonNo = stock.livraisonNo;
             }
             commande.details = [];
@@ -245,7 +172,7 @@ export abstract class CommandeService extends KeyUidRnoNoService<ApiCommande> {
     }
 
     protected paramsCréeCommande(ikeyClient: IKeyUidRno): { [param: string]: string } {
-        return this.créeParams(ikeyClient);
+        return KeyUidRno.créeParams(ikeyClient);
     }
     /**
      * crée une nouvelle commande vide d'un client
@@ -264,7 +191,6 @@ export abstract class CommandeService extends KeyUidRnoNoService<ApiCommande> {
      * @param ikeyClient tout objet ayant l'uid et le rno du client
      */
     protected _créeCopie(ikeyClient: IKeyUidRno): Observable<ApiResult> {
-        const stock = this.litStock();
         return this.post(ApiController.commande, ApiAction.commande.copie, null, this.paramsCréeCommande(ikeyClient));
     }
     /** actionSiOk de créeCopie */
@@ -272,13 +198,16 @@ export abstract class CommandeService extends KeyUidRnoNoService<ApiCommande> {
         this.siCréeOk(ikeyClient, true);
     }
 
+    protected paramsAnnuleCommande(ikeyClient: IKeyUidRno): { [param: string]: string } {
+        return KeyUidRno.créeParams(ikeyClient);
+    }
     /**
     * Supprime les détails de la commande créés par l'utilisateur. S'il reste des détails, fixe leur aLivrer à 0.
     * S'il n'y a plus de détails, supprime la commande.
      * @param ikeyCommande tout objet ayant l'uid, le rno et le no de la commande
      */
     supprimeOuRefuse$(ikeyCommande: IKeyUidRnoNo) {
-        return this.post(ApiController.commande, ApiAction.commande.efface, null, this.créeParams(ikeyCommande));
+        return this.post(ApiController.commande, ApiAction.commande.efface, null, this.paramsAnnuleCommande(ikeyCommande));
     }
     /** actionSiOk de supprimeOuRefuse si l'utilisateur est le fournisseur */
     siSupprimeOuRefuseOk(ikeyCommande: IKeyUidRnoNo, estLeClient: boolean) {
@@ -288,19 +217,16 @@ export abstract class CommandeService extends KeyUidRnoNoService<ApiCommande> {
             commande.details = [];
             // this.déstockeCommande(stock, ikeyCommande);
         } else {
-            // les détails créés par l'utilisateur ont une date
-            commande.details = commande.details.filter(d => !!d.date);
-            if (commande.details.length === 0) {
+            if (commande.date === DATE_NULLE) {
+                // supprime
                 this.déstockeCommande(stock, ikeyCommande);
             } else {
+                // refuse
                 commande.details.forEach(d => d.aLivrer = 0);
             }
         }
         this.fixeStock(stock);
     }
 
-    private fixeDate(commande: ApiCommande) {
-        commande.date = new Date(Date.now());
-    }
 
 }

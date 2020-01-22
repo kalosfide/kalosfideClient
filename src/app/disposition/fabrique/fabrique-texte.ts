@@ -1,7 +1,8 @@
 import { Produit, IAvecProduit } from 'src/app/modeles/catalogue/produit';
-import { TypeMesure, IdTypeMesure } from 'src/app/modeles/type-mesure';
-import { TypeCommande, IdTypeCommande } from 'src/app/modeles/type-commande';
+import { TypeMesure } from 'src/app/modeles/type-mesure';
+import { TypeCommande } from 'src/app/modeles/type-commande';
 import { IAvecDemandeProduit } from 'src/app/commandes/i-avec-demande-produit';
+import { ICoût } from 'src/app/commandes/detail-commande-cout';
 
 export class FabriqueTexte {
 
@@ -9,14 +10,34 @@ export class FabriqueTexte {
         return siteUid + '-' + siteRno + '-' + clientUid + '-' + clientRno + '-' + noBon;
     }
 
-    prix(prix: number): string {
-        const estNombre = prix !== undefined && prix !== null && !Number.isNaN(prix);
-        return estNombre
-            ? prix.toLocaleString('fr-FR', {
+    estNombre(nombre: number): boolean {
+        return nombre !== undefined && nombre !== null && !Number.isNaN(nombre);
+    }
+
+    nombre(nombre: number) {
+        return this.estNombre(nombre) ? nombre.toLocaleString('fr-FR') : '';
+    }
+
+    prix(prix: number | ICoût): string {
+        let icoût: ICoût;
+        if (typeof (prix) === 'number') {
+            icoût = { valeur: prix, complet: true };
+        } else {
+            icoût = prix;
+        }
+        let texte: string;
+        if (this.estNombre(icoût.valeur)) {
+            texte = icoût.valeur.toLocaleString('fr-FR', {
                 maximumFractionDigits: 2,
                 minimumFractionDigits: 2
-            }) + ' €'
-            : '';
+            }) + ' €';
+            if (!icoût.complet) {
+                texte = '> ' + texte;
+            }
+        } else {
+            texte = '';
+        }
+        return texte;
     }
 
     date(date: Date): string {
@@ -61,12 +82,12 @@ export class FabriqueTexte {
         return texte;
     }
 
-    typeCommande(typeCommande: IdTypeCommande): string {
+    typeCommande(typeCommande: string): string {
         const exemple = TypeCommande.pourExemple(typeCommande);
         return TypeCommande.pourListe(typeCommande) + (exemple ? ' (ex: ' + exemple + ')' : '');
     }
 
-    typeMesure(typeMesure: IdTypeMesure, ) {
+    typeMesure(typeMesure: string, ) {
         return TypeMesure.texte_au(typeMesure) + ' (ex: ' + this.prixOuIndisponible(typeMesure, 12.5) + ')';
     }
     prixOuIndisponible(typeMesure: string, prix: number): string {
@@ -113,18 +134,25 @@ export class FabriqueTexte {
         return this.unité(produit);
     }
 
+    unités(produit: Produit, id: string): string {
+        return TypeMesure.texteUnités(produit.typeMesure, id);
+    }
+    avecProduit_unités(avecProduit: IAvecProduit, id: string): string {
+        const produit = this._testAvecProduit('', avecProduit);
+        return this.unités(produit, id);
+    }
 
-    private _quantitéAvecUnité(typeMesure: IdTypeMesure, quantité: number, idTypeCommande?: string): string {
+    private _quantitéAvecUnité(typeMesure: string, quantité: number, idTypeCommande?: string): string {
         if (quantité === null || quantité === undefined) {
             return '';
         }
         let texte = quantité.toLocaleString('fr-FR');
-        if (idTypeCommande !== IdTypeCommande.ALUnité) {
+        if (idTypeCommande !== TypeCommande.id.ALUnité) {
             texte += ' ' + TypeMesure.unité(typeMesure);
         }
         return texte;
     }
-    texteDemande(typeMesure: IdTypeMesure, demande: number, typeCommande?: IdTypeCommande): string {
+    texteDemande(typeMesure: string, demande: number, typeCommande?: string): string {
         return this._quantitéAvecUnité(typeMesure, demande, typeCommande);
     }
     quantitéAvecUnité(produit: Produit, quantité: number, idTypeCommande?: string): string {
@@ -132,7 +160,7 @@ export class FabriqueTexte {
             return '';
         }
         let texte = quantité.toLocaleString('fr-FR');
-        if (!idTypeCommande || idTypeCommande !== IdTypeCommande.ALUnité) {
+        if (!idTypeCommande || idTypeCommande !== TypeCommande.id.ALUnité) {
             const unité = TypeMesure.unité(produit.typeMesure);
             if (unité) {
                 texte += ' ' + unité;
@@ -142,7 +170,7 @@ export class FabriqueTexte {
     }
     demandeAvecUnité(avecProduitEtDemande: IAvecDemandeProduit) {
         const produit = this._testAvecProduit('', avecProduitEtDemande);
-        return this.quantitéAvecUnité(produit, avecProduitEtDemande.aLivrer);
+        return this.quantitéAvecUnité(produit, avecProduitEtDemande.demande);
     }
     aLivrerAvecUnité(avecProduitEtALivrer: IAvecDemandeProduit) {
         const produit = this._testAvecProduit('', avecProduitEtALivrer);

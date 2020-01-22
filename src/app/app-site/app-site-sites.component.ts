@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PageBaseComponent } from '../disposition/page-base/page-base.component';
 import { KfSuperGroupe } from '../commun/kf-composants/kf-groupe/kf-super-groupe';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { KfLien } from 'src/app/commun/kf-composants/kf-elements/kf-lien/kf-lien';
 import { SitePages, SiteRoutes } from 'src/app/site/site-pages';
 import { ActivatedRoute } from '@angular/router';

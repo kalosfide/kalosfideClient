@@ -8,9 +8,9 @@ export abstract class KeyUidRnoNoIndexComponent<T extends KeyUidRnoNo> extends D
 
     constructor(
         protected route: ActivatedRoute,
-        protected service: KeyUidRnoNoService<T>,
+        protected _service: KeyUidRnoNoService<T>,
     ) {
-        super(route, service);
+        super(route, _service);
     }
 
     urlSegmentDeKey = (t: T): string => {

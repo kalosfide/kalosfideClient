@@ -11,7 +11,7 @@ import { IKfVueTableOutilVue } from './kf-vue-table-outil';
     styleUrls: ['../kf-composants.scss']
 })
 export class KfVueTableComponent extends KfComposantComponent implements AfterViewInit {
-    @ViewChild('tableElement') tableElement: ElementRef;
+    @ViewChild('tableElement', {static: false}) tableElement: ElementRef;
 
     constructor() {
         super();

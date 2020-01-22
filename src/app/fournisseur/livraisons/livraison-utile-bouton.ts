@@ -1,5 +1,4 @@
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
-import { Commande } from 'src/app/commandes/commande';
 import { LivraisonProduit } from './livraison-produit';
 import { IContenuPhraseDef } from 'src/app/disposition/fabrique/fabrique-contenu-phrase';
 import { DetailCommande } from 'src/app/commandes/detail-commande';
@@ -14,7 +13,8 @@ import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-g
 import { IBoutonDef } from 'src/app/disposition/fabrique/fabrique-bouton';
 import { BootstrapNom } from 'src/app/disposition/fabrique/fabrique-bootstrap';
 import { ModeAction } from 'src/app/commandes/condition-action';
-import { GèreCopier } from './livraison-utile-copier';
+import { LivraisonProduits } from './livraison-produits';
+import { Commande } from 'src/app/commandes/commande';
 
 export class LivraisonUtileBouton extends CommandeUtileBouton {
     private get _livraisonUtile(): LivraisonUtile {
@@ -42,7 +42,7 @@ export class LivraisonUtileBouton extends CommandeUtileBouton {
         return bouton;
     }
 
-    copieDétail(gèreCopier: GèreCopier, détail: DetailCommande): KfBouton {
+    copieDétail(détail: DetailCommande): KfBouton {
         const bouton = this.créeBoutonAttente('copie1',
             Fabrique.contenu.copier,
             () => {
@@ -50,62 +50,46 @@ export class LivraisonUtileBouton extends CommandeUtileBouton {
             },
             () => {
                 this.service.siCopieDemandeOk(détail);
-                gèreCopier.copieDétail(détail);
+                détail.copieDemande();
             }
         );
-        bouton.inactivitéIO = gèreCopier.inactivitéIODétail(détail);
         return bouton;
     }
 
-    copieCommande(gèreCopier: GèreCopier, commande: Commande): KfBouton {
-        const bouton = this.créeBoutonAttente('copie',
+    copieCommande(commande: Commande): KfBouton {
+        const bouton = this.créeBoutonAttente('copie_C',
             Fabrique.contenu.copier,
             () => this.service.copieDemandesCommande(commande),
             () => {
                 this.service.siCopieDemandesCommandeOk(commande);
-                gèreCopier.copie();
+                commande.copieDemande();
             }
         );
-        bouton.inactivitéIO = gèreCopier.inactivitéIO;
         return bouton;
     }
 
-    copieProduit(gèreCopier: GèreCopier, produit: LivraisonProduit): KfBouton {
+    copieProduit(produit: LivraisonProduit): KfBouton {
         const bouton = this.créeBoutonAttente('copie',
             Fabrique.contenu.copier,
             () => this.service.copieDemandesProduit(produit),
             () => {
                 this.service.siCopieDemandesProduitOk(produit);
-                gèreCopier.copie();
+                produit.copieDemande();
             }
         );
-        bouton.inactivitéIO = gèreCopier.inactivitéIO;
+        bouton.inactivitéFnc = () => produit.préparé;
         return bouton;
     }
 
-    copieProduitDeProduits(gèreCopier: GèreCopier, produit: LivraisonProduit): KfBouton {
-        const bouton = this.créeBoutonAttente('copie',
-            Fabrique.contenu.copier,
-            () => this.service.copieDemandesProduit(produit),
-            () => {
-                this.service.siCopieDemandesProduitOk(produit);
-                gèreCopier.copieDétail(produit);
-            }
-        );
-        bouton.inactivitéIO = gèreCopier.inactivitéIODétail(produit);
-        return bouton;
-    }
-
-    copieProduits(gèreCopier: GèreCopier): KfBouton {
+    copieProduits(livraisonProduits: LivraisonProduits): KfBouton {
         const bouton = this.créeBoutonAttente('copie',
             Fabrique.contenu.copier,
             () => this.service.copieDemandes(),
             () => {
                 this.service.siCopieDemandesOk();
-                gèreCopier.copie();
+                livraisonProduits.copieDemande();
             }
         );
-        bouton.inactivitéIO = gèreCopier.inactivitéIO;
         return bouton;
     }
 

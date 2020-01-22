@@ -8,7 +8,6 @@ import { PageInterditeComponent } from '../messages/page-interdite.component';
 import { PageConflitComponent } from '../messages/page-conflit.component';
 import { PageErreurComponent } from '../messages/page-erreur.component';
 import { PageIntrouvableComponent } from '../messages/page-introuvable.component';
-import { NbCommandesOuvertesResolverService } from '../modeles/nb-commandes-ouvertes-resolver.service';
 import { SiteEditeComponent } from './f-site/site-edite.component';
 
 const routes: Routes = [
@@ -36,11 +35,12 @@ const routes: Routes = [
                 loadChildren: () => import('./factures/facture.module').then(mod => mod.FactureModule)
             },
             {
+                path: FournisseurPages.documents.urlSegment,
+                loadChildren: () => import('./documents/f-document.module').then(mod => mod.FDocumentModule),
+            },
+            {
                 path: FournisseurPages.site.urlSegment,
                 component: SiteEditeComponent,
-                resolve: {
-                    commandesEnCours: NbCommandesOuvertesResolverService,
-                }
             },
             {
                 path: AppPages.compte.urlSegment,

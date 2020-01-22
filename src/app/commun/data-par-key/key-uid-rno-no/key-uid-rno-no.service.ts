@@ -3,24 +3,25 @@
 import { DataKeyService } from '../data-key.service';
 import { KeyUidRnoNo } from './key-uid-rno-no';
 import { IKeyUidRnoNo } from './i-key-uid-rno-no';
-import { DataKey } from '../data-key';
+import { IDataKey } from '../data-key';
 import { Observable } from 'rxjs';
 import { ApiResult } from '../../api-results/api-result';
 import { KeyUidRno } from '../key-uid-rno/key-uid-rno';
 import { ApiAction } from '../../api-route';
 
-export abstract class KeyUidRnoNoService<T extends IKeyUidRnoNo> extends DataKeyService<T> {
+export abstract class KeyUidRnoNoService<T extends KeyUidRnoNo> extends DataKeyService<T> {
 
     urlSegmentDeKey = (t: T): string => {
         return '' + t.no;
     }
 
-    get keyDeAjoute(): DataKey {
-        const key = new KeyUidRnoNo();
+    get keyDeAjoute(): IKeyUidRnoNo {
         const enCours = this.keyIdentifiant;
-        key.uid = enCours.uid;
-        key.rno = enCours.rno;
-        key.no = -1;
+        const key = {
+            uid: enCours.uid,
+            rno: enCours.rno,
+            no: -1
+        };
         return key;
     }
 
@@ -28,7 +29,7 @@ export abstract class KeyUidRnoNoService<T extends IKeyUidRnoNo> extends DataKey
         envoyé.no = reçu.no;
     }
 
-    créeParams(objet: DataKey): { [param: string]: string } {
+    créeParams(objet: IDataKey): { [param: string]: string } {
         const key = objet as IKeyUidRnoNo;
         const params: { [param: string]: string } = {};
         if (key.uid) { params['uid'] = key.uid; }
@@ -40,8 +41,8 @@ export abstract class KeyUidRnoNoService<T extends IKeyUidRnoNo> extends DataKey
             'uid': key.uid,
             'rno': '' + key.rno,
         } : {
-            'uid': key.uid,
-        };
+                    'uid': key.uid,
+                };
     }
 
     dernierNo(key: KeyUidRno): Observable<ApiResult> {

@@ -28,10 +28,24 @@ export class CategorieUtileColonne extends DataUtileColonne {
         };
     }
 
+    supprime(): IKfVueTableColonneDef<Categorie> {
+        const def: IKfVueTableColonneDef<Categorie> = {
+            nom: 'supprime',
+            créeContenu: (catégorie: Categorie) => {
+                const lien = this.utile.lien.supprime(catégorie);
+                lien.inactivité = catégorie.nbProduits > 0;
+                return lien;
+            },
+            nePasAfficherSi: this.utile.conditionSite.pas_catalogue
+        };
+        return def;
+    }
+
     colonnes(): IKfVueTableColonneDef<Categorie>[] {
         return [
             this.nom(),
             this.produits(),
+            this.supprime(),
         ];
     }
 

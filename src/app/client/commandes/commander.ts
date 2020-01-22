@@ -4,8 +4,9 @@ import { ApiCommande } from 'src/app/commandes/api-commande';
 import { Catalogue } from 'src/app/modeles/catalogue/catalogue';
 import { ICommandeStock } from 'src/app/commandes/i-commande-stock';
 import { IdEtatSite } from 'src/app/modeles/etat-site';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { IKeyUidRno } from 'src/app/commun/data-par-key/key-uid-rno/i-key-uid-rno';
+import { IdEtatProduit } from 'src/app/modeles/catalogue/etat-produit';
 
 /**
  * contient le contexte pour la commande
@@ -16,7 +17,7 @@ export class ApiContexteCommande {
     /**
      * no de la dernière livraison
      */
-    livraisonNo: number;
+    noLivraison: number;
 
     /**
      * date de la dernière livraison,
@@ -68,7 +69,7 @@ export class CommanderStock implements ICommandeStock {
 
     catalogue: Catalogue;
 
-    constructor(keySite: IKeyUidRno, keyIdentifiant: KeyUidRno,
+    constructor(keySite: IKeyUidRno, keyIdentifiant: IKeyUidRno,
         contexte: ApiContexteCommande, commande: ApiCommande, catalogue?: Catalogue
     ) {
         this.keySite = keySite;
@@ -81,7 +82,7 @@ export class CommanderStock implements ICommandeStock {
     /**
      * no de la dernière livraison
      */
-    get livraisonNo(): number { return this.contexte.livraisonNo; }
+    get livraisonNo(): number { return this.contexte.noLivraison; }
 
     /**
      * no de la dernière livraison

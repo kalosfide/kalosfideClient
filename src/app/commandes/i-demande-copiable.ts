@@ -1,6 +1,5 @@
 
 export interface IDemandeCopiable {
-    demandeCopiable: boolean;
-    prêt: boolean;
+    préparé: boolean;
     copieDemande(): void;
 }

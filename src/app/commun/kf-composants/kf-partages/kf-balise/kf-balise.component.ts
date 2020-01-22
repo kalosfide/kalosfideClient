@@ -9,7 +9,7 @@ import { KfTypeDeBaliseHTML } from '../../kf-composants-types';
 })
 export class KfBaliseComponent implements OnInit, AfterViewInit {
     @Input() balise: KfBalise;
-    @ViewChild('baliseElement') baliseElement: ElementRef;
+    @ViewChild('baliseElement', {static: false}) baliseElement: ElementRef;
 
     // pour le switch
     typeDeBalise = KfTypeDeBaliseHTML;

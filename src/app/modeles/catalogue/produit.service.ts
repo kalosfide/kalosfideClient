@@ -82,7 +82,7 @@ export class ProduitService extends KeyUidRnoNoService<Produit> {
         }
         const stocké = stock.produits[index];
         const étatAvant = stocké.etat;
-        stocké.copieData(édité);
+        Produit.copieData(édité, stocké);
         this._catalogueService.fixeStock(stock);
         if (stocké.etat !== étatAvant) {
             this.changeSiteNbProduits(stocké.etat === EtatsProduits.disponible.valeur ? 1 : -1);

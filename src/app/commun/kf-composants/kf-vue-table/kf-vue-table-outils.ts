@@ -2,7 +2,7 @@ import { KfGroupe } from '../kf-groupe/kf-groupe';
 import { KfVueTable } from './kf-vue-table';
 import { KfNgClasse } from '../kf-partages/kf-gere-css-classe';
 import { KfVueTableLigne } from './kf-vue-table-ligne';
-import { KfGèreCss } from '../kf-partages/kf-gere-css';
+import { KfGéreCss } from '../kf-partages/kf-gere-css';
 import { IKfVueTableOutilVue, IKfVueTableOutil } from './kf-vue-table-outil';
 import { KfBBtnToolbar } from '../kf-b-btn-toolbar/kf-b-btn-toolbar';
 
@@ -12,7 +12,7 @@ export interface IKfVueTableOutils {
     classe: KfNgClasse;
 }
 
-export class KfVueTableOutils<T> extends KfGèreCss implements IKfVueTableOutils {
+export class KfVueTableOutils<T> extends KfGéreCss implements IKfVueTableOutils {
     private _vueTable: KfVueTable<T>;
     private _outils: IKfVueTableOutil<T>[];
     private _texteRienPasseFiltres: string;

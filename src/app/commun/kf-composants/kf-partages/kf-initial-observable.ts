@@ -1,10 +1,12 @@
 import { Observable, Subject, merge } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
 
 export class KfInitialObservable<T> {
     private _valeur: T;
     private _subject: Subject<T>;
     private _observable: Observable<T>;
+
+    nom: string;
 
     private constructor(valeurInitiale: T) {
         this._valeur = valeurInitiale;
@@ -27,16 +29,26 @@ export class KfInitialObservable<T> {
     }
 
     /**
-     * crée un KfInitialObservable<V2> dont la valeur et l'observable sont les transformés de ceux d'un KfInitialObservable<V1>
+     * Crée un KfInitialObservable<V2> dont la valeur et l'observable sont les transformés de ceux d'un KfInitialObservable<V1>.
+     * L'observable transformé n'emet pas si la valeur transformée est nulle.
      * @param initialObservable KfInitialObservable<V1> à transformer
      * @param transforme transformation de V1 en V2
      */
     static transforme<V1, V2>(initialObservable: KfInitialObservable<V1>, transforme: (v: V1) => V2): KfInitialObservable<V2> {
         const io = new KfInitialObservable<V2>(transforme(initialObservable.valeur));
-        io._observable = initialObservable.observable.pipe(map((v1: V1) => {
-            io._valeur = transforme(v1);
-            return io._valeur;
-        }));
+        io._observable = initialObservable.observable.pipe(
+            filter((v1: V1) => {
+                const v2 = transforme(v1);
+                if (v2 === null || v2 === undefined) {
+                    return false;
+                } else {
+                    io._valeur = v2;
+                    return true;
+                }
+            }),
+            map((v1: V1) => {
+                return io._valeur;
+            }));
         return io;
     }
 
@@ -86,11 +98,12 @@ export class KfInitialObservable<T> {
      * @param valeur nouvelle valeur
      */
     changeValeur(valeur: T) {
-            this._valeur = valeur;
-            if (this._subject) {
-                this._subject.next(valeur);
-            }
-        if (this._valeur !== valeur) {
+        this._valeur = valeur;
+        if (this.nom) {
+            console.log(`IO ${this.nom}: ${valeur}`);
+        }
+        if (this._subject) {
+            this._subject.next(valeur);
         }
     }
 

@@ -1,6 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
-import { EventListener } from '@angular/core/src/debug/debug_node';
-import { testCouleur } from './disposition/fabrique/fabrique-couleurs';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
     selector: 'app-root',
@@ -18,7 +16,7 @@ export class AppComponent implements OnInit {
     ngOnInit() {
 //        testCouleur();
         if (!this.dev) {
-            window.addEventListener('beforeunload', (ev: BeforeUnloadEvent) => {
+            window.addEventListener('beforeunload', () => {
                 console.log('window.beforeunload', event);
                 // Cancel the event as stated by the standard.
                 event.preventDefault();

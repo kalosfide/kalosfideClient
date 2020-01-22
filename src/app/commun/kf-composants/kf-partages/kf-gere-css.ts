@@ -22,7 +22,7 @@ class KfNePasAfficher {
     }
 }
 
-export class KfGèreCss {
+export class KfGéreCss {
     /**
      * valeur initiale et Observable définissant si les filtres sont affichés
      */
@@ -39,19 +39,19 @@ export class KfGèreCss {
 
     private _subscriptionInvisible: Subscription;
 
-    private _suitLaVisiblité: KfGèreCss;
-    private _suitLesClasses: KfGèreCss;
-    private _suitLeStyle: KfGèreCss;
+    private _suitLaVisiblité: KfGéreCss;
+    private _suitLesClasses: KfGéreCss;
+    private _suitLeStyle: KfGéreCss;
 
-    suitLaVisiblité(gèreCss: KfGèreCss) {
+    suitLaVisiblité(gèreCss: KfGéreCss) {
         this._suitLaVisiblité = gèreCss;
     }
 
-    suitLesClasses(gèreCss: KfGèreCss) {
+    suitLesClasses(gèreCss: KfGéreCss) {
         this._suitLesClasses = gèreCss;
     }
 
-    suitClassesEtStyle(gèreCss: KfGèreCss) {
+    suitClassesEtStyle(gèreCss: KfGéreCss) {
         this._suitLesClasses = gèreCss;
         this._suitLeStyle = gèreCss;
     }
@@ -357,7 +357,7 @@ get avecClassesOuStyle(): boolean {
     return !!this._classeDefs || !!this._ngClasseDefs || !!this._styleDefs;
 }
 
-copieClassesEtStyle(gereCss: KfGèreCss) {
+copieClassesEtStyle(gereCss: KfGéreCss) {
     if (gereCss._classeDefs) {
         this._classeDefs = gereCss._classeDefs.map(def => def);
     }

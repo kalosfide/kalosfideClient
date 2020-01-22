@@ -4,21 +4,21 @@ import { ActivatedRoute } from '@angular/router';
 import { CommanderService } from './commander.service';
 import { CommandeChoixProduitComponent } from 'src/app/commandes/commande-choix-produit.component';
 import { PageDef } from 'src/app/commun/page-def';
-import { CommandePages } from 'src/app/commandes/commande-pages';
 import { ApiCommande } from 'src/app/commandes/api-commande';
 import { Produit } from 'src/app/modeles/catalogue/produit';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 import { DetailCommande } from 'src/app/commandes/detail-commande';
 import { ICommanderComponent } from './i-commander-component';
 import { CommandeUtile } from 'src/app/commandes/commande-utile';
+import { CommanderPages } from './commander-pages';
 
 @Component({
     templateUrl: '../../disposition/page-base/page-base.html',
     styleUrls: ['../../commun/commun.scss']
 })
 export class CommanderChoixProduitComponent extends CommandeChoixProduitComponent implements OnInit, OnDestroy, ICommanderComponent {
-    static _pageDef: PageDef = CommandePages.choixProduit;
-    pageDef: PageDef = CommandePages.choixProduit;
+    static _pageDef: PageDef = CommanderPages.choixProduit;
+    pageDef: PageDef = CommanderPages.choixProduit;
 
     get titre(): string {
         return this.pageDef.titre;

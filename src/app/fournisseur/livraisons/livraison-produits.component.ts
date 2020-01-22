@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { PageDef } from 'src/app/commun/page-def';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { Identifiant } from 'src/app/securite/identifiant';
 import { IKfVueTableDef } from 'src/app/commun/kf-composants/kf-vue-table/i-kf-vue-table-def';
 import { KfSuperGroupe } from 'src/app/commun/kf-composants/kf-groupe/kf-super-groupe';
@@ -12,7 +12,7 @@ import { LivraisonProduit } from './livraison-produit';
 import { LivraisonService } from './livraison.service';
 import { KfLien } from 'src/app/commun/kf-composants/kf-elements/kf-lien/kf-lien';
 import { LivraisonPages } from './livraison-pages';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 import { LivraisonStock } from './livraison-stock';
 import { LivraisonUtile } from './livraison-utile';
 import { RouteurService } from 'src/app/services/routeur.service';
@@ -122,7 +122,7 @@ export class LivraisonProduitsComponent extends PageTableComponent<LivraisonProd
     }
 
     protected calculeModeTable(): ModeTable {
-        return this.site.etat === IdEtatSite.livraison && this.termine
+        return this.termine
             ? ModeTable.bilan
             : this.site.etat === IdEtatSite.catalogue
                 ? ModeTable.aperçu
@@ -139,8 +139,7 @@ export class LivraisonProduitsComponent extends PageTableComponent<LivraisonProd
 
     chargeData(data: Data) {
         const stock: LivraisonStock = data.stock;
-        const clients: Client[] = data.clients;
-        this.livraisonProduits = new LivraisonProduits(stock, clients);
+        this.livraisonProduits = new LivraisonProduits(stock);
     }
 
     créeSuperGroupe() {

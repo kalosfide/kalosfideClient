@@ -19,6 +19,8 @@ export enum KfTypeDeComposant {
     image = 'image',
     texte = 'texte',
 
+    table = 'table',
+
     ngbDropdown = 'ngbDropdown',
     ngbDropdownGroup = 'ngbDropdownGroup',
     ngbPopover = 'ngbPopover',

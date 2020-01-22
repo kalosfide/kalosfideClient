@@ -1,28 +1,19 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
-import { Site } from '../../modeles/site';
+import { Site } from '../../modeles/site/site';
 import { FactureService } from './facture.service';
-import { IdEtatSite } from 'src/app/modeles/etat-site';
 import { KfComposant } from 'src/app/commun/kf-composants/kf-composant/kf-composant';
 import { PageDef } from 'src/app/commun/page-def';
 import { FournisseurPages } from '../fournisseur-pages';
-import { SiteService } from 'src/app/modeles/site.service';
+import { SiteService } from 'src/app/modeles/site/site.service';
 import { KfEtiquette } from 'src/app/commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
 import { KfTypeDeBaliseHTML } from 'src/app/commun/kf-composants/kf-composants-types';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { PageBaseComponent } from 'src/app/disposition/page-base/page-base.component';
 import { RouteurService } from 'src/app/services/routeur.service';
 import { FactureUtile } from './facture-utile';
-import { Couleur } from 'src/app/disposition/fabrique/fabrique-couleurs';
 import { BarreTitre } from 'src/app/disposition/fabrique/fabrique-barre-titre/fabrique-barre-titre';
-import { ApiRequêteAction } from 'src/app/services/api-requete-action';
-import { Observable } from 'rxjs';
-import { ApiResult } from 'src/app/commun/api-results/api-result';
-import { ModeAction } from 'src/app/commandes/condition-action';
-import { BootstrapType } from 'src/app/disposition/fabrique/fabrique-bootstrap';
-import { ModeTable } from 'src/app/commun/data-par-key/condition-table';
-import { IBoutonDef } from 'src/app/disposition/fabrique/fabrique-bouton';
 
 @Component({
     templateUrl: '../../disposition/page-titre/page-titre.html',

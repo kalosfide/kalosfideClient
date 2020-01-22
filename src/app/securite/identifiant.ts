@@ -1,5 +1,6 @@
-import { Site } from '../modeles/site';
+import { Site } from '../modeles/site/site';
 import { KeyUidRno } from '../commun/data-par-key/key-uid-rno/key-uid-rno';
+import { IKeyUidRno } from '../commun/data-par-key/key-uid-rno/i-key-uid-rno';
 
 export class JwtIdentifiant {
     Id: string;
@@ -33,7 +34,7 @@ export class Identifiant {
         this.copie(identifiant);
     }
 
-    static keyEnCours(identifiant: Identifiant, siteEnCours: Site): KeyUidRno {
+    static keyEnCours(identifiant: Identifiant, siteEnCours: Site): IKeyUidRno {
         return identifiant.estUsager(siteEnCours) ? {
             uid: identifiant.uid,
             rno: identifiant.roles.find(r => r.nomSite === siteEnCours.nomSite).rno
@@ -79,7 +80,12 @@ export class Identifiant {
             }
         }
     }
-    keyClient(site: Site): KeyUidRno {
+
+    /**
+     * Retourne la KeyUidRno du client si l'identifiant est client du site, undefined sinon
+     * @param site Site
+     */
+    keyClient(site: Site): IKeyUidRno {
         if (this.uid !== site.uid) {
             const role = this.roles.find(r => r.nomSite === site.nomSite);
             if (role) {

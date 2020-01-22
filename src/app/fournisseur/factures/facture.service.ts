@@ -14,7 +14,7 @@ import { FactureUtile } from './facture-utile';
 import { ApiCommande, ApiDétailCommande } from 'src/app/commandes/api-commande';
 import { KfInitialObservable } from 'src/app/commun/kf-composants/kf-partages/kf-initial-observable';
 import { ModeAction } from 'src/app/commandes/condition-action';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { IdEtatSite } from 'src/app/modeles/etat-site';
 import { ModeTable } from 'src/app/commun/data-par-key/condition-table';
 import { ApiResult } from 'src/app/commun/api-results/api-result';
@@ -22,18 +22,16 @@ import { FactureStock } from './facture-stock';
 import { FactureCommande } from './facture-commande';
 import { FactureDétail } from './facture-detail';
 import { Facture } from './facture';
+import { CommandeActionService } from 'src/app/commandes/commande-action.service';
 
 @Injectable({
     providedIn: 'root'
 })
-export class FactureService extends KeyUidRnoService<ApiCommande> {
+export class FactureService extends CommandeActionService {
 
     controllerUrl = 'facture';
 
     private _stockage: Stockage<FactureStock>;
-
-    private _modeActionIO: KfInitialObservable<ModeAction>;
-    private _subscriptionDeModeTableAModeAction: Subscription;
 
     private _nbDétailsNonFacturésIO: KfInitialObservable<number>;
     private _keyFactureEnCours: IKeyUidRno;
@@ -52,7 +50,7 @@ export class FactureService extends KeyUidRnoService<ApiCommande> {
         this.créeUtile();
     }
 
-    private get transformeSiteFnc(): (site: Site) => ModeAction {
+    get transformeSiteFnc(): (site: Site) => ModeAction {
         return (site: Site) => {
             if (!site) {
                 return ModeAction.aucun;
@@ -63,7 +61,7 @@ export class FactureService extends KeyUidRnoService<ApiCommande> {
         };
     }
 
-    private get transformeModeFnc(): (modeAction: ModeAction) => ModeTable {
+    get transformeModeFnc(): (modeAction: ModeAction) => ModeTable {
         return (modeAction: ModeAction) => {
             switch (modeAction) {
                 case ModeAction.aperçu:
@@ -78,51 +76,8 @@ export class FactureService extends KeyUidRnoService<ApiCommande> {
         };
     }
 
-    private modeTableSouscritAModeAction() {
-        this._subscriptionDeModeTableAModeAction = this._modeActionIO.observable.subscribe(modeAction => {
-            this._modeTableIO.changeValeur(this.transformeModeFnc(modeAction));
-        });
-    }
-
-    créeUtile() {
+    protected _créeUtile() {
         this._utile = new FactureUtile(this);
-        const site = this.navigation.litSiteEnCours();
-        this._modeActionIO = KfInitialObservable.nouveau<ModeAction>(this.transformeSiteFnc(site));
-        const siteObs = this.navigation.siteObs();
-        siteObs.subscribe(site1 => {
-            this._modeActionIO.changeValeur(this.transformeSiteFnc(site1));
-        });
-        this._modeTableIO = KfInitialObservable.nouveau<ModeTable>(this.transformeModeFnc(this._modeActionIO.valeur));
-        this.modeTableSouscritAModeAction();
-        this._utile.observeModeTable(this._modeTableIO);
-        this.utile.observeModeAction(this._modeActionIO);
-    }
-
-    initialiseModeAction(modeAction: ModeAction, modeTable?: ModeTable) {
-        if (modeAction) {
-            if (modeTable) {
-                this._subscriptionDeModeTableAModeAction.unsubscribe();
-            }
-            this.changeMode(modeAction);
-            if (modeTable) {
-                this.modeTableSouscritAModeAction();
-            }
-        }
-        if (modeTable) {
-            this._modeTableIO.changeValeur(modeTable);
-        }
-    }
-
-    get modeActionIO(): KfInitialObservable<ModeAction> {
-        return this._modeActionIO;
-    }
-
-    get modeAction(): ModeAction {
-        return this._modeActionIO.valeur;
-    }
-
-    changeMode(mode: ModeAction) {
-        this._modeActionIO.changeValeur(mode);
     }
 
     get utile(): FactureUtile {
@@ -198,7 +153,6 @@ export class FactureService extends KeyUidRnoService<ApiCommande> {
         const détailStock = stock.apiDétail(détail);
         détailStock.aFacturer = aFacturer;
         this.fixeStock(stock);
-        const étaitDéjàFacturé = détail.estFacturé;
         détail.aFacturer = aFacturer;
         this._nbDétailsNonFacturésIO.changeValeur(stock.nbDétailsNonFacturés(this._keyFactureEnCours));
     }

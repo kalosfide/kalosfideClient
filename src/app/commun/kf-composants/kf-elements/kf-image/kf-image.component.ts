@@ -8,7 +8,7 @@ import { KfImage } from './kf-image';
     styleUrls: ['../../kf-composants.scss']
 })
 export class KfImageComponent extends KfComposantComponent implements OnInit, AfterViewInit {
-    @ViewChild('imgElement') imgElement: ElementRef;
+    @ViewChild('imgElement', {static: false}) imgElement: ElementRef;
 
     get image(): KfImage {
         return this.composant as KfImage;

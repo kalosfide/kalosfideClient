@@ -13,6 +13,7 @@ export class ResultatAction implements IResultatAffichable {
     private _détails: string[];
     private _apiResultRedirige: ApiResult;
     private _apiResultTraite: ApiResult;
+    private _apiResultTraiteObs: ApiResult;
 
     private constructor() {
     }
@@ -33,15 +34,21 @@ export class ResultatAction implements IResultatAffichable {
         return resultat;
     }
 
-    static redirigeErreur(apiResultRedirige: ApiResult) {
+    static redirigeErreur(apiResultRedirige: ApiResult): ResultatAction {
         const resultat = new ResultatAction();
         resultat._apiResultRedirige = apiResultRedirige;
         return resultat;
     }
 
-    static traiteErreur(apiResultTraite: ApiResult) {
+    static traiteErreur(apiResultTraite: ApiResult): ResultatAction {
         const resultat = new ResultatAction();
         resultat._apiResultTraite = apiResultTraite;
+        return resultat;
+    }
+
+    static traiteErreurObs(apiResultTraiteObs: ApiResult): ResultatAction {
+        const resultat = new ResultatAction();
+        resultat._apiResultTraiteObs = apiResultTraiteObs;
         return resultat;
     }
 

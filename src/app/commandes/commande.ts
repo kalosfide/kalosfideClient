@@ -1,21 +1,24 @@
-import { ApiCommande } from './api-commande';
+import { ApiCommande, ApiDétailCommandeData } from './api-commande';
 import { DetailCommande } from './detail-commande';
-import { Client } from '../modeles/clientele/client';
+import { Client } from '../modeles/client/client';
 import { KfEtiquette } from '../commun/kf-composants/kf-elements/kf-etiquette/kf-etiquette';
-import { EtatClient } from '../modeles/clientele/etat-client';
+import { EtatClient } from '../modeles/client/etat-client';
 import { KfTexte } from '../commun/kf-composants/kf-elements/kf-texte/kf-texte';
 import { KfTypeDeBaliseHTML } from '../commun/kf-composants/kf-composants-types';
-import { texteKeyUidRnoNo, texteKeyUidRno } from '../commun/data-par-key/data-key';
 import { EtatCommande } from './etat-commande';
+import { KeyUidRno } from '../commun/data-par-key/key-uid-rno/key-uid-rno';
+import { KeyUidRnoNo } from '../commun/data-par-key/key-uid-rno-no/key-uid-rno-no';
+import { IDemandeCopiable } from './i-demande-copiable';
+import { DATE_NULLE } from '../modeles/date-nulle';
 
-export class Commande {
+export class Commande implements IDemandeCopiable {
     protected _apiCommande: ApiCommande;
     get apiCommande(): ApiCommande {
         return this._apiCommande;
     }
 
     private _client: Client;
-    /** propriétaire de la commande, présent si  */
+    /** propriétaire de la commande, présent si l'utilisateur est le fournisseur */
     get client(): Client { return this._client; }
 
     private _livraisonNo: number;
@@ -30,14 +33,13 @@ export class Commande {
         this._détails = détails;
     }
 
-
-    /** utile? set à afficher (nouveau) en gras */
+    /** utile? sert à afficher (nouveau) en gras */
     private _etiquetteClient: KfEtiquette;
 
     /**
      * Permet d'afficher la vueTable des détails d'une commande et une ligne de la vueTable des commandes d'une livraison
      * @param apiCommande données de l'Api
-     * @param client propriétaire de la commande, présent si EtatSite.livraison
+     * @param client propriétaire de la commande, présent si l'utilisateur est le fournisseur
      * @param livraisonNo no de la livraison en cours, présent si EtatSite.livraison
      */
     constructor(apiCommande: ApiCommande, client?: Client, livraisonNo?: number) {
@@ -51,32 +53,37 @@ export class Commande {
     get uid(): string { return this._apiCommande.uid; }
     get rno(): number { return this._apiCommande.rno; }
     get no(): number { return this._apiCommande.no; }
-    get date(): Date { return new Date(this._apiCommande.date); }
+    get date(): Date {
+        if (this._apiCommande.date) {
+            return new Date(this._apiCommande.date);
+        }
+    }
 
     /**
-     * vrai si l'un des détails a été créé par un client avec compte
+     * Indéfini après la fin de la livraison, vrai si la commande a été créé par un client avec compte
      */
     public get crééeParLeClient(): boolean {
-        return this._apiCommande.details.find(d => !!d.date) !== undefined;
+        if (!this._apiCommande.dateLivraison) {
+            return this._apiCommande.date !== DATE_NULLE;
+        }
     }
 
     /**
-     * vrai si l'un des détails a été ajouté par le fournisseur
+     * Ouverte = sans date (propriétaire = client) ou date égale à DATE_NULLE (propriétaire = fournisseur).
+     * Le propriétaire peut supprimer la commande, créer et supprimer des détails et éditer leurs demandes.
      */
-    public get avecDétailDuFournisseur(): boolean {
-        return this._apiCommande.details.find(d => !!d.date) !== undefined;
-    }
-
     get ouverte(): boolean {
-        return ApiCommande.ouverte(this.apiCommande);
+        return !this._apiCommande.date || this.date === DATE_NULLE;
     }
 
-    get traitée(): boolean {
-        return ApiCommande.traitée(this.apiCommande);
+    get préparable(): boolean {
+        return this._apiCommande.date !== undefined && this._apiCommande.livraisonNo === undefined;
     }
 
-    get terminée(): boolean {
-        return ApiCommande.terminée(this.apiCommande);
+    get refusée(): boolean {
+        return this._apiCommande.date !== undefined
+            && this._apiCommande.livraisonNo !== undefined && this._apiCommande.dateLivraison !== undefined
+            && this._apiCommande.details.find(d => d.aLivrer > 0) === undefined;
     }
 
     public get sansaLivrer(): boolean {
@@ -84,11 +91,11 @@ export class Commande {
     }
 
     get texteBonDeCommande(): string {
-        return 'BC-' + texteKeyUidRnoNo(this._apiCommande);
+        return 'BC-' + KeyUidRnoNo.texteDeKey(this._apiCommande);
     }
 
     get texteBonDeLivraison(): string {
-        return 'BL-' + texteKeyUidRnoNo(this._apiCommande) + '-' + this._apiCommande.livraisonNo;
+        return 'BL-' + KeyUidRnoNo.texteDeKey(this._apiCommande) + '-' + this._apiCommande.livraisonNo;
     }
 
     /// FIN SECTION Propriétés
@@ -101,15 +108,11 @@ export class Commande {
         return this.nomClient + (this.nouveauClient ? ' (nouveau)' : '');
     }
     get keyClient(): string {
-        return texteKeyUidRno(this._client);
+        return KeyUidRno.texteDeKey(this._client);
     }
 
     get nbDemandes(): number {
         return this._apiCommande.details.length;
-    }
-
-    get nbDemandesCréesParClient(): number {
-        return this._apiCommande.details.filter(d => d.date !== undefined && d.date !== null).length;
     }
 
     get nbRéponses(): number {
@@ -128,8 +131,21 @@ export class Commande {
         return !this.sansDétails && this.nbDemandes > this.nbRéponses;
     }
 
-    get prêt(): boolean {
+    get préparé(): boolean {
         return this.nbDemandes === this.nbRéponses;
+    }
+
+    get àCopier(): DetailCommande[] {
+        if (this.détails) {
+            return this.détails.filter(d => d.copiable && !d.préparé);
+        }
+    }
+    copieDemande() {
+        this.détails.forEach(d => {
+            if (d.copiable && !d.préparé) {
+                d.copieDemande();
+            }
+        });
     }
 
     get texteEtat(): string {

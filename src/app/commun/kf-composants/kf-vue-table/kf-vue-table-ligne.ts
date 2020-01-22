@@ -5,7 +5,7 @@ import {
 import { KfSuperGroupe } from '../kf-groupe/kf-super-groupe';
 import { FormGroup } from '@angular/forms';
 import { KfVueTable } from './kf-vue-table';
-import { KfGèreCss } from '../kf-partages/kf-gere-css';
+import { KfGéreCss } from '../kf-partages/kf-gere-css';
 import { KfNgClasse } from '../kf-partages/kf-gere-css-classe';
 import { KfNgStyle } from '../kf-partages/kf-gere-css-style';
 
@@ -20,7 +20,7 @@ export interface IKfVueTableLigne {
 export abstract class KfVueTableLigneBase<T> {
     protected _vueTable: KfVueTable<T>;
     protected _cellules: KfVueTableCelluleBase<T>[];
-    protected _gereCss: KfGèreCss;
+    protected _gereCss: KfGéreCss;
 
     constructor(vueTable: KfVueTable<T>) {
         this._vueTable = vueTable;
@@ -39,7 +39,7 @@ export abstract class KfVueTableLigneBase<T> {
         return this._cellules.map(cellule => cellule.composant).filter(composant => !!composant);
     }
 
-    get gèreCss(): KfGèreCss {
+    get gèreCss(): KfGéreCss {
         return this._gereCss;
     }
 
@@ -81,9 +81,12 @@ export class KfVueTableLigne<T> extends KfVueTableLigneBase<T> implements IKfVue
         if (vueTable.gereCss) {
             this._gereCss = vueTable.gereCss(item);
         } else {
-            if (vueTable.fixeChoisie) {
-                this._gereCss = new KfGèreCss();
+            if (vueTable.fixeChoisie || vueTable.avecClic) {
+                this._gereCss = new KfGéreCss();
             }
+        }
+        if (vueTable.avecClic) {
+            this._gereCss.ajouteClasseDef('kf-bouton');
         }
     }
 

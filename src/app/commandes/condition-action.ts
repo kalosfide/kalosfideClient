@@ -24,6 +24,7 @@ export class ConditionAction extends Conditions<ModeAction> {
             ModeAction.envoyer,
             ModeAction.supprime
         ], modeActionIo);
+        this.nom = 'action';
     }
 
     get aperçu(): KfInitialObservable<boolean> {

@@ -1,20 +1,20 @@
 import { KfComposant } from '../kf-composant/kf-composant';
 import { KfTypeDeComposant } from '../kf-composants-types';
-import { KfGèreCss } from '../kf-partages/kf-gere-css';
+import { KfGéreCss } from '../kf-partages/kf-gere-css';
 import { KfNgClasse } from '../kf-partages/kf-gere-css-classe';
 import { KfNgStyle } from '../kf-partages/kf-gere-css-style';
 
 export class KfUlComposant extends KfComposant {
-    private _gereCssLi: KfGèreCss;
+    private _gereCssLi: KfGéreCss;
     private _nAffichePasLesInvisibles: boolean;
 
     constructor(nom: string) {
         super(nom, KfTypeDeComposant.ul);
     }
 
-    get gereCssLi(): KfGèreCss {
+    get gereCssLi(): KfGéreCss {
         if (!this._gereCssLi) {
-            this._gereCssLi = new KfGèreCss();
+            this._gereCssLi = new KfGéreCss();
         }
         return this._gereCssLi;
     }

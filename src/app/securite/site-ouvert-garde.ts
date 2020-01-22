@@ -5,8 +5,8 @@ import { Observable } from 'rxjs';
 import { RouteurService } from '../services/routeur.service';
 import { AppPages } from '../app-pages';
 import { IdEtatSite } from '../modeles/etat-site';
-import { SiteService } from '../modeles/site.service';
-import { Site } from '../modeles/site';
+import { SiteService } from '../modeles/site/site.service';
+import { Site } from '../modeles/site/site';
 import { take, map } from 'rxjs/operators';
 
 class EtatSiteChange {

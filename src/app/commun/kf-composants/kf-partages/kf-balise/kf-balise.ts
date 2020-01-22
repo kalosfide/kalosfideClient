@@ -1,8 +1,8 @@
 import { KfTypeDeBaliseHTML } from '../../kf-composants-types';
 import { KfContenuPhrase } from '../../kf-partages/kf-contenu-phrase/kf-contenu-phrase';
-import { KfGèreCss } from '../kf-gere-css';
+import { KfGéreCss } from '../kf-gere-css';
 
-export class KfBalise extends KfGèreCss {
+export class KfBalise extends KfGéreCss {
     baliseHTML: KfTypeDeBaliseHTML;
 
     private _contenuPhrase: KfContenuPhrase;

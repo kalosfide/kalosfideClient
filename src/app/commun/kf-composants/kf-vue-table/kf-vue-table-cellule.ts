@@ -2,13 +2,8 @@ import { KfComposant } from '../kf-composant/kf-composant';
 import { KfVueTableColonne } from './kf-vue-table-colonne';
 import { KfVueTable } from './kf-vue-table';
 import { KfEtiquette } from '../kf-elements/kf-etiquette/kf-etiquette';
-import { Tri } from '../../outils/trieur';
-import { KfIcone } from '../kf-elements/kf-icone/kf-icone';
-import { KfTypeDEvenement, KfEvenement, KfStatutDEvenement } from '../kf-partages/kf-evenements';
 import { KfNgClasse } from '../kf-partages/kf-gere-css-classe';
 import { KfTexteDef } from '../kf-partages/kf-texte-def';
-import { FANomIcone } from '../kf-partages/kf-icone-def';
-import { IKfVueTableBilanDef } from './i-kf-vue-table-bilan-def';
 
 export interface IKfVueTableCelluleDef {
     texteDef?: () => string;
@@ -21,7 +16,6 @@ export interface IKfVueTableCellule {
     composant: KfComposant;
     classe?: KfNgClasse;
     colSpan?: number;
-    avecTexte?: boolean;
 }
 
 export abstract class KfVueTableCelluleBase<T> {
@@ -30,9 +24,9 @@ export abstract class KfVueTableCelluleBase<T> {
     protected _index: number;
     protected _composant: KfComposant;
 
-    private _colSpan: number;
+    protected _colSpan: number | (() => number);
     private _rowSpan: number;
-    private _nePasAfficher: boolean;
+    protected _nePasAfficher: boolean | (() => boolean);
 
     th_scope: string;
 
@@ -51,7 +45,13 @@ export abstract class KfVueTableCelluleBase<T> {
     }
 
     get colSpan(): number {
-        return this._colSpan;
+        if (this._colSpan !== undefined) {
+            if (typeof (this._colSpan) === 'number') {
+                return this._colSpan;
+            } else {
+                return this._colSpan();
+            }
+        }
     }
 
     set colSpan(valeur: number) {
@@ -67,7 +67,15 @@ export abstract class KfVueTableCelluleBase<T> {
     }
 
     get nePasAfficher(): boolean {
-        return this._nePasAfficher || this._colonne.nePasAfficher;
+        if (this._nePasAfficher !== undefined) {
+            if (typeof (this._nePasAfficher) === 'boolean') {
+                return this._nePasAfficher || this._colonne.nePasAfficher;
+            } else {
+                return this._nePasAfficher();
+            }
+        } else {
+            return this._colonne.nePasAfficher;
+        }
     }
     set nePasAfficher(valeur: boolean) {
         this._nePasAfficher = valeur;
@@ -122,25 +130,16 @@ export class KfVueTableCelluleBilan<T> extends KfVueTableCelluleBase<T> implemen
     initialise(ligneDesVisibles: boolean) {
         const bilanDef = this._colonne.bilanDef;
         if (bilanDef) {
+            // c'est une cellule avec bilan
             this._composant = this.créeComposant(bilanDef.valeurDef ? bilanDef.valeurDef : '');
-            this.nePasAfficher = this._colonne.nePasAfficher;
+            this._nePasAfficher = () => this._colonne.nePasAfficher;
             let texteDef: () => string;
-            if (bilanDef.agrégation) {
+            if (bilanDef.texteAgrégé) {
                 const etiquette = this._composant as KfEtiquette;
                 if (ligneDesVisibles) {
-                    if (bilanDef.formate) {
-                        texteDef = () => bilanDef.formate(this._agrègeVisiblesSeulement(bilanDef));
-                    } else {
-                        texteDef = () => this._agrègeVisiblesSeulement(bilanDef);
-                    }
+                    texteDef = () => bilanDef.texteAgrégé(this.vueTable.lignes.filter(l => l.passeFiltres).map(l => l.item));
                 } else {
-                    if (bilanDef.formate) {
-                        texteDef = () => {
-                            return bilanDef.formate(this._agrègeTout(bilanDef));
-                        };
-                    } else {
-                        texteDef = () => this._agrègeTout(bilanDef);
-                    }
+                    texteDef = () => bilanDef.texteAgrégé(this.vueTable.lignes.map(l => l.item));
                 }
                 etiquette.fixeTexte(texteDef);
             }
@@ -149,48 +148,41 @@ export class KfVueTableCelluleBilan<T> extends KfVueTableCelluleBase<T> implemen
             const index = this._colonne.index;
             const colonneAvecBilanSuivante = colonnes.slice(index + 1).find(c => c.bilanDef !== undefined && c.bilanDef !== null);
             if (colonneAvecBilanSuivante === undefined) {
+                // les cellules qui suivent la dernière cellule de bilan sont affichèes si leur colonne l'est
                 this._composant = this.créeComposant('');
                 this.nePasAfficher = this._colonne.nePasAfficher;
             } else {
                 if (colonneAvecBilanSuivante.index === index + 1) {
+                    // une cellule qui précède une cellule de bilan qui a un titre s'étale sur toutes les colonnes
+                    // affichées qui suivent la cellule de bilan précédente
                     const bilanSuivant = colonneAvecBilanSuivante.bilanDef;
-                    this._composant = this.créeComposant(ligneDesVisibles && bilanSuivant.titreVisiblesSeulement
+                    const titre = ligneDesVisibles && bilanSuivant.titreVisiblesSeulement
                         ? bilanSuivant.titreVisiblesSeulement
-                        : bilanSuivant.titreDef);
-                    let colSpan = 1;
-                    for (let i = index - 1; i >= 0; i--) {
-                        if (this.vueTable.colonnes[i].bilanDef) {
-                            break;
-                        } else {
-                            colSpan++;
+                        : bilanSuivant.titreDef
+                            ? bilanSuivant.titreDef
+                            : '';
+                    this._composant = this.créeComposant(titre);
+                    this._colSpan = () => {
+                        let colSpan = this._colonne.nePasAfficher ? 0 : 1;
+                        for (let i = index - 1; i >= 0; i--) {
+                            const colonne = this.vueTable.colonnes[i];
+                            if (!colonne.nePasAfficher) {
+                                if (colonne.bilanDef) {
+                                    break;
+                                } else {
+                                    colSpan++;
+                                }
+                            }
                         }
-                    }
-                    this.colSpan = colSpan;
-                    this.nePasAfficher = colonneAvecBilanSuivante.nePasAfficher;
+                        return colSpan;
+                    };
+                    this._nePasAfficher = () => colonneAvecBilanSuivante.nePasAfficher;
                 } else {
                     this._composant = this.créeComposant('');
                     this.nePasAfficher = true;
                 }
             }
         }
-    }
-
-    private _agrègeTout(bilanDef: IKfVueTableBilanDef<T>): any {
-        let v: any = bilanDef.valeur0;
-        const agrégation = bilanDef.agrégation;
-        this.vueTable.lignes.forEach(l => {
-            v = agrégation(v, l.item);
-        });
-        return v;
-    }
-
-    private _agrègeVisiblesSeulement(bilanDef: IKfVueTableBilanDef<T>): any {
-        let v: any = bilanDef.valeur0;
-        const agrégation = bilanDef.agrégation;
-        this.vueTable.lignes.filter(l => l.passeFiltres).forEach(l => {
-            v = agrégation(v, l.item);
-        });
-        return v;
     }
 
     get classe(): KfNgClasse {

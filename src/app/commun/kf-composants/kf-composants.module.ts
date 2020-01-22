@@ -39,6 +39,7 @@ import { KfUlComponent } from './kf-ul/kf-ul.component';
 import { KfDivComponent } from './kf-partages/kf-div/kf-div.component';
 import { KfBBtnGroupComponent } from './kf-b-btn-group/kf-b-btn-group.component';
 import { KfBBtnToolbarComponent } from './kf-b-btn-toolbar/kf-b-btn-toolbar.component';
+import { KfTableComponent } from './kf-table/kf-table.component';
 
 @NgModule({
   imports: [
@@ -82,6 +83,7 @@ import { KfBBtnToolbarComponent } from './kf-b-btn-toolbar/kf-b-btn-toolbar.comp
       KfDivComponent,
       KfBBtnGroupComponent,
       KfBBtnToolbarComponent,
+      KfTableComponent,
 
       KfUlComponent,
       KfInactifDirective,

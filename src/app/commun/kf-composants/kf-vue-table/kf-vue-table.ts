@@ -10,7 +10,7 @@ import { KfVueTableColonne } from './kf-vue-table-colonne';
 import { IKfVueTableLigne, KfVueTableLigne, KfVueTableBilan } from './kf-vue-table-ligne';
 import { KfNgClasse, KfNgClasseDef } from '../kf-partages/kf-gere-css-classe';
 import { KfTexteDef } from '../kf-partages/kf-texte-def';
-import { KfGèreCss } from '../kf-partages/kf-gere-css';
+import { KfGéreCss } from '../kf-partages/kf-gere-css';
 import { KfVueTableOutils, IKfVueTableOutils } from './kf-vue-table-outils';
 import { KfInitialObservable } from '../kf-partages/kf-initial-observable';
 import { IKfVueTableDef } from './i-kf-vue-table-def';
@@ -40,12 +40,12 @@ export class KfVueTable<T> extends KfComposant implements IKfVueTable {
     private _colonnes: KfVueTableColonne<T>[];
     private _lignes: KfVueTableLigne<T>[];
     private _enTete: KfVueTableEnTete<T>;
-    private _gereCssEnTete: KfGèreCss;
-    private _gereCssCorps: KfGèreCss;
+    private _gereCssEnTete: KfGéreCss;
+    private _gereCssCorps: KfGéreCss;
     private _ligneBilan: KfVueTableBilan<T>;
     private _ligneBilanDesVisibles: KfVueTableBilan<T>;
-    private _gereCssBilan: KfGèreCss;
-    private _enveloppe: KfGèreCss;
+    private _gereCssBilan: KfGéreCss;
+    private _enveloppe: KfGéreCss;
 
     private _choisie: KfVueTableLigne<T>;
     private _fixeChoisie: (id: string) => KfVueTableLigne<T>;
@@ -162,7 +162,7 @@ export class KfVueTable<T> extends KfComposant implements IKfVueTable {
     get colonnes(): KfVueTableColonne<T>[] { return this._colonnes; }
     get avecEnTêtesDeLigne(): boolean { return this._def.avecEnTêtesDeLigne; }
     get superGroupe(): (item: T) => KfSuperGroupe { return this._def.superGroupe; }
-    get gereCss(): (item: T) => KfGèreCss { return this._def.gereCss; }
+    get gereCss(): (item: T) => KfGéreCss { return this._def.gereCss; }
     get composantsAValider(): (item: T) => KfComposant[] { return this._def.composantsAValider; }
     get id(): (item: T) => string { return this._def.id; }
 
@@ -212,12 +212,17 @@ export class KfVueTable<T> extends KfComposant implements IKfVueTable {
 
     ajouteClasseEnTete(...classeDefs: (KfTexteDef | KfNgClasseDef)[]) {
         if (!this._gereCssEnTete) {
-            this._gereCssEnTete = new KfGèreCss();
+            this._gereCssEnTete = new KfGéreCss();
         }
         this._gereCssEnTete.ajouteClasseDefArray(classeDefs);
     }
 
-    get gereCssEnTete(): KfGèreCss { return this._gereCssEnTete; }
+    get gereCssEnTete(): KfGéreCss {
+        if (!this._gereCssEnTete) {
+            this._gereCssEnTete = new KfGéreCss();
+        }
+        return this._gereCssEnTete;
+    }
 
     get classeEnTete(): KfNgClasse {
         if (this._gereCssEnTete) {
@@ -233,12 +238,12 @@ export class KfVueTable<T> extends KfComposant implements IKfVueTable {
 
     ajouteClasseCorps(...classeDefs: (KfTexteDef | KfNgClasseDef)[]) {
         if (!this._gereCssCorps) {
-            this._gereCssCorps = new KfGèreCss();
+            this._gereCssCorps = new KfGéreCss();
         }
         this._gereCssCorps.ajouteClasseDefArray(classeDefs);
     }
 
-    get gereCssCorps(): KfGèreCss { return this._gereCssCorps; }
+    get gereCssCorps(): KfGéreCss { return this._gereCssCorps; }
 
     get classeCorps(): KfNgClasse {
         if (this._gereCssCorps) {
@@ -254,12 +259,12 @@ export class KfVueTable<T> extends KfComposant implements IKfVueTable {
 
     ajouteClasseBilan(...classeDefs: (KfTexteDef | KfNgClasseDef)[]) {
         if (!this._gereCssBilan) {
-            this._gereCssBilan = new KfGèreCss();
+            this._gereCssBilan = new KfGéreCss();
         }
         this._gereCssBilan.ajouteClasseDefArray(classeDefs);
     }
 
-    get gereCssBilan(): KfGèreCss { return this._gereCssBilan; }
+    get gereCssBilan(): KfGéreCss { return this._gereCssBilan; }
 
     get classeBilan(): KfNgClasse {
         if (this._gereCssBilan) {
@@ -280,12 +285,12 @@ export class KfVueTable<T> extends KfComposant implements IKfVueTable {
         }
     }
 
-    get enveloppe(): KfGèreCss {
+    get enveloppe(): KfGéreCss {
         return this._enveloppe;
     }
 
     /** pour mettre un élément div autour des outils */
-    set enveloppe(enveloppe: KfGèreCss) {
+    set enveloppe(enveloppe: KfGéreCss) {
         this._enveloppe = enveloppe;
     }
 
@@ -373,5 +378,13 @@ export class KfVueTable<T> extends KfComposant implements IKfVueTable {
         if (this._outils) {
             this._outils.appliqueFiltres();
         }
+    }
+
+    get avecClic(): boolean {
+        return !!this._def.quandClic;
+    }
+
+    quandClic(ligne: KfVueTableLigne<T>) {
+        this._def.quandClic(ligne.item)();
     }
 }

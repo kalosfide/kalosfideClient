@@ -15,7 +15,7 @@ import { KfEvenement, KfTypeDEvenement, KfStatutDEvenement } from '../../kf-part
     styleUrls: ['../../kf-composants.scss']
 })
 export class KfFichierSauveComponent extends KfComposantComponent implements OnInit, AfterViewInit {
-    @ViewChild('baliseElement') baliseElementRef: ElementRef;
+    @ViewChild('baliseElement', {static: false}) baliseElementRef: ElementRef;
 
     constructor(private sanitizer: DomSanitizer) {
         super();

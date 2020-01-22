@@ -4,7 +4,7 @@ import { FormControl } from '@angular/forms';
 import { KfComposantGereValeur } from './kf-composant-gere-valeur';
 import { KfEtiquette } from '../kf-elements/kf-etiquette/kf-etiquette';
 import { KfNgClasse } from '../kf-partages/kf-gere-css-classe';
-import { KfGèreCss } from '../kf-partages/kf-gere-css';
+import { KfGéreCss } from '../kf-partages/kf-gere-css';
 import { KfIcone } from '../kf-elements/kf-icone/kf-icone';
 
 export type KfValeurEntrée = boolean | string | number | Date | null;
@@ -26,15 +26,15 @@ export abstract class KfEntrée extends KfComposant {
     /**
      * classe de la div englobante du template
      */
-    private _gèreClasseDiv: KfGèreCss;
+    private _gèreClasseDiv: KfGéreCss;
     /**
      * classe du label du composant
      */
-    private _gèreClasseLabel: KfGèreCss;
+    private _gèreClasseLabel: KfGéreCss;
     /**
      * classe de la div contenant le composant si définie
      */
-    private _gèreClasseEntree: KfGèreCss;
+    private _gèreClasseEntree: KfGéreCss;
     iconeSurvol: KfIcone;
 
     constructor(nom: string, type: KfTypeDeComposant) {
@@ -51,6 +51,10 @@ export abstract class KfEntrée extends KfComposant {
 
     aPourValeur(valeur: KfValeurEntrée): boolean {
         return valeur === this.gereValeur.valeur;
+    }
+
+    get aUneValeur(): boolean {
+        return this.gereValeur.valeur !== null && this.gereValeur.valeur !== undefined;
     }
 
     // INTERFACE
@@ -106,9 +110,9 @@ export abstract class KfEntrée extends KfComposant {
     /**
      * gère la classe css de la div englobant le template
      */
-    get gèreClasseDiv(): KfGèreCss {
+    get gèreClasseDiv(): KfGéreCss {
         if (!this._gèreClasseDiv) {
-            this._gèreClasseDiv = new KfGèreCss();
+            this._gèreClasseDiv = new KfGéreCss();
             this._gèreClasseDiv.suitLaVisiblité(this);
         }
         return this._gèreClasseDiv;
@@ -119,7 +123,7 @@ export abstract class KfEntrée extends KfComposant {
      */
     get gèreClasseLabel() {
         if (!this._gèreClasseLabel) {
-            this._gèreClasseLabel = new KfGèreCss();
+            this._gèreClasseLabel = new KfGéreCss();
         }
         return this._gèreClasseLabel;
     }
@@ -127,15 +131,15 @@ export abstract class KfEntrée extends KfComposant {
     /**
      * fixe la classe css de la div contenant le composant
      */
-    get gèreClasseEntree(): KfGèreCss {
+    get gèreClasseEntree(): KfGéreCss {
         if (!this._gèreClasseEntree) {
-            this._gèreClasseEntree = new KfGèreCss();
+            this._gèreClasseEntree = new KfGéreCss();
             this._gèreClasseEntree.suitLaVisiblité(this);
         }
         return this._gèreClasseEntree;
     }
     ajouteIconeSurvol(icone: KfIcone) {
-        this.gèreClasseEntree.ajouteClasseDef('avecSurvol');
+        this.gèreClasseEntree.ajouteClasseDef('avec-survol');
         this.gèreClasseEntree.fixeStyleDef('position', 'relative');
         this.iconeSurvol = icone;
     }

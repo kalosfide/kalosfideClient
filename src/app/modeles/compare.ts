@@ -1,5 +1,5 @@
 import { Produit, IAvecProduit } from './catalogue/produit';
-import { Client } from './clientele/client';
+import { Client } from './client/client';
 
 export class Compare {
     static compareMinuscules(s1: string, s2: string): number {

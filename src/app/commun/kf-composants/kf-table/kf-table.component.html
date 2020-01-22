@@ -1,0 +1,45 @@
+<table [attr.id]="composant.nom" #htmlElement [ngClass]="composant.classe" [ngStyle]="composant.style">
+    <!-- en-têtes -->
+    <thead *ngIf="composant.enTete" [ngClass]="composant.classeEnTete" [ngStyle]="composant.styleEnTete">
+        <tr [ngClass]="composant.classeLigne(composant.enTete)" [ngStyle]="composant.styleLigne(composant.enTete)">
+            <ng-container *ngTemplateOutlet="ligneTemplate; context: { ligne1: ligne, enTete1: true }"></ng-container>
+        </tr>
+    </thead>
+    <!-- corps -->
+    <tbody [ngClass]="composant.classeCorps" [ngStyle]="composant.styleCorps">
+        <ng-container *ngFor="let ligne of composant.lignes">
+            <tr [ngClass]="composant.classeLigne(ligne)" [ngStyle]="composant.styleLigne(ligne)">
+                <ng-container *ngTemplateOutlet="ligneTemplate; context: { ligne1: ligne }"></ng-container>
+            </tr>
+        </ng-container>
+    </tbody>
+</table>
+
+<!-- ligne -->
+<ng-template #ligneTemplate let-ligne="ligne1">
+    <ng-container *ngFor="let cellule of ligne.cellules">
+        <ng-container *ngIf="composant.th_scope(cellule, ligne); else tdTemplate">
+            <th [ngClass]="composant.classeCellule(cellule)" [ngStyle]="composant.styleCellule(cellule)"
+                [colSpan]="cellule.colSpan" [attr.rowspan]="cellule.rowSpan"
+                [attr.scope]="composant.th_scope(cellule, ligne)">
+                <ng-container *ngTemplateOutlet="celluleTemplate; context: { cellule1: cellule }"></ng-container>
+            </th>
+        </ng-container>
+        <ng-template #tdTemplate>
+            <td [ngClass]="composant.classeCellule(cellule)" [ngStyle]="composant.styleCellule(cellule)"
+                [colSpan]="cellule.colSpan" [attr.rowspan]="cellule.rowSpan">
+                <ng-container *ngTemplateOutlet="celluleTemplate; context: { cellule1: cellule }"></ng-container>
+            </td>
+        </ng-template>
+    </ng-container>
+</ng-template>
+
+<!-- cellule -->
+<ng-template #celluleTemplate let-cellule="cellule1">
+    <ng-container *ngIf="cellule.composant; else texteTemplate">
+        <app-kf-composant [composant]="cellule.composant" (output)="transmet($event)"></app-kf-composant>
+    </ng-container>
+    <ng-template #texteTemplate>
+        {{ cellule.texte }}
+    </ng-template>
+</ng-template>

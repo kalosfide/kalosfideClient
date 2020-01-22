@@ -15,7 +15,7 @@ import { Router, ActivatedRoute } from '@angular/router';
     styleUrls: ['../../kf-composants.scss']
 })
 export class KfListeAvecDialogueComponent extends KfComposantComponent implements OnInit, AfterViewInit {
-    @ViewChild('htmlElement') htmlElement: ElementRef;
+    @ViewChild('htmlElement', {static: false}) htmlElement: ElementRef;
 
     test: any;
 

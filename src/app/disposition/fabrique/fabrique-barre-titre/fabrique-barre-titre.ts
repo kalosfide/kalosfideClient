@@ -9,7 +9,7 @@ import { IBoutonDef } from '../fabrique-bouton';
 import { IContenuPhraseDef } from '../fabrique-contenu-phrase';
 import { Couleur } from '../fabrique-couleurs';
 import { KfBBtnToolbar } from 'src/app/commun/kf-composants/kf-b-btn-toolbar/kf-b-btn-toolbar';
-import { Site } from 'src/app/modeles/site';
+import { Site } from 'src/app/modeles/site/site';
 import { FabriqueBootstrap } from '../fabrique-bootstrap';
 import { GroupeAccès } from './groupe-acces';
 

@@ -1,13 +1,14 @@
 import { Commande } from 'src/app/commandes/commande';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 import { Catalogue } from 'src/app/modeles/catalogue/catalogue';
 import { ApiFactureCommande } from './facture-api';
 import { Fabrique } from 'src/app/disposition/fabrique/fabrique';
 import { FactureDétail } from './facture-detail';
 import { KfNgClasseDefDe } from 'src/app/commun/kf-composants/kf-partages/kf-gere-css-classe';
 import { EtatDef } from 'src/app/modeles/i-etat-def';
+import { IALivrerCopiable } from 'src/app/commandes/i-a-livrer-copiable';
 
-export class FactureCommande extends Commande {
+export class FactureCommande extends Commande implements IALivrerCopiable {
 
     static états: { prêt: EtatDef<FactureCommande>, incomplet: EtatDef<FactureCommande>, àFaire: EtatDef<FactureCommande> } = {
         prêt: {
@@ -27,14 +28,30 @@ export class FactureCommande extends Commande {
         },
     };
 
-    constructor(apiCommande: ApiFactureCommande, client: Client, catalogue: Catalogue) {
+    static classeDefsEtat(): (string | ((t: FactureCommande) => string) | KfNgClasseDefDe<FactureCommande>)[] {
+        return [
+            EtatDef.classeDef(FactureCommande.états.prêt),
+            EtatDef.classeDef(FactureCommande.états.incomplet),
+            EtatDef.classeDef(FactureCommande.états.àFaire),
+        ];
+    }
+
+    /**
+     * Les détails sont créés si le catalogue est présent
+     * @param apiCommande
+     * @param client
+     * @param catalogue
+     */
+    constructor(apiCommande: ApiFactureCommande, client: Client, catalogue?: Catalogue) {
         super(apiCommande, client);
         apiCommande.uid = client.uid;
         apiCommande.rno = client.rno;
-        this._détails = apiCommande.details.map(d => {
-            const produit = catalogue.produits.find(p => p.no === d.no);
-            return new FactureDétail(apiCommande, produit, client);
-        });
+        if (catalogue) {
+            this._détails = apiCommande.details.map(d => {
+                const produit = catalogue.produits.find(p => p.no === d.no);
+                return new FactureDétail(apiCommande, produit, client);
+            });
+        }
     }
 
     get apiCommande(): ApiFactureCommande {
@@ -63,6 +80,14 @@ export class FactureCommande extends Commande {
         return this.nbFacturés === this.nbAFacturer;
     }
 
+    copieALivrer() {
+        this.détails.forEach(d => {
+            if (!d.facturée) {
+                d.aFacturer = d.aLivrer;
+            }
+        });
+    }
+
     get texteAFacturer(): string {
         return `${this.nbAFacturer} produits`;
     }
@@ -81,12 +106,5 @@ export class FactureCommande extends Commande {
 
     get texteEtat(): string {
         return this.etat.texte;
-    }
-    static classeDefsEtat(): (string | ((t: FactureCommande) => string) | KfNgClasseDefDe<FactureCommande>)[] {
-        return [
-            EtatDef.classeDef(FactureCommande.états.prêt),
-            EtatDef.classeDef(FactureCommande.états.incomplet),
-            EtatDef.classeDef(FactureCommande.états.àFaire),
-        ];
     }
 }

@@ -2,18 +2,17 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { Catalogue, CatalogueApi } from './catalogue';
 import { map, take, switchMap } from 'rxjs/operators';
-import { KeyUidRnoCréeParams } from '../../commun/data-par-key/key-uid-rno/key-uid-rno';
+import { KeyUidRno } from '../../commun/data-par-key/key-uid-rno/key-uid-rno';
 import { DataService } from '../../services/data.service';
 import { ApiController, ApiAction } from 'src/app/commun/api-route';
-import { KeyUidRnoNoCréeParams } from 'src/app/commun/data-par-key/key-uid-rno-no/key-uid-rno-no';
-import { compareKeyUidRnoNo } from 'src/app/commun/data-par-key/data-key';
+import { KeyUidRnoNo } from 'src/app/commun/data-par-key/key-uid-rno-no/key-uid-rno-no';
 import { EtatsProduits } from './etat-produit';
 import { ApiCommande } from 'src/app/commandes/api-commande';
-import { Site } from '../site';
+import { Site } from '../site/site';
 import { Identifiant } from 'src/app/securite/identifiant';
 import { ApiRequêteService } from 'src/app/services/api-requete.service';
 import { ApiResult } from 'src/app/commun/api-results/api-result';
-import { SiteService } from '../site.service';
+import { SiteService } from '../site/site.service';
 import { IdEtatSite } from '../etat-site';
 import { Stockage } from 'src/app/services/stockage/stockage';
 import { StockageService } from 'src/app/services/stockage/stockage.service';
@@ -52,7 +51,7 @@ export class CatalogueService extends DataService {
             return stock;
         }
         stock = Catalogue.filtre(stock, p => p.etat === EtatsProduits.disponible.valeur);
-        Catalogue.fixeComplet(stock, false);
+        Catalogue.fixeAvecIndisponibles(stock, false);
         this._stockage.actuel.fixeStock(stock);
         return stock;
     }
@@ -115,12 +114,12 @@ export class CatalogueService extends DataService {
         const apiAction = complet ? ApiAction.catalogue.complet : ApiAction.catalogue.disponible;
         const actionDef: { apiAction: string; params: { [param: string]: string }; } = {
             apiAction: apiAction,
-            params: KeyUidRnoCréeParams(site)
+            params: KeyUidRno.créeParams(site)
         };
         return this._litAPI(actionDef).pipe(
             map(catalogueApi => {
                 const nouveauStock: Catalogue = Catalogue.nouveau(catalogueApi);
-                Catalogue.fixeComplet(nouveauStock, complet);
+                Catalogue.fixeAvecIndisponibles(nouveauStock, complet);
                 this._stockage.actuel.fixeStock(nouveauStock);
                 return nouveauStock;
             }
@@ -136,7 +135,7 @@ export class CatalogueService extends DataService {
         const stock = this._stockage.actuel.litStock();
         if (!stock // pas de stock
             || (site.uid !== stock.uid || site.rno !== stock.rno) // site changé
-            || !Catalogue.estComplet(stock) // stock incomplet ou tarif
+            || !Catalogue.estAvecIndisponibles(stock) // stock incomplet ou tarif
         ) {
             return this._catalogue$(site, true);
         }
@@ -195,7 +194,7 @@ export class CatalogueService extends DataService {
         let tarif = this._stockage.tarif.litStock();
         if (tarif) {
             const apiCommandeStockée = Catalogue.apiCommande(tarif);
-            if (apiCommandeStockée && compareKeyUidRnoNo(apiCommandeStockée, apiCommande)) {
+            if (apiCommandeStockée && KeyUidRnoNo.compareKey(apiCommandeStockée, apiCommande)) {
                 return of(tarif);
             }
         }
@@ -205,7 +204,7 @@ export class CatalogueService extends DataService {
         }
         const actionDef: { apiAction: string; params: { [param: string]: string }; } = {
             apiAction: ApiAction.catalogue.commande,
-            params: KeyUidRnoNoCréeParams(apiCommande)
+            params: KeyUidRnoNo.créeParams(apiCommande)
         };
         return this._litAPI(actionDef).pipe(
             map(catalogueApi => {
@@ -224,14 +223,14 @@ export class CatalogueService extends DataService {
 
     // ACTIONS
     commenceModification(site: Site): Observable<ApiResult> {
-        return this.post(ApiController.catalogue, ApiAction.catalogue.commence, null, KeyUidRnoCréeParams(site));
+        return this.post(ApiController.catalogue, ApiAction.catalogue.commence, null, KeyUidRno.créeParams(site));
     }
     commenceModificationOk(site: Site) {
         this._siteService.changeEtatOk(site, IdEtatSite.catalogue);
     }
 
     termineModification(site: Site): Observable<ApiResult> {
-        return this.post(ApiController.catalogue, ApiAction.catalogue.termine, null, KeyUidRnoCréeParams(site));
+        return this.post(ApiController.catalogue, ApiAction.catalogue.termine, null, KeyUidRno.créeParams(site));
     }
     termineModificationOk(site: Site) {
         this._siteService.changeEtatOk(site, IdEtatSite.ouvert);

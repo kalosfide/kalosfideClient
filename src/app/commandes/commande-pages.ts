@@ -3,37 +3,46 @@ import { ClientRoutes } from '../client/client-pages';
 import { FournisseurRoutes } from '../fournisseur/fournisseur-pages';
 import { PageDef, BaseRoutes } from '../commun/page-def';
 
+export class CommandePagesUrlSegments {
+    static liste = 'liste';
+    static choixProduit = 'produit';
+    static ajoute = 'ajoute';
+    static edite = 'edite';
+    static supprime = 'supprime';
+    static annule = 'annule';
+}
+
 export class CommandePages {
     static liste: PageDef = {
-        urlSegment: 'liste',
+        urlSegment: CommandePagesUrlSegments.liste,
         lien: 'Retour au bon de commande',
         title: 'Bon',
         titre: 'Bon de commande',
     };
     static choixProduit: PageDef = {
-        urlSegment: 'produit',
+        urlSegment: CommandePagesUrlSegments.choixProduit,
         title: 'Choix produit',
         titre: 'Choisir un produit',
     };
     static ajoute: PageDef = {
-        urlSegment: 'ajoute',
+        urlSegment: CommandePagesUrlSegments.ajoute,
         title: 'Ajoute',
         titre: 'Ajouter un produit',
     };
     static edite: PageDef = {
-        urlSegment: 'edite',
+        urlSegment: CommandePagesUrlSegments.edite,
         title: 'Edite',
         titre: 'Modifier la ligne',
     };
     static supprime: PageDef = {
-        urlSegment: 'supprime',
+        urlSegment: CommandePagesUrlSegments.supprime,
         title: 'Supprime',
         titre: 'Supprimer la ligne',
     };
-    static efface: PageDef = {
-        urlSegment: 'efface',
-        title: 'Efface',
-        titre: 'Supprimer toutes les lignes',
+    static annule: PageDef = {
+        urlSegment: CommandePagesUrlSegments.annule,
+        title: 'Annule',
+        titre: 'Annuler la commande',
     };
 }
 

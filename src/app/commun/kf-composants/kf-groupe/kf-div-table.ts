@@ -1,9 +1,9 @@
-import { KfGèreCss } from '../kf-partages/kf-gere-css';
+import { KfGéreCss } from '../kf-partages/kf-gere-css';
 import { KfComposant } from '../kf-composant/kf-composant';
 
 export type KfDivTableContenuDef = string | KfComposant;
 
-export class KfDivTableColonne extends KfGèreCss {
+export class KfDivTableColonne extends KfGéreCss {
     texte: string;
     composant: KfComposant;
 
@@ -17,7 +17,7 @@ export class KfDivTableColonne extends KfGèreCss {
     }
 }
 
-export class KfDivTableLigne extends KfGèreCss {
+export class KfDivTableLigne extends KfGéreCss {
     private _colonnes: KfDivTableColonne[] = [];
 
     get colonnes(): KfDivTableColonne[] { return this._colonnes; }
@@ -31,7 +31,7 @@ export class KfDivTableLigne extends KfGèreCss {
         return colonne;
     }
 }
-export class KfDivTable extends KfGèreCss {
+export class KfDivTable extends KfGéreCss {
     private _lignes: KfDivTableLigne[] = [];
     get lignes(): KfDivTableLigne[] { return this._lignes; }
 

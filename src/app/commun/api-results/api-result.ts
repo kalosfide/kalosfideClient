@@ -1,3 +1,5 @@
+import { Observable } from 'rxjs';
+
 export class ApiResult {
     statusCode: number;
     ok: boolean;
@@ -5,6 +7,7 @@ export class ApiResult {
     routeErreurAbsolue: boolean;
     paramRouteErreur: any;
     traite: () => void;
+    traiteObs: () => Observable<boolean>;
 
     constructor(statusCode: number) {
         this.statusCode = statusCode;

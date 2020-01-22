@@ -1,7 +1,7 @@
 import { KfNgClasse } from '../../kf-partages/kf-gere-css-classe';
 import { KfTexteDef } from '../../kf-partages/kf-texte-def';
 import { KfContenuPhrase, KfTypeContenuPhrasé } from '../../kf-partages/kf-contenu-phrase/kf-contenu-phrase';
-import { KfGèreCss } from '../../kf-partages/kf-gere-css';
+import { KfGéreCss } from '../../kf-partages/kf-gere-css';
 import { KfNgStyle } from '../../kf-partages/kf-gere-css-style';
 
 export interface IKfOption {
@@ -12,7 +12,7 @@ export interface IKfOption {
     inactif?: boolean;
 }
 
-export abstract class KfOptionBase extends KfGèreCss implements IKfOption {
+export abstract class KfOptionBase extends KfGéreCss implements IKfOption {
     private _contenuPhrase: KfContenuPhrase;
     inactif?: boolean;
 

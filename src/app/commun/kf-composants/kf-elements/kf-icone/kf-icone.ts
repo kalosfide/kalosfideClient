@@ -2,13 +2,13 @@ import { KfElement } from '../../kf-composant/kf-element';
 import { KfTypeDeComposant } from '../../kf-composants-types';
 import { KfTexteDef, ValeurTexteDef } from '../../kf-partages/kf-texte-def';
 import { FANomIcone } from '../../kf-partages/kf-icone-def';
-import { KfGèreCss } from '../../kf-partages/kf-gere-css';
+import { KfGéreCss } from '../../kf-partages/kf-gere-css';
 import { KfNgClasseDef, KfNgClasse } from '../../kf-partages/kf-gere-css-classe';
 import { KfNgStyle } from '../../kf-partages/kf-gere-css-style';
 import { KfIconeTaille, KfIconeAnimation, KfIconeRotation, KfIconeSymétrie, KfIconePositionTexte } from './kf-icone-types';
 
 export interface IKfIcone {
-    gèreCss: KfGèreCss;
+    gèreCss: KfGéreCss;
     nom: string;
     nomIcone: FANomIcone;
     largeurFixe: boolean;
@@ -37,7 +37,7 @@ class KfIconeBase extends KfElement implements IKfIcone {
         this._nomIcone = nomIcone;
     }
 
-    get gèreCss(): KfGèreCss {
+    get gèreCss(): KfGéreCss {
         return this;
     }
 
@@ -104,13 +104,13 @@ class KfIconeBase extends KfElement implements IKfIcone {
 
 export class KfIcone extends KfIconeBase {
     private _texteDef: KfTexteDef;
-    private _gèreCssTexte: KfGèreCss;
+    private _gèreCssTexte: KfGéreCss;
     private _positionTexte: KfIconePositionTexte;
 
     private _couches: IKfIcone[];
     private _taillePile: string;
 
-    private _gereCssFond: KfGèreCss;
+    private _gereCssFond: KfGéreCss;
 
     constructor(nom: string, nomIcone?: FANomIcone) {
         super(nom, nomIcone);
@@ -129,7 +129,7 @@ export class KfIcone extends KfIconeBase {
 
     texteAvecCss() {
         if (!this._gèreCssTexte) {
-            this._gèreCssTexte = new KfGèreCss();
+            this._gèreCssTexte = new KfGéreCss();
         }
     }
 
@@ -151,10 +151,10 @@ export class KfIcone extends KfIconeBase {
     }
 
     créeGèreCssTexte() {
-        this._gèreCssTexte = new KfGèreCss();
+        this._gèreCssTexte = new KfGéreCss();
     }
 
-    get gèreCssTexte(): KfGèreCss {
+    get gèreCssTexte(): KfGéreCss {
         return this._gèreCssTexte;
     }
 
@@ -201,10 +201,10 @@ export class KfIcone extends KfIconeBase {
     }
 
     créeGèreCssFond() {
-        this._gereCssFond = new KfGèreCss();
+        this._gereCssFond = new KfGéreCss();
     }
 
-    get gèreCssFond(): KfGèreCss {
+    get gèreCssFond(): KfGéreCss {
         return this._gereCssFond;
     }
 
@@ -231,7 +231,7 @@ export class KfIcone extends KfIconeBase {
     }
     set fondVisible(visible: boolean) {
         if (!this._gereCssFond) {
-            this._gereCssFond = new KfGèreCss();
+            this._gereCssFond = new KfGéreCss();
         }
         this._gereCssFond.visible = visible;
     }

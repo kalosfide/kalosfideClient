@@ -6,7 +6,7 @@ import { FactureService } from './facture.service';
 import { DataResolverService } from 'src/app/services/data-resolver.service';
 import { FactureCommande } from './facture-commande';
 import { mergeMap } from 'rxjs/operators';
-import { Client } from 'src/app/modeles/clientele/client';
+import { Client } from 'src/app/modeles/client/client';
 import { ApiCommande } from 'src/app/commandes/api-commande';
 import { ApiResult404NotFound } from 'src/app/commun/api-results/api-result-404-not-found';
 import { ApiFactureCommande } from './facture-api';
