@@ -21,7 +21,7 @@
     "bootstrap": "^4.4.1",
     "core-js": "^2.6.11",
     "https-proxy-agent": "^3.0.1",
-    "jquery": "^3.4.0",
+    "jquery": "^3.5.0",
     "popper.js": "^1.16.0",
     "rxjs": "^6.5.4",
     "zone.js": "~0.9.1"
